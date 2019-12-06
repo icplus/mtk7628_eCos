@@ -1,0 +1,107 @@
+<HTML>
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv=Content-Type 	content="text/html; charset=utf8">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<SCRIPT language=JavaScript src=lang.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+/*DEMO*/
+addCfg("RMIP",101,"0.0.0.0");
+addCfg("RMPORT",102,"1080");
+addCfg("RMEN",103,1);
+addCfg("SYSPS",106,"******" );
+/*END_DEMO*/
+
+/*REAL
+<%
+CGI_MAP(RMIP, CFG_SYS_RM_IP);
+CGI_MAP(RMPORT,CFG_SYS_RM_PORT);
+CGI_MAP(RMEN,CFG_SYS_RM_EN);
+%>
+addCfg("SYSPS",<%CGI_CFG_ID(CFG_SYS_ADMPASS);%>,"******");
+REAL*/
+
+if(getCfg("RMIP")=="0.0.0.0") setCfg("RMIP","*");
+var lang="admin"
+function init(){
+	f=document.frmSetup;
+	cfg2Form(f);
+}
+
+function Cancel() {
+	init();
+	document.frmSetup.reset();
+}
+
+function Apply() {
+	f=document.frmSetup;
+	if (f.RMIP.value!='*' && !verifyIP0(f.RMIP,Alerts[76])) return;
+	if (!rangeCheck(f.RMPORT,1,65535,"Port")) return;
+	if (!chkStrLen(f.SYSPS,0,12,"Password")) return;
+	if (!chkPwdUpdate(f.SYSPS,f.SYSPS2,f.SYSPSC)) return;
+	form2Cfg(f);
+	if(f.RMIP.value=="*") setCfg("RMIP","0.0.0.0");
+	subForm(f,'do_cmd.htm','SYS',cPage);
+}
+
+function Help(){
+	window.open("help_tools.htm#adm","help");
+}
+
+</SCRIPT>
+<link rel=stylesheet type=text/css href=style.css>
+</HEAD>
+
+<BODY leftMargin=0 topMargin=0 onload=init()>
+<script>pageHead();</script>
+
+<form name=frmSetup>
+
+<table width=100% border=0 cellpadding=0>
+<tr> 
+	<td height=15 colspan=2><font size=2 color=#8bacb1><b><span id=_0>Administrator Settings </span>
+</b></font></td>
+</tr>
+<tr> 
+	<td height=20 bgcolor=#CCCCCC colspan=2><span id=_1>Administrator (The Login Name is "admin")</span>
+</td>
+</tr>
+<tr>
+	<td></td>
+</tr>
+<tr><td	align=right><span id=_2>New Password</span></td>
+	<td><input type=password maxlength=12 name=SYSPS size=20 value=****** onKeyPress=chkPwd1Chr(this,this.form.SYSPS2,this.form.SYSPSC);><br>&nbsp;</td>
+	<input type=hidden name=SYSPSC value=0>
+</tr>
+<tr><td	align=right><span id=_3>Comfirm Password</span></td>
+	<td><input type=password maxlength=12 name=SYSPS2 size=20 value=****** onKeyPress=chkPwd1Chr(this.form.SYSPS,this,this.form.SYSPSC);><br>&nbsp;</td>
+</tr>
+
+<tr>
+	<td></td>
+</tr>
+<tr>
+	<td colspan=2><font	face=Arial size=2 color=#8bacb1><b><span id=_4>Remote Management</span></b></font></td>
+</tr>
+<tr>
+	<td></td>
+	<td><input type=radio value=1 name=RMEN><span id=_5>Enable</span><input type=radio value=0 name=RMEN><span id=_6>Disable</span></td>
+</tr>
+<tr>
+	<td align=right><span id=_7>IP Address</span></td>
+	<td><input name=RMIP size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td align=right><span id=_8>Port</span></td>
+	<td><select name=RMPORT size=1><option value=80>80</option><option value=88>88</option><option value=1080>1080</option><option value=8080>8080</option></select></td>
+</tr>
+</table>
+</form>
+
+<script>pageButton();</script>
+<script>pageTail();</script>
+<script>chglang();</script>
+</BODY>
+</HTML>

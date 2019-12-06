@@ -1,0 +1,330 @@
+<HTML>
+<HEAD>
+<TITLE>Ralink Wireless Access Point</TITLE>
+<META HTTP-EQUIV=Content-Type CONTENT="no-cache">
+<META HTTP-EQUIV=Content-Type CONTENT="text/html; charset=big5">
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+</HEAD>
+
+<script language="JavaScript">
+/*DEMO*/
+addCfg("lanip",10,"192.168.2.1");
+addCfg("mode",70,0);
+addCfg("DNB1",40,"1;192.168.2.50-192.168.2.100;www.sex.com");
+addCfg("DNB2",41,"1;192.168.2.51-192.168.2.101;www.yhaoo.com");
+addCfg("DNB3",42,"");
+addCfg("DNB4",43,"");
+addCfg("DNA1",91,"1;192.168.2.52-192.168.2.102;qqqq");
+addCfg("DNA2",92,"1;192.168.2.53-192.168.2.103;urlString3");
+addCfg("DNA3",93,"1;192.168.2.54-192.168.2.104;urlString4");
+addCfg("DNA4",94,"");
+addCfg("opmode",100,"1");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(lanip, CFG_LAN_IP);
+CGI_MAP(mode, CFG_FW_FLT_DN_MODE);
+CGI_MAP_ARRAY(DNB, CFG_FW_FLT_DNB+1, 32);
+CGI_MAP_ARRAY(DNA, CFG_FW_FLT_DNA+1, 32);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+var max=32;
+var bcount=0;
+var acount=0;
+var DNBList=new Array();
+var DNAList=new Array();
+var __opmode = 1*getCfg("opmode");
+
+function fDomain(enable,aCount,aLists,dCount,dLists)
+{
+    this.enable=enable;
+    this.aCount=aCount;
+    this.aLists=aLists;
+    this.dCount=dCount;
+    this.dLists=dLists;
+}
+
+function DNMode()
+{
+	var f = document.frmDom;
+	if (getCfg("mode") =="1")
+		f.mode[1].checked = true;
+	else if (getCfg("mode")=="2")
+		f.mode[2].checked = true;
+    else 
+        f.mode[0].checked = true;
+}
+
+function initDomain()
+{
+   var f = document.frmDom; 
+   DNMode();
+   for(j=1;j<=max;j++)
+   {
+   	if(getCfg("DNA"+j))
+  	{
+	 	acount++;
+		DNAList[j]=getCfg("DNA"+j);
+   	}
+   }
+    for(j=1;j<=max;j++)
+   {
+   	if(getCfg("DNB"+j))
+  	{
+	 	bcount++;
+		DNBList[j]=getCfg("DNB"+j);
+   	}
+   }
+   f.blkSelect.length=bcount;
+   f.perSelect.length=acount;
+   f.blkSelect.selectedIndex=-1;
+   f.perSelect.selectedIndex=-1;
+
+   for (var i=1; i <= acount;i++)
+   {
+    	s = DNAList[i].split(";");
+    	
+    	f.perSelect[i-1].value=i;
+       	f.perSelect[i-1].text=s[2];
+   }
+   document.getElementById('suma').innerHTML=acount+'/'+max+" (Lots/Total Lots)";
+   for (var i=1; i <= bcount;i++)
+   {
+    	s = DNBList[i].split(";");
+    	
+    	f.blkSelect[i-1].value=i;
+       	f.blkSelect[i-1].text=s[2];
+   }
+   document.getElementById('sumb').innerHTML=bcount+'/'+max+" (Lots/Total Lots)";
+}
+
+function Cancel()
+{
+   var f = document.frmDom; 
+   f.reset();
+   DNMode();
+   f.blkSelect.selectedIndex=-1;
+   f.perSelect.selectedIndex=-1;
+}
+function Help(){
+	window.open("help_adv.htm#dnf","help");
+}
+function preSubmit()
+{
+    var f = document.frmDom;
+    for(j=1;j<=max;j++){
+	if (DNAList[j]) m=DNAList[j];
+	else m="";
+	setCfg("DNA"+j,m);
+	
+	if (DNBList[j]) m=DNBList[j];
+	else m="";
+	setCfg("DNB"+j,m);
+    }
+    form2Cfg(f);
+    subForm(f,'do_cmd.htm','WAN',cPage);
+}
+
+function Apply()
+{
+    var f = document.frmDom;
+    var num1,num2;
+    
+    if (f.mode[0].checked) c=0;    
+    if (f.mode[1].checked) c=1;
+    if (f.mode[2].checked) c=2; 
+    
+	if (f.blkSelect.selectedIndex==-1)
+		num1=(DNBList.length!=0)?DNBList.length:1;
+	else
+		num1=f.blkSelect.selectedIndex+1;
+
+	if (f.perSelect.selectedIndex==-1)
+		num2=(DNAList.length!=0)?DNAList.length:1;
+	else
+		num2=f.perSelect.selectedIndex+1;
+    
+    if(isBlank(f.block.value) && isBlank(f.permit.value))
+    {
+       if (c==eval(getCfg("mode")))
+       {
+       alert("Blocked domain and permitted domain should not be blank at the same time.");
+       return;
+    }
+    }
+
+    // blocked strings
+    if (!isBlank(f.block.value) && f.block.value.length) 
+    {
+        if (num1>max)
+        {
+           alert("There can be at most "+max+" information in blocked domains. \n\nPlease delete unnecessary data."); 
+           return;
+       }
+    }
+	if(!chksc(f.block.value,"Blocked Domains")) return;
+    // check blocked strings that can't set twice	
+    for (i=1;i<DNBList.length;i++)
+    {
+   	   s=DNBList[i].split(";");
+       if (s[2] == f.block.value && f.block.value.length)
+       {
+          alert("This blocked domain has been established.");
+          return;
+       }
+    }
+
+    // permit strings
+    if (!isBlank(f.permit.value) && f.permit.value.length) 
+    {
+       if (num2>max)
+       {
+           alert("There can be at most "+max+" information in permitted domains. \n\nPlease delete unnecessary data."); 
+           return;
+       }
+    }
+    if(!chksc(f.permit.value,"Permitted Domains")) return;
+    // check permitted strings that can't set twice
+    for (i=1;i<DNAList.length;i++)
+    {
+       s=DNAList[i].split(";");
+       if (s[2] == f.permit.value && f.permit.value.length)
+       {
+          alert("This permitted domain has been established.");
+          return;
+       }
+    }
+    setCfg("mode",c);
+    
+    if(f.permit.value)
+    	DNAList[num2]="1;0;"+f.permit.value;
+    if(f.block.value)
+    	DNBList[num1]="1;0;"+f.block.value;
+    preSubmit();
+}
+
+function dispBlk()
+{
+    var f = document.forms[0];
+	var index = f.blkSelect.selectedIndex;
+
+	f.blkSelect.focus();
+	f.block.value=f.blkSelect.options[index].text;
+}
+
+function dispPer()
+{
+    var f = document.forms[0];
+	var index = f.perSelect.selectedIndex;
+
+	f.perSelect.focus();
+	f.permit.value=f.perSelect.options[index].text;
+}
+
+function doDelete(num,t)
+{
+    var f = document.frmDom;
+    if (num==0) return;   
+    
+    if (t)
+       rmEntry(DNAList, num);
+    else
+       rmEntry(DNBList, num);;
+    preSubmit(); 
+}
+
+    enableZ=[0];
+    allowZ=[""];
+    denyZ=[""];
+
+if (allowZ[0]=="")
+  aCount=0;
+else
+  aCount=allowZ.length;
+
+
+if (denyZ[0]=="")
+  dCount=0;
+else
+  dCount=denyZ.length;
+
+var myDomain=new fDomain(enableZ,aCount,allowZ,dCount,denyZ);
+
+</script>
+<link rel=stylesheet type=text/css href=style.css>
+<BODY BGCOLOR=#FFFFFF leftmargin=0 topmargin=0 onload="initDomain()">
+<TABLE WIDTH=765 BORDER=0 CELLSPACING=0 CELLPADDING=0 ALIGN=center HEIGHT=100%>
+<script>pageHead();</script>  
+<form name=frmDom>
+<table width=100% border=0 cellspacing=0 cellpadding=0>
+<tr> 
+      <td colspan=3 height=20><font color=#8babc1 size=2 face=Arial><b>Filters</b></font></td>
+</tr>
+<tr valign="top"> 
+      <td colspan=3 height=30>Filters are used to allow or deny LAN users from accessing the Internet.</td>
+</tr>
+<tr> 
+      <td width=23%><input type=radio name=filters onClick="self.location.href='adv_filters_ip.htm';">IP Filters</td>
+      <td colspan=3><input type=radio name=filters onClick="self.location.href='adv_filters_mac.htm';">MAC Filters</td>
+</tr>
+<tr> 
+      <td width=23% height=20><input type=radio name=filters onClick="self.location.href='adv_filters_url.htm';">URL Blocking</td>
+      <td colspan=3 height=20><input type=radio name=filters checked>Domain Blocking</td>
+</tr>
+<tr> 
+      <td colspan=5 height=20><br></td>
+</tr>
+<tr> 
+      <td colspan=5 height=20><font color=#8babc1 size=2 face=Arial><b>Domain Blocking</b></font></td>
+</tr>
+<tr> 
+      <td colspan=5 height=20><input type=radio name=mode value=0>Disable</td>
+</tr>
+<tr> 
+      <td colspan=5 height=20><input type=radio name=mode value=1 checked><b>Allow</b> users to access all domains except "Blocked Domains"</td>
+</tr>
+<tr> 
+      <td colspan=5 height=20><input type=radio name=mode value=2><b>Deny</b> users to access all domains except "Permitted Domains"</td>
+</tr>
+<tr>
+      <td colspan=5 height=20><br></td>
+</tr>
+<tr> 
+      <td colspan=2 height=20><font color=#8babc1 size=2 face=Arial><b>Blocked Domains</b></font></td>
+      <td id=sumb></td>
+</tr>
+<tr> 
+      <td colspan=2 height=20 align=right><input type=text name=block size=32 maxlength=39></td>
+      <td colspan=3 height=20></td>
+</tr>
+<tr> 
+      <td colspan=2 height=56 align=right><select name=blkSelect size=8 onChange="dispBlk();"></select></td>
+      <td colspan=3 height=56 valign=top><input type=button name=del value=Delete onclick="doDelete(this.form.blkSelect.selectedIndex+1,0)"></td>
+</tr>
+<tr> 
+      <td colspan=5 height=20><br></td>
+</tr>
+<tr> 
+      <td colspan=2 height=20><font color=#8babc1 size=2 face=Arial><b>Permitted Domains</b></font></td>
+      <td id=suma></td>
+</tr>
+<tr> 
+      <td colspan=2 height=20 align=right><input type=text name=permit size=32 maxlength=39></td>
+      <td colspan=3 height=20></td>
+</tr>
+<tr> 
+      <td colspan=2 height=56 align=right><select name=perSelect size=8 onChange="dispPer();"></select></td>
+      <td colspan=3 height=56 valign=top><input type=button name=del value=Delete onclick="doDelete(this.form.perSelect.selectedIndex+1,1)"></td>
+</tr>
+<tr> 
+      <td colspan=5 height=20 align=right>
+       <script>pageButton();</script>
+      </td>
+</tr>
+</table>
+</form>
+<script>pageTail();</script>   
+</BODY></HTML>

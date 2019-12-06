@@ -1,0 +1,148 @@
+html,body {
+    height: 100%;
+	width:100%;
+	margin:0px;
+	overflow:auto;
+	font-family:微软雅黑;
+}
+/* PC或中大型笔记本设备 desktop */
+
+    @media all and (min-width: 1201px) {
+
+        .title-desktop{
+
+            display: block !important;
+
+        }
+
+        .container {
+
+            width: 100%;
+
+        }
+
+    }
+
+    /* 中小型笔记本或大平板 laptop */
+
+    @media all and (min-width: 980px) and (max-width: 1200px) {
+
+        .title-laptop{
+
+            display: block !important;
+
+        }
+
+        .container {
+
+            width: 920px;
+
+        }
+
+    }
+
+    /* 中型平板或小型笔记本 tablet */
+
+    @media all and (min-width: 768px) and (max-width: 979px) {
+
+        .title-tablet{
+
+            display: block !important;
+
+        }
+
+        .container {
+
+            width: 720px;
+
+        }
+
+    }
+
+    /* 手机或小平板 phone */
+
+    @media all and (max-width: 767px) {
+
+        .title-phone{
+
+            display: block !important;
+
+        }
+
+        .container {
+
+            width: 100%;
+
+        }
+
+    }
+.page_header{
+	background-color:#ffc69e;
+	width:100%;
+	height:140px;
+	margin:0;
+	position:relative;
+}
+h1 {
+	font-size: 25px;
+    color: #fff;
+    height: auto;
+	margin:0;
+	padding-top:45px;
+	text-align:center;
+}
+#page_main{
+	width:100%;
+	min-width:1000px;
+	height:448px;
+	margin:0;
+}
+#wifi_logo{
+	width:320px;
+	height:360px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align:center;
+}
+#wifi_logo img{
+	vertical-align:middle;
+}
+#wifi_logo span{
+	height:100%;
+	width:0;
+	overflow:hidden;
+	display:inline-block;
+	vertical-align:middle;
+}
+.btn_start{
+	width:320px;
+	height:48px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align:center;
+}
+#btn_count{
+	width:320px;
+	height:48px;
+	color:#FFF;
+    background: #bb7f56;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    vertical-align: baseline;
+    font-family: '微软雅黑';
+	border-radius: 40px;
+}
+
+#btn_sucess{
+	width:320px;
+	height:48px;
+	color:#FFF;
+    background: #bb7f56;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    vertical-align: baseline;
+    font-family: '微软雅黑';
+	border-radius: 40px;
+}

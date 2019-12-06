@@ -1,0 +1,89 @@
+<!-- Copyright 2006, Ralink Technology Corporation All Rights Reserved. -->
+<html>
+<head>
+<!--#include ssi=wscRedirectUIPage()-->
+<META HTTP-EQUIV="refresh" content="4; URL=./wireless_simple_config_process.html">
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=utf8">
+<link href="css.css" rel="stylesheet" type="text/css">
+<title>Ralink Wireless Access Point</title>
+<SCRIPT language=JavaScript src=wireless.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language="JavaScript" type="text/javascript"> 
+
+function initValue()
+{
+	var current_status = "<% CGI_WLN_WSC_CURRENT_STATUS();%>";
+	var wsc_configured = "<% CGI_CFG_GET(CFG_WLN_WscConfigured); %>";
+	
+	document.getElementById("div_wsc_process").style.visibility = "hidden";
+	document.getElementById("div_wsc_process").style.display = "none";
+
+	if (1*wsc_configured == 1)
+	{
+		if (1*current_status == 34)
+		{
+			opener.location.href = "wireless_simple_config_device.html";
+			window.close();
+		}
+		else if (1*current_status == 31)
+		{
+			alert('WiFi Protected Setup Hash Fail');
+			window.close();
+		}
+		else if (1*current_status == 32)
+		{
+			alert('WiFi Protected Setup Hash MAC Fail');
+			window.close();
+		}
+		else if (1*current_status == 33)
+		{
+			alert('WiFi Protected Setup Device Password Auth Fail');
+			window.close();
+		}
+		else
+		{
+			document.getElementById("div_wsc_process").style.visibility = "visible";
+			document.getElementById("div_wsc_process").style.display = "";
+		}
+	}
+	else
+	{
+		if (1*current_status == 31)
+		{
+			alert('WiFi Protected Setup Hash Fail');
+			window.close();
+		}
+		else if (1*current_status == 32)
+		{
+			alert('WiFi Protected Setup Hash MAC Fail');
+			window.close();
+		}
+		else if (1*current_status == 33)
+		{
+			alert('WiFi Protected Setup Device Password Auth Fail');
+			window.close();
+		}
+		else
+		{
+			document.getElementById("div_wsc_process").style.visibility = "visible";
+			document.getElementById("div_wsc_process").style.display = "";
+		}
+	}
+}
+</script>
+</head>
+
+<body leftmargin="50" topmargin="25" marginwidth="0" marginheight="0" onLoad="initValue()">
+  <table id="div_wsc_process" name="div_wsc_process" width="360" border="0" cellspacing="0" cellpadding="0" vspace="0" hspace="0" bordercolor="#9BABBD" style="visibility:visible;display:;">
+    <tr>
+      <th height=105>
+        <font size=3 face=Verdana>System Processing...  Please wait.......  <% CGI_WLN_WPS_PROCESS_STATUS();%><p>
+      </th>														
+    </tr>
+  </table>
+</body>
+</html>

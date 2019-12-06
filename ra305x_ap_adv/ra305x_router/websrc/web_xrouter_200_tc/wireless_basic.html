@@ -1,0 +1,1868 @@
+<!-- Copyright 2004, Ralink Technology Corporation All Rights Reserved. -->
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<link href="css.css" rel="stylesheet" type="text/css">
+<title>Ralink Wireless Access Point</title>
+<SCRIPT language=JavaScript src=wireless.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language="JavaScript" type="text/javascript">
+
+/*REAL
+<%
+CGI_MAP(WirelessMode2, CFG_WLN_WirelessMode);
+CGI_MAP(BasicRate2, CFG_WLN_BasicRate);
+CGI_MAP(ssid, CFG_WLN_SSID1);
+CGI_MAP(mssid_1, CFG_WLN_SSID2);
+CGI_MAP(mssid_2, CFG_WLN_SSID3);
+CGI_MAP(mssid_3, CFG_WLN_SSID4);
+CGI_MAP(SSID3, CFG_WLN_WscSSID);
+CGI_MAP(bssid_num, CFG_WLN_BssidNum);
+CGI_MAP(HideSSID2, CFG_WLN_HideSSID);
+CGI_MAP(AutoChannelSelect2, CFG_WLN_AutoChannelSelect);
+CGI_MAP(sz11aChannel, CFG_WLN_Channel);
+CGI_MAP(sz11bChannel, CFG_WLN_Channel);
+CGI_MAP(sz11gChannel, CFG_WLN_Channel);
+CGI_MAP(WdsEnable3, CFG_WLN_WdsEnable);
+CGI_MAP(EncrypType2, CFG_WLN_WdsEncrypType);
+CGI_MAP(WdsDefaultKey2, CFG_WLN_WdsDefaultKeyID);
+CGI_MAP(Wds1KeyTemp, CFG_WLN_Wds1Key);
+CGI_MAP(Wds2KeyTemp, CFG_WLN_Wds2Key);
+CGI_MAP(Wds3KeyTemp, CFG_WLN_Wds3Key);
+CGI_MAP(Wds4KeyTemp, CFG_WLN_Wds4Key);
+CGI_MAP(n_mode, CFG_WLN_HT_OpMode);
+CGI_MAP(n_bandwidth, CFG_WLN_HT_BW);
+CGI_MAP(n_gi, CFG_WLN_HT_GI);
+CGI_MAP(n_mcs, CFG_WLN_HT_MCS);
+CGI_MAP(n_rdg, CFG_WLN_HT_RDG);
+CGI_MAP(EXTCHA2, CFG_WLN_HT_EXTCHA);
+CGI_MAP(n_amsdu, CFG_WLN_HT_AMSDU);
+CGI_MAP(n_dis_tkip, CFG_WLN_HT_DisallowTKIP);
+CGI_MAP(f_40mhz, CFG_WLN_HT_40MHZ_INTOLERANT);
+CGI_MAP(wifi_opt, CFG_WLN_WiFiTest);
+CGI_MAP(rx_stream, CFG_WLN_HT_RxStream);
+CGI_MAP(tx_stream, CFG_WLN_HT_TxStream);	
+CGI_MAP(n_stbc, CFG_WLN_HT_STBC);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+
+var ModuleName = "<% CGI_CFG_GET(CFG_WLN_ModuleName); %>"; 
+var PhyMode = "<% CGI_CFG_GET(CFG_WLN_WirelessMode); %>"; 
+var ssid_num = "<% CGI_CFG_GET(CFG_WLN_BssidNum); %>"; 
+var broadcastssidEnable = "<% CGI_CFG_GET(CFG_WLN_HideSSID); %>";
+var channel_index  = "<% CGI_WLN_Channel();%>"; 
+var wdsMode = "<% CGI_CFG_GET(CFG_WLN_WdsEnable); %>"; 
+var wdsPhyMode = "<% CGI_CFG_GET(CFG_WLN_WdsPhyMode); %>"; 
+var wdsEncrypType = "<% CGI_CFG_GET(CFG_WLN_WdsEncrypType); %>";
+var wdsDefaultKey = "<% CGI_CFG_GET(CFG_WLN_WdsDefaultKeyID); %>"; 
+var wdsEncrypKey = "<% CGI_CFG_GET(CFG_WLN_Wds1Key); %>";
+var countrycode = "<% CGI_CFG_GET(CFG_WLN_CountryCode); %>";
+var ht_mode = "<% CGI_CFG_GET(CFG_WLN_HT_OpMode); %>"; 
+var ht_bw = "<% CGI_CFG_GET(CFG_WLN_HT_BW); %>"; 
+var ht_gi = "<% CGI_CFG_GET(CFG_WLN_HT_GI); %>"; 
+var ht_stbc = "<% CGI_CFG_GET(CFG_WLN_HT_STBC); %>"; 
+var ht_mcs = "<% CGI_CFG_GET(CFG_WLN_HT_MCS); %>"; 	
+var ht_htc = "<% CGI_CFG_GET(CFG_WLN_HT_HTC); %>"; 
+var ht_rdg = "<% CGI_CFG_GET(CFG_WLN_HT_RDG); %>"; 
+var ht_linkadapt = "<% CGI_CFG_GET(CFG_WLN_HT_LinkAdapt); %>"; 
+var ht_extcha  = "<% CGI_CFG_GET(CFG_WLN_HT_EXTCHA); %>"; 
+var ht_amsdu = "<% CGI_CFG_GET(CFG_WLN_HT_AMSDU); %>"; 
+var ht_distkip = "<% CGI_CFG_GET(CFG_WLN_HT_DisallowTKIP); %>";
+var ht_f_40mhz = "<% CGI_CFG_GET(CFG_WLN_HT_40MHZ_INTOLERANT); %>"; 
+var wifi_optimum = "<% CGI_CFG_GET(CFG_WLN_WiFiTest); %>";
+var rx_stream_idx = "<% CGI_CFG_GET(CFG_WLN_HT_RxStream); %>"; 
+var tx_stream_idx = "<% CGI_CFG_GET(CFG_WLN_HT_TxStream); %>"; 
+var all_tkip_wep = "<% CGI_GET_WLN_ALL_BSS_TKIP_OR_WEP();%>";
+var ssid_s1 = "<% CGI_CFG_GET(CFG_WLN_SSID1); %>";
+var ssid_s2 = "<% CGI_CFG_GET(CFG_WLN_SSID2); %>";
+var ssid_s3 = "<% CGI_CFG_GET(CFG_WLN_SSID3); %>";
+var ssid_s4 = "<% CGI_CFG_GET(CFG_WLN_SSID4); %>";
+var basicRateTemp = "<% CGI_CFG_GET(CFG_WLN_BasicRate); %>";
+var wsc_mode = "<% CGI_CFG_GET(CFG_WLN_WscConfMode); %>";
+
+var wdsEncrypType_s;
+var wdsEncrypTypeArray;
+var wdsDefaultKeyArray; 
+var broadcastssidEnableArray;
+var __opmode = 1*getCfg("opmode");
+
+ChannelList_24G = new Array(14);
+ChannelList_24G[0] = "2412MHz (Channel 1)";
+ChannelList_24G[1] = "2417MHz (Channel 2)";
+ChannelList_24G[2] = "2422MHz (Channel 3)";
+ChannelList_24G[3] = "2427MHz (Channel 4)";
+ChannelList_24G[4] = "2432MHz (Channel 5)";
+ChannelList_24G[5] = "2437MHz (Channel 6)";
+ChannelList_24G[6] = "2442MHz (Channel 7)";
+ChannelList_24G[7] = "2447MHz (Channel 8)";
+ChannelList_24G[8] = "2452MHz (Channel 9)";
+ChannelList_24G[9] = "2457MHz (Channel 10)";
+ChannelList_24G[10] = "2462MHz (Channel 11)";
+ChannelList_24G[11] = "2467MHz (Channel 12)";
+ChannelList_24G[12] = "2472MHz (Channel 13)";
+ChannelList_24G[13] = "2484MHz (Channel 14)";
+
+ChannelList_5G = new Array(33);
+ChannelList_5G[0] = "5180MHz (Channel 36)";
+ChannelList_5G[1] = "5200MHz (Channel 40)";
+ChannelList_5G[2] = "5220MHz (Channel 44)";
+ChannelList_5G[3] = "5240MHz (Channel 48)";
+ChannelList_5G[4] = "5260MHz (Channel 52)";
+ChannelList_5G[5] = "5280MHz (Channel 56)";
+ChannelList_5G[6] = "5300MHz (Channel 60)";
+ChannelList_5G[7] = "5320MHz (Channel 64)";
+ChannelList_5G[16] = "5500MHz (Channel 100)";
+ChannelList_5G[17] = "5520MHz (Channel 104)";
+ChannelList_5G[18] = "5540MHz (Channel 108)";
+ChannelList_5G[19] = "5560MHz (Channel 112)";
+ChannelList_5G[20] = "5580MHz (Channel 116)";
+ChannelList_5G[21] = "5600MHz (Channel 120)";
+ChannelList_5G[22] = "5620MHz (Channel 124)";
+ChannelList_5G[23] = "5640MHz (Channel 128)";
+ChannelList_5G[24] = "5660MHz (Channel 132)";
+ChannelList_5G[25] = "5680MHz (Channel 136)";
+ChannelList_5G[26] = "5700MHz (Channel 140)";
+ChannelList_5G[28] = "5745MHz (Channel 149)";
+ChannelList_5G[29] = "5765MHz (Channel 153)";
+ChannelList_5G[30] = "5785MHz (Channel 157)";
+ChannelList_5G[31] = "5805MHz (Channel 161)";
+ChannelList_5G[32] = "5825MHz (Channel 165)";
+
+HT5GExtCh = new Array(22);
+HT5GExtCh[0] = new Array(40, "5200MHz (Channel 40)"); // channel 36's extension channel
+HT5GExtCh[1] = new Array(36, "5180MHz (Channel 36)"); // channel 40's extension channel
+HT5GExtCh[2] = new Array(48, "5240MHz (Channel 48)"); // channel 44's extension channel
+HT5GExtCh[3] = new Array(44, "5220MHz (Channel 44)"); // channel 48's extension channel
+HT5GExtCh[4] = new Array(56, "5280MHz (Channel 56)"); // channel 52's extension channel
+HT5GExtCh[5] = new Array(52, "5260MHz (Channel 52)"); // channel 56's extension channel
+HT5GExtCh[6] = new Array(64, "5320MHz (Channel 64)"); // channel 60's extension channel
+HT5GExtCh[7] = new Array(60, "5300MHz (Channel 60)"); // channel 64's extension channel
+HT5GExtCh[8] = new Array(104, "5520MHz (Channel 104)"); // channel 100's extension channel
+HT5GExtCh[9] = new Array(100, "5500MHz (Channel 100)"); // channel 104's extension channel
+HT5GExtCh[10] = new Array(112, "5560MHz (Channel 112)"); // channel 108's extension channel
+HT5GExtCh[11] = new Array(108, "5540MHz (Channel 108)"); // channel 112's extension channel
+HT5GExtCh[12] = new Array(120, "5600MHz (Channel 120)"); // channel 116's extension channel
+HT5GExtCh[13] = new Array(116, "5580MHz (Channel 116)"); // channel 120's extension channel
+HT5GExtCh[14] = new Array(128, "5640MHz (Channel 128)"); // channel 124's extension channel
+HT5GExtCh[15] = new Array(124, "5620MHz (Channel 124)"); // channel 128's extension channel
+HT5GExtCh[16] = new Array(136, "5680MHz (Channel 136)"); // channel 132's extension channel
+HT5GExtCh[17] = new Array(132, "5660MHz (Channel 132)"); // channel 136's extension channel
+HT5GExtCh[18] = new Array(153, "5765MHz (Channel 153)"); // channel 149's extension channel
+HT5GExtCh[19] = new Array(149, "5745MHz (Channel 149)"); // channel 153's extension channel
+HT5GExtCh[20] = new Array(161, "5805MHz (Channel 161)"); // channel 157's extension channel
+HT5GExtCh[21] = new Array(157, "5785MHz (Channel 157)"); // channel 161's extension channel
+
+function open_associate_table() 
+{
+ 	window.open("associate_table.html","associate_table","toolbar=no, location=yes, scrollbars=yes, resizable=no, width=800, height=600")
+}
+
+function style_display_on()
+{
+	return "";
+}
+
+function insertChannelOption(vChannel, band)
+{
+	var y = document.createElement('option');
+
+	if (1*band == 24)
+	{
+		y.text = ChannelList_24G[1*vChannel - 1];
+		y.value = 1*vChannel;
+	}
+	else if (1*band == 5)
+	{
+		y.value = 1*vChannel;
+		if (1*vChannel <= 140)
+			y.text = ChannelList_5G[((1*vChannel) - 36) / 4];
+		else
+			y.text = ChannelList_5G[((1*vChannel) - 36 - 1) / 4];
+	}
+
+	if (1*band == 24)
+		var x=document.getElementById("sz11gChannel");
+	else if (1*band == 5)
+		var x=document.getElementById("sz11aChannel");
+
+	try
+	{
+		x.add(y,null); // standards compliant
+	}
+	catch(ex)
+	{
+		x.add(y); // IE only
+	}
+}
+
+function insertWirelessModeOption(vWirelessMode)
+{
+	var y = document.createElement('option');
+	
+	if (1*vWirelessMode == 8)
+	{
+		y.text = "11a/n Mixed Mode";
+	}
+	else if (1*vWirelessMode == 9)
+	{
+		y.text = "11b/g/n Mixed Mode";
+	}
+
+	y.value = 1*vWirelessMode;
+
+	var x=document.getElementById("wirelessmode");
+
+	try
+	{
+		x.add(y,null); // standards compliant
+	}
+	catch(ex)
+	{
+		x.add(y); // IE only
+	}
+}
+
+function CreateExtChannelOption(vChannel)
+{
+	var y = document.createElement('option');
+
+	y.text = ChannelList_24G[1*vChannel - 1];
+	y.value = 1*vChannel;
+
+	var x = document.getElementById("n_extcha");
+
+	try
+	{
+		x.add(y,null); // standards compliant
+	}
+	catch(ex)
+	{
+		x.add(y); // IE only
+	}
+}
+
+function insertExtChannelOption()
+{
+	var wmode = document.wireless_basic.wirelessmode.value;
+	var option_length; 
+	var CurrentCh;
+
+	if ((1*wmode == 8) || (1*wmode == 9))
+	{
+		var x = document.getElementById("n_extcha");
+		var length = document.wireless_basic.n_extcha.options.length;
+
+		if (length > 1)
+		{
+			x.selectedIndex = 1;
+			x.remove(x.selectedIndex);
+		}
+
+		if (1*wmode == 8)
+		{
+			CurrentCh = document.wireless_basic.sz11aChannel.value;
+
+			if ((1*CurrentCh >= 36) && (1*CurrentCh <= 64))
+			{
+				CurrentCh = 1*CurrentCh;
+				CurrentCh /= 4;
+				CurrentCh -= 9;
+
+				x.options[0].text = HT5GExtCh[CurrentCh][1];
+				x.options[0].value = HT5GExtCh[CurrentCh][0];
+			}
+			else if ((1*CurrentCh >= 100) && (1*CurrentCh <= 136))
+			{
+				CurrentCh = 1*CurrentCh;
+				CurrentCh /= 4;
+				CurrentCh -= 17;
+
+				x.options[0].text = HT5GExtCh[CurrentCh][1];
+				x.options[0].value = HT5GExtCh[CurrentCh][0];
+			}
+			else if ((1*CurrentCh >= 149) && (1*CurrentCh <= 161))
+			{
+				CurrentCh = 1*CurrentCh;
+				CurrentCh -= 1;
+				CurrentCh /= 4;
+				CurrentCh -= 19;
+
+				x.options[0].text = HT5GExtCh[CurrentCh][1];
+				x.options[0].value = HT5GExtCh[CurrentCh][0];
+			}
+			else
+			{
+				x.options[0].text = "Auto Select";
+				x.options[0].value = 0;
+			}
+		}
+		else if (1*wmode == 9)
+		{
+			
+			CurrentCh = document.wireless_basic.sz11gChannel.value;
+			option_length = document.wireless_basic.sz11gChannel.options.length;
+
+			if ((CurrentCh >=1) && (CurrentCh <= 4))
+			{
+				x.options[0].text = ChannelList_24G[1*CurrentCh + 4 - 1];
+				x.options[0].value = 1*CurrentCh + 4;
+			}
+			else if ((CurrentCh >= 5) && (CurrentCh <= 7))
+			{
+				x.options[0].text = ChannelList_24G[1*CurrentCh - 4 - 1];
+				x.options[0].value = 1*CurrentCh - 4;
+				CurrentCh = 1*CurrentCh;
+				CurrentCh += 4;
+				CreateExtChannelOption(CurrentCh);
+			}
+			else if ((CurrentCh >= 8) && (CurrentCh <= 9))
+			{
+				x.options[0].text = ChannelList_24G[1*CurrentCh - 4 - 1];
+				x.options[0].value = 1*CurrentCh - 4;
+
+				if (option_length >=14)
+				{
+					CurrentCh = 1*CurrentCh;
+					CurrentCh += 4;
+					CreateExtChannelOption(CurrentCh);
+				}
+			}
+			else if (CurrentCh == 10)
+			{
+				x.options[0].text = ChannelList_24G[1*CurrentCh - 4 - 1];
+				x.options[0].value = 1*CurrentCh - 4;
+
+				if (option_length > 14)
+				{
+					CurrentCh = 1*CurrentCh;
+					CurrentCh += 4;
+					CreateExtChannelOption(CurrentCh);
+				}
+			}
+			else if (CurrentCh >= 11)
+			{
+				x.options[0].text = ChannelList_24G[1*CurrentCh - 4 - 1];
+				x.options[0].value = 1*CurrentCh - 4;
+			}
+			else
+			{
+				x.options[0].text = "Auto Select";
+				x.options[0].value = 0;
+			}
+		}
+	}
+}
+
+function ChannelOnChange()
+{
+	var CurrentSelectCh;
+	var w_mode = document.wireless_basic.wirelessmode.value;
+
+	if (document.wireless_basic.n_bandwidth[1].checked == true)
+	{
+		if (1*w_mode == 8)
+		{
+			if (document.wireless_basic.n_bandwidth[1].checked == true)
+			{
+				document.wireless_basic.n_extcha.disabled = false;
+			}
+
+			if (document.wireless_basic.sz11aChannel.options.selectedIndex == 0)
+				document.wireless_basic.n_extcha.disabled = true;
+		}
+		else if (1*w_mode ==9/* 5*/)
+		{
+			if (document.wireless_basic.n_bandwidth[1].checked == true)
+			{
+				document.wireless_basic.n_extcha.disabled = false;
+			}
+
+			if (document.wireless_basic.sz11gChannel.options.selectedIndex == 0)
+				document.wireless_basic.n_extcha.disabled = true;
+		}
+	}
+
+	insertExtChannelOption();
+	
+	if (1*w_mode == 9)
+	{		
+		CurrentSelectCh = document.wireless_basic.sz11gChannel.value;
+
+		if (1*CurrentSelectCh == 14)
+		{
+			
+			document.wireless_basic.n_extcha.disabled = true;
+			document.wireless_basic.n_bandwidth.disabled = true;			
+			document.wireless_basic.n_bandwidth[1].disabled=true;
+			document.wireless_basic.n_bandwidth[0].checked=true;	
+		}
+		else
+		{
+			
+			
+			document.wireless_basic.n_bandwidth[1].disabled=false;
+			
+			if (document.wireless_basic.n_bandwidth[1].checked == true)
+				document.wireless_basic.n_extcha.disabled = false;
+
+			if (1*document.wireless_basic.n_mcs.value != 32)
+			{
+				document.wireless_basic.n_bandwidth.disabled = false;
+				document.wireless_basic.n_bandwidth[0].disabled=false;
+				document.wireless_basic.n_bandwidth[1].disabled=false;
+			}
+		}
+	}
+}
+
+function Channel_BandWidth_onClick()
+{
+	var w_mode = document.wireless_basic.wirelessmode.value;
+
+	if (document.wireless_basic.n_bandwidth[0].checked == true)
+	{
+		document.wireless_basic.n_extcha.disabled = true;
+		if (1*w_mode == 8)
+			Check5GBandChannelException();
+	}
+	else
+	{
+		document.wireless_basic.n_extcha.disabled = false;
+
+		if (1*w_mode == 8)
+		{
+			Check5GBandChannelException();
+
+			if (document.wireless_basic.sz11aChannel.options.selectedIndex == 0)
+				document.wireless_basic.n_extcha.disabled = true;
+		}
+	}
+}
+
+function Check5GBandChannelException()
+{
+	var w_mode = document.wireless_basic.wirelessmode.value;
+
+	if (1*w_mode == 8)
+	{
+		var x = document.getElementById("sz11aChannel")
+		var current_length = document.wireless_basic.sz11aChannel.options.length;
+		var current_index = document.wireless_basic.sz11aChannel.options.selectedIndex;
+		var current_channel = document.wireless_basic.sz11aChannel.value;
+		 
+		if (1*current_index == 0)
+		{
+			if (1*channel_index != 0)
+				current_index = 1;
+		}
+
+		for (ch_idx = current_length - 1; ch_idx > 0; ch_idx--)
+		{
+			x.remove(ch_idx);
+		}
+
+		if (document.wireless_basic.n_bandwidth[1].checked == true)
+		{
+			if ((countrycode == 'NONE') || (countrycode == 'FR') || (countrycode == 'US') ||
+				(countrycode == 'IE') || (countrycode == 'JP') || (countrycode == 'HK'))
+			{
+				for(ch = 36; ch <= 48; ch+=4)
+					insertChannelOption(ch, 5);
+			}
+
+			if ((countrycode == 'NONE') || (countrycode == 'FR') || (countrycode == 'US') ||
+				(countrycode == 'IE') || (countrycode == 'TW') || (countrycode == 'HK'))
+			{
+				for(ch = 52; ch <= 64; ch+=4)
+					insertChannelOption(ch, 5);
+			}
+
+			if (countrycode == 'NONE')
+			{
+				for(ch = 100; ch <= 136; ch+=4)
+					insertChannelOption(ch, 5);
+			}
+
+			if ((countrycode == 'NONE') || (countrycode == 'US') || (countrycode == 'TW') ||
+				(countrycode == 'CN') || (countrycode == 'HK'))
+			{
+				for(ch = 149; ch <= 161; ch+=4)
+					insertChannelOption(ch, 5);
+			}
+
+			if ((1*current_channel == 140) || (1*current_channel == 165))
+			{
+				document.wireless_basic.sz11aChannel.options.selectedIndex = (1*current_index) -1;
+			}
+			else
+			{
+				document.wireless_basic.sz11aChannel.options.selectedIndex = (1*current_index);
+			}
+		}
+		else
+		{
+			if ((countrycode == 'NONE') || (countrycode == 'FR') || (countrycode == 'US') ||
+				(countrycode == 'IE') || (countrycode == 'JP') || (countrycode == 'HK'))
+			{
+				for(ch = 36; ch <= 48; ch+=4)
+					insertChannelOption(ch, 5);
+			}
+
+			if ((countrycode == 'NONE') || (countrycode == 'FR') || (countrycode == 'US') ||
+				(countrycode == 'IE') || (countrycode == 'TW') || (countrycode == 'HK'))
+			{
+				for(ch = 52; ch <= 64; ch+=4)
+					insertChannelOption(ch, 5);
+			}
+
+			if (countrycode == 'NONE')
+			{
+				for(ch = 100; ch <= 140; ch+=4)
+					insertChannelOption(ch, 5);
+			}
+
+			if ((countrycode == 'NONE') || (countrycode == 'US') || (countrycode == 'TW') ||
+				(countrycode == 'CN') || (countrycode == 'HK'))
+			{
+				for(ch = 149; ch <= 161; ch+=4)
+					insertChannelOption(ch, 5);
+			}
+
+			if ((countrycode == 'NONE') || (countrycode == 'US') ||
+				(countrycode == 'CN') || (countrycode == 'HK'))
+			{
+					insertChannelOption(165, 5);
+			}
+
+			document.wireless_basic.sz11aChannel.options.selectedIndex = (1*current_index);
+		}
+	}
+	else if (1*w_mode == 3)
+	{
+		var x = document.getElementById("sz11aChannel")
+		var current_length = document.wireless_basic.sz11aChannel.options.length;
+		var current_index = document.wireless_basic.sz11aChannel.options.selectedIndex;
+
+		for (ch_idx = current_length - 1; ch_idx > 0; ch_idx--)
+		{
+			x.remove(ch_idx);
+		}
+
+		if ((countrycode == 'NONE') || (countrycode == 'FR') || (countrycode == 'US') ||
+			(countrycode == 'IE') || (countrycode == 'JP') || (countrycode == 'HK'))
+		{
+			for(ch = 36; ch <= 48; ch+=4)
+				insertChannelOption(ch, 5);
+		}
+
+		if ((countrycode == 'NONE') || (countrycode == 'FR') || (countrycode == 'US') ||
+			(countrycode == 'IE') || (countrycode == 'TW') || (countrycode == 'HK'))
+		{
+			for(ch = 52; ch <= 64; ch+=4)
+				insertChannelOption(ch, 5);
+		}
+
+		if (countrycode == 'NONE')
+		{
+			for(ch = 100; ch <= 140; ch+=4)
+				insertChannelOption(ch, 5);
+		}
+
+		if ((countrycode == 'NONE') || (countrycode == 'US') || (countrycode == 'TW') ||
+			(countrycode == 'CN') || (countrycode == 'HK'))
+		{
+			for(ch = 149; ch <= 161; ch+=4)
+				insertChannelOption(ch, 5);
+		}
+
+		if ((countrycode == 'NONE') || (countrycode == 'US') ||
+			(countrycode == 'CN') || (countrycode == 'HK'))
+		{
+				insertChannelOption(165, 5);
+		}
+
+		document.wireless_basic.sz11aChannel.options.selectedIndex = (1*current_index);
+	}
+}
+
+function ReplaceAll(inputString) 
+{
+	var regex='&quot;'; 
+	var str5 = new String(inputString);
+
+	while (str5.indexOf(regex) != -1) 
+	{
+		str5 = str5.replace(regex, '\"');
+	}
+
+	return str5;
+}
+
+function initValue()
+{
+	var ssidArray;
+	var channel_11a_index;
+	var current_channel_length;
+	var CurrentSelectCh;
+	var index;
+
+	wdsEncrypTypeArray = wdsEncrypType.split(";");
+	wdsDefaultKeyArray = wdsDefaultKey.split(";");
+	broadcastssidEnableArray = broadcastssidEnable.split(";");
+
+	document.getElementById("div_11a_channel").style.visibility = "hidden";
+	document.getElementById("div_11a_channel").style.display = "none";
+	document.wireless_basic.sz11aChannel.disabled = true;
+	document.getElementById("div_11b_channel").style.visibility = "hidden";
+	document.getElementById("div_11b_channel").style.display = "none";
+	document.wireless_basic.sz11bChannel.disabled = true;
+	document.getElementById("div_11g_channel").style.visibility = "hidden";
+	document.getElementById("div_11g_channel").style.display = "none";
+	document.wireless_basic.sz11gChannel.disabled = true;
+	document.getElementById("div_11n").style.display = "none";
+	document.wireless_basic.n_mode.disabled = true;
+	document.wireless_basic.n_bandwidth.disabled = true;
+	document.wireless_basic.n_rdg.disabled = true;
+	document.wireless_basic.n_gi.disabled = true;
+	document.wireless_basic.n_mcs.disabled = true;
+	document.wireless_basic.n_amsdu.disabled = true;
+	document.wireless_basic.n_dis_tkip.disabled = true;
+	//document.getElementById("div_11n_plugfest").style.display = "none";
+	//document.wireless_basic.f_40mhz.disabled = true;
+
+	//wsc_config_state = 1*wsc_config_state;
+
+	ssid_num = 1*ssid_num;
+
+	insertWirelessModeOption(9);
+
+	for (index = 0; index < ssid_num; index++)
+	{
+		if( index == 0)
+		{
+			if(ssid_s1 != '')
+				document.wireless_basic.ssid.value = ReplaceAll(ssid_s1);
+			else
+				document.wireless_basic.ssid.value = eval("Ralink11nInitAP"+(index+1));
+		}
+		else
+		{
+			if(eval("ssid_s"+(index+1)) != '')
+				eval("document.wireless_basic.mssid_"+index).value = eval("ssid_s"+(index+1));	
+			else
+				eval("document.wireless_basic.mssid_"+index).value = '';
+		}
+	}
+	
+	
+	PhyMode = 1*PhyMode;
+
+	if (PhyMode >= 8)
+	{
+		document.getElementById("div_11n").style.visibility = "visible";
+		document.getElementById("div_11n").style.display = "";
+		document.wireless_basic.n_mode.disabled = false;
+		document.wireless_basic.n_bandwidth.disabled = false;
+		document.wireless_basic.n_rdg.disabled = false;
+		document.wireless_basic.n_gi.disabled = false;
+		document.wireless_basic.n_mcs.disabled = false;
+		document.wireless_basic.n_amsdu.disabled = false;
+		document.wireless_basic.n_dis_tkip.disabled = false;
+		//document.getElementById("div_11n_plugfest").style.display = "";
+		//document.wireless_basic.f_40mhz.disabled = false;
+	}
+
+	if ((PhyMode == 0) || (PhyMode == 4) || (PhyMode == 9))
+	{
+		if (PhyMode == 0)
+			document.wireless_basic.wirelessmode.options.selectedIndex = 0;
+		else if (PhyMode == 4)
+			document.wireless_basic.wirelessmode.options.selectedIndex = 2;
+		else if (PhyMode == 9)
+			document.wireless_basic.wirelessmode.options.selectedIndex = 3;//5;
+
+		document.getElementById("div_11g_channel").style.visibility = "visible";
+		document.getElementById("div_11g_channel").style.display = "";
+		document.wireless_basic.sz11gChannel.disabled = false;
+	}
+	else if (PhyMode == 1)
+	{
+		document.wireless_basic.wirelessmode.options.selectedIndex = 1;
+		document.getElementById("div_11b_channel").style.visibility = "visible";
+		document.getElementById("div_11b_channel").style.display = "";
+		document.wireless_basic.sz11bChannel.disabled = false;
+	}
+	//should nerver happen
+	else if ((PhyMode == 2) || (PhyMode == 8))
+	{
+		alert("3070 don't support PhyMode=2 or 8!! Error");
+		if (PhyMode == 2)
+			document.wireless_basic.wirelessmode.options.selectedIndex = 3;
+		else if (PhyMode == 8)
+			document.wireless_basic.wirelessmode.options.selectedIndex = 4;
+		document.getElementById("div_11a_channel").style.visibility = "visible";
+		document.getElementById("div_11a_channel").style.display = "";
+		document.wireless_basic.sz11aChannel.disabled = false;
+		}
+
+	broadcastssidEnableArray[0] = 1*broadcastssidEnableArray[0];
+	broadcastssidEnableArray[1] = 1*broadcastssidEnableArray[1];
+	broadcastssidEnableArray[2] = 1*broadcastssidEnableArray[2];
+	broadcastssidEnableArray[3] = 1*broadcastssidEnableArray[3];
+
+	if (broadcastssidEnableArray[0] == 0)
+		document.wireless_basic.broadcastssid[0].checked = true;
+	else
+		document.wireless_basic.broadcastssid[1].checked = true;
+
+	if (1*ht_bw == 0)
+	{
+		document.wireless_basic.n_bandwidth[0].checked = true;
+		document.wireless_basic.n_extcha.disabled = true;
+	}
+	else
+	{
+		document.wireless_basic.n_bandwidth[1].checked = true;
+		document.wireless_basic.n_extcha.disabled = false;
+	}
+
+	channel_index = 1*channel_index;
+
+		if ((PhyMode == 0) || (PhyMode == 4) || (PhyMode == 9)||(PhyMode == 1))
+		{
+			document.wireless_basic.sz11gChannel.options.selectedIndex = channel_index;
+			
+			current_channel_length = document.wireless_basic.sz11gChannel.options.length;
+
+			if ((channel_index + 1) > current_channel_length)
+				document.wireless_basic.sz11gChannel.options.selectedIndex = 0;
+
+			document.wireless_basic.sz11bChannel.options.selectedIndex = channel_index;
+
+			current_channel_length = document.wireless_basic.sz11bChannel.options.length;
+
+			if ((channel_index + 1) > current_channel_length)
+				document.wireless_basic.sz11bChannel.options.selectedIndex = 0;
+
+			CurrentSelectCh = document.wireless_basic.sz11gChannel.value;
+
+			if (1*CurrentSelectCh == 14)
+			{
+				document.wireless_basic.n_extcha.disabled = true;
+				document.wireless_basic.n_bandwidth.disabled = true;
+				document.wireless_basic.n_bandwidth[1].disabled=true;
+				//document.wireless_basic.n_bandwidth[0].disabled=true;	
+			}
+
+		}
+		/*
+		else if (PhyMode == 1)
+		{
+			document.wireless_basic.sz11bChannel.options.selectedIndex = channel_index;
+			
+			current_channel_length = document.wireless_basic.sz11bChannel.options.length;
+
+			if ((channel_index + 1) > current_channel_length)
+				document.wireless_basic.sz11bChannel.options.selectedIndex = 0;
+		}
+		*/
+		else if ((PhyMode == 2) || (PhyMode == 8))
+		{
+			if (countrycode == 'NONE')
+			{
+				if (channel_index <= 64)
+				{
+					channel_11a_index = channel_index;
+					channel_11a_index = channel_11a_index / 4;
+					if (channel_11a_index != 0)
+						channel_11a_index = channel_11a_index - 8;
+				}
+				else if ((channel_index >= 100) && (channel_index <= 140))
+				{
+					channel_11a_index = channel_index;
+					channel_11a_index = channel_11a_index / 4;
+					channel_11a_index = channel_11a_index - 16;
+				}
+				else if (channel_index >= 149)
+				{
+					channel_11a_index = channel_index - 1;
+					channel_11a_index = channel_11a_index / 4;
+					channel_11a_index = channel_11a_index - 17;
+
+					if (document.wireless_basic.n_bandwidth[1].checked == true)
+					{
+						channel_11a_index = channel_11a_index - 1;
+					}
+				}
+				else
+				{
+					channel_11a_index = 0;
+				}
+			}
+			else if ((countrycode == 'US') || (countrycode == 'HK') || (countrycode == 'FR') || (countrycode == 'IE'))
+			{
+				if (channel_index <= 64)
+				{
+					channel_11a_index = channel_index;
+					channel_11a_index = channel_11a_index / 4;
+					if (channel_11a_index != 0)
+						channel_11a_index = channel_11a_index - 8;
+				}
+				else if (channel_index >= 149)
+				{
+					channel_11a_index = channel_index - 1;
+					channel_11a_index = channel_11a_index / 4;
+					channel_11a_index = channel_11a_index - 28;
+				}
+				else
+				{
+					channel_11a_index = 0;
+				}
+			}
+			else if (countrycode == 'JP')
+			{
+				if (channel_index <= 48)
+				{
+					channel_11a_index = channel_index;
+					channel_11a_index = channel_11a_index / 4;
+					if (channel_11a_index != 0)
+						channel_11a_index = channel_11a_index - 8;
+				}
+				else
+				{
+					channel_11a_index = 0;
+				}
+			}
+			else if (countrycode == 'TW')
+			{
+				if (channel_index <= 64)
+				{
+					channel_11a_index = channel_index;
+					channel_11a_index = channel_11a_index / 4;
+					if (channel_11a_index != 0)
+						channel_11a_index = channel_11a_index - 12;
+				}
+				else if (channel_index >= 149)
+				{
+					channel_11a_index = channel_index - 1;
+					channel_11a_index = channel_11a_index / 4;
+					channel_11a_index = channel_11a_index - 32;
+				}
+				else
+				{
+					channel_11a_index = 0;
+				}
+			}
+			else if (countrycode == 'CN')
+			{
+				if (channel_index >= 149)
+				{
+					channel_11a_index = channel_index - 1;
+					channel_11a_index = channel_11a_index / 4;
+					channel_11a_index = channel_11a_index - 36;
+				}
+				else
+				{
+					channel_11a_index = 0;
+				}
+			}
+			else
+			{
+				channel_11a_index = 0;
+			}
+
+			Check5GBandChannelException();
+
+			if (channel_index > 0)
+				document.wireless_basic.sz11aChannel.options.selectedIndex = channel_11a_index;
+			else
+				document.wireless_basic.sz11aChannel.options.selectedIndex = channel_index;
+		}
+		else
+		{
+			document.wireless_basic.sz11gChannel.options.selectedIndex = 1;
+		}
+
+	wdsMode = 1*wdsMode;
+
+	if (wdsMode == 0)
+		document.wireless_basic.wds_mode.options.selectedIndex = 0;
+	else if (wdsMode == 4)
+		document.wireless_basic.wds_mode.options.selectedIndex = 1;
+	else if (wdsMode == 2)
+		document.wireless_basic.wds_mode.options.selectedIndex = 2;
+	else if (wdsMode == 3)
+		document.wireless_basic.wds_mode.options.selectedIndex = 3;
+
+	if (wdsEncrypTypeArray[0] == 'NONE')
+		document.wireless_basic.wds_encryp_type.options.selectedIndex = 0;
+	else if (wdsEncrypTypeArray[0] == 'WEP')
+		document.wireless_basic.wds_encryp_type.options.selectedIndex = 1;
+	else if (wdsEncrypTypeArray[0] == 'TKIP')
+		document.wireless_basic.wds_encryp_type.options.selectedIndex = 2;
+	else if (wdsEncrypTypeArray[0] == 'AES')
+		document.wireless_basic.wds_encryp_type.options.selectedIndex = 3;
+
+	document.wireless_basic.wds_default_key.options.selectedIndex = (1*wdsDefaultKeyArray[0]- 1);
+	document.wireless_basic.wds_encryp_key.value = wdsEncrypKey;
+	
+	document.wireless_basic.rx_stream.options.selectedIndex = 1*rx_stream_idx - 1;
+	document.wireless_basic.tx_stream.options.selectedIndex = 1*tx_stream_idx - 1;
+
+	WdsModeOnChange();
+
+	insertExtChannelOption();
+
+	if (1*ht_mode == 0)
+	{
+		document.wireless_basic.n_mode[0].checked = true;
+	}
+	else if (1*ht_mode == 1)
+	{
+		document.wireless_basic.n_mode[1].checked = true;
+	}
+
+	else if (1*ht_mode == 2)
+	{
+		document.wireless_basic.n_mode[2].checked = true;
+	}
+
+	if (1*ht_gi == 0)
+	{
+		document.wireless_basic.n_gi[0].checked = true;
+	}
+	else if (1*ht_gi == 1)
+	{
+		document.wireless_basic.n_gi[1].checked = true;
+	}
+	else if (1*ht_gi == 2)
+	{
+		document.wireless_basic.n_gi[2].checked = true;
+	}
+
+	if (1*ht_stbc == 0)
+	{
+		document.wireless_basic.n_stbc[0].checked = true;
+	}
+	else
+	{
+		document.wireless_basic.n_stbc[1].checked = true;
+	}
+	
+	var antennaType  = "<% CGI_GET_WLN_ANTENNA_TYPE();%>"; 
+
+	antennaType = 1*antennaType;
+
+	if (1*ht_mcs <= 23)
+	{
+		document.wireless_basic.n_mcs.options.selectedIndex = ht_mcs;
+	}
+	else if (1*ht_mcs == 32)
+	{
+		if (antennaType == 2)
+			document.wireless_basic.n_mcs.options.selectedIndex = 16;
+		else if (antennaType == 3)
+			document.wireless_basic.n_mcs.options.selectedIndex = 24;
+	}
+	else if (1*ht_mcs == 33)
+	{
+		if (antennaType == 1)
+			document.wireless_basic.n_mcs.options.selectedIndex = 8;
+		else if (antennaType == 2)
+			document.wireless_basic.n_mcs.options.selectedIndex = 17;
+		else if (antennaType == 3)
+			document.wireless_basic.n_mcs.options.selectedIndex = 25;
+	}
+
+	if (1*ht_rdg == 0)
+		document.wireless_basic.n_rdg[0].checked = true;
+	else
+		document.wireless_basic.n_rdg[1].checked = true;
+
+	var option_length = document.wireless_basic.n_extcha.options.length;
+
+	if (1*ht_extcha == 0)
+	{
+		if (option_length > 1)
+			document.wireless_basic.n_extcha.options.selectedIndex = 0;
+	}
+	else if (1*ht_extcha == 1)
+	{
+		if (option_length > 1)
+			document.wireless_basic.n_extcha.options.selectedIndex = 1;
+	}
+	else
+	{
+		document.wireless_basic.n_extcha.options.selectedIndex = 0;
+	}
+
+	if (1*PhyMode == 8)
+	{
+		if (document.wireless_basic.sz11aChannel.options.selectedIndex == 0)
+			document.wireless_basic.n_extcha.disabled = true;
+	}
+	else if (1*PhyMode == 9)
+	{
+		if (document.wireless_basic.sz11gChannel.options.selectedIndex == 0)
+			document.wireless_basic.n_extcha.disabled = true;
+	}
+
+	if (1*ht_amsdu == 0)
+		document.wireless_basic.n_amsdu[0].checked = true;
+	else
+		document.wireless_basic.n_amsdu[1].checked = true;
+
+	if (1*ht_distkip == 0)
+		document.wireless_basic.n_dis_tkip[0].checked = true;
+	else
+		document.wireless_basic.n_dis_tkip[1].checked = true;
+
+	//if (1*ht_f_40mhz == 0)
+		//document.wireless_basic.f_40mhz[0].checked = true;
+	//else
+		//document.wireless_basic.f_40mhz[1].checked = true;
+
+	if (1*wifi_optimum == 0)
+		document.wireless_basic.wifi_opt[0].checked = true;
+	else
+		document.wireless_basic.wifi_opt[1].checked = true;
+/*
+	if (1*apcli_include == 1)
+	{
+		document.wireless_basic.mssid_3.disabled = true;
+	}
+*/
+	MCS_onChange();
+}
+
+function init()
+{
+	var f=document.LAN;
+	cfg2Form(f);
+}
+
+function Cancel() {
+	init();
+}
+
+function Help(){
+	window.open("help_home.htm#lan","help");
+}
+
+function wirelessModeChange()
+{
+	var wmode;
+   
+	document.getElementById("div_11a_channel").style.visibility = "hidden";
+	document.getElementById("div_11a_channel").style.display = "none";
+	document.wireless_basic.sz11aChannel.disabled = true;
+	document.getElementById("div_11b_channel").style.visibility = "hidden";
+	document.getElementById("div_11b_channel").style.display = "none";
+	document.wireless_basic.sz11bChannel.disabled = true;
+	document.getElementById("div_11g_channel").style.visibility = "hidden";
+	document.getElementById("div_11g_channel").style.display = "none";
+	document.wireless_basic.sz11gChannel.disabled = true;
+	document.getElementById("div_11n").style.display = "none";
+	document.wireless_basic.n_mode.disabled = true;
+	document.wireless_basic.n_bandwidth.disabled = true;
+	document.wireless_basic.n_rdg.disabled = true;
+	document.wireless_basic.n_gi.disabled = true;
+	document.wireless_basic.n_mcs.disabled = true;
+	document.wireless_basic.n_amsdu.disabled = true;
+	document.wireless_basic.n_dis_tkip.disabled = true;
+	//document.getElementById("div_11n_plugfest").style.display = "none";
+	//document.wireless_basic.f_40mhz.disabled = true;
+
+	wmode = document.wireless_basic.wirelessmode.value;
+	wmode = 1*wmode;
+	if (wmode == 0)
+	{
+		document.wireless_basic.wirelessmode.options.selectedIndex = 0;
+		document.getElementById("div_11g_channel").style.visibility = "visible";
+		document.getElementById("div_11g_channel").style.display = "";
+		document.wireless_basic.sz11gChannel.disabled = false;
+	}
+	else if (wmode == 1)
+	{
+		document.wireless_basic.wirelessmode.options.selectedIndex = 1;
+		document.getElementById("div_11b_channel").style.visibility = "visible";
+		document.getElementById("div_11b_channel").style.display = "";
+		document.wireless_basic.sz11bChannel.disabled = false;
+	}
+	else if (wmode == 2)
+	{
+		document.wireless_basic.wirelessmode.options.selectedIndex = 2;
+		document.getElementById("div_11g_channel").style.visibility = "visible";
+		document.getElementById("div_11g_channel").style.display = "";
+		document.wireless_basic.sz11gChannel.disabled = false;
+	}
+	else if (wmode == 3)
+	{
+		alert("3070 Should not support a");
+		document.wireless_basic.wirelessmode.options.selectedIndex = 3;
+		document.getElementById("div_11a_channel").style.visibility = "visible";
+		document.getElementById("div_11a_channel").style.display = "";
+		document.wireless_basic.sz11aChannel.disabled = false;
+
+		Check5GBandChannelException();
+	}
+	else if (wmode == 8)
+	{
+		alert("3070 Should not support a/n");
+		document.wireless_basic.wirelessmode.options.selectedIndex = 4;
+		document.getElementById("div_11a_channel").style.visibility = "visible";
+		document.getElementById("div_11a_channel").style.display = "";
+		document.wireless_basic.sz11aChannel.disabled = false;
+		document.getElementById("div_11n").style.display = "";
+		document.wireless_basic.n_mode.disabled = false;
+		document.wireless_basic.n_bandwidth.disabled = false;
+		document.wireless_basic.n_rdg.disabled = false;
+		document.wireless_basic.n_gi.disabled = false;
+		document.wireless_basic.n_mcs.disabled = false;
+		document.wireless_basic.n_amsdu.disabled = false;
+		document.wireless_basic.n_dis_tkip.disabled = false;
+		//document.getElementById("div_11n_plugfest").style.display = "";
+		//document.wireless_basic.f_40mhz.disabled = false;
+
+		Check5GBandChannelException();
+
+		if (document.wireless_basic.sz11aChannel.options.selectedIndex == 0)
+			document.wireless_basic.n_extcha.disabled = true;
+
+		insertExtChannelOption();
+/*
+		if (document.wireless_basic.n_dis_tkip[1].checked == true)
+		{
+			if (1*all_tkip_wep == 1)
+				alert("The change will be downgrage wireless mode to legacy mode, before encryptype from TKIP or WEP change to other type !!!");
+		}
+*/
+	}
+	else if (wmode == 9)
+	{
+		document.wireless_basic.wirelessmode.options.selectedIndex =3; //5;
+		document.getElementById("div_11g_channel").style.visibility = "visible";
+		document.getElementById("div_11g_channel").style.display = "";
+		document.wireless_basic.sz11gChannel.disabled = false;
+		document.getElementById("div_11n").style.display = "";
+		document.wireless_basic.n_mode.disabled = false;
+		document.wireless_basic.n_bandwidth.disabled = false;
+		document.wireless_basic.n_rdg.disabled = false;
+		document.wireless_basic.n_gi.disabled = false;
+		document.wireless_basic.n_mcs.disabled = false;
+		document.wireless_basic.n_amsdu.disabled = false;
+		document.wireless_basic.n_dis_tkip.disabled = false;
+		//document.getElementById("div_11n_plugfest").style.display = "";
+		//document.wireless_basic.f_40mhz.disabled = false;
+
+		if (document.wireless_basic.sz11gChannel.options.selectedIndex == 0)
+			document.wireless_basic.n_extcha.disabled = true;
+
+		insertExtChannelOption();
+/*
+		if (document.wireless_basic.n_dis_tkip[1].checked == true)
+		{
+			if (1*all_tkip_wep == 1)
+				alert("The change will be downgrage wireless mode to legacy mode, before encryptype from TKIP or WEP change to other type !!!");
+		}
+*/
+	}
+}
+
+function WdsModeOnChange()
+{
+	document.getElementById("div_wds_encryp_type").style.visibility = "hidden";
+	document.getElementById("div_wds_encryp_type").style.display = "none";
+	document.wireless_basic.wds_encryp_type.disabled = true;
+	document.getElementById("div_wds_default_keyid").style.visibility = "hidden";
+	document.getElementById("div_wds_default_keyid").style.display = "none";
+	document.wireless_basic.wds_default_key.disabled = true;
+	document.getElementById("div_wds_encryp_key").style.visibility = "hidden";
+	document.getElementById("div_wds_encryp_key").style.display = "none";
+	document.wireless_basic.wds_encryp_key.disabled = true;
+	document.getElementById("div_wds_peer_link_setting").style.visibility = "hidden";
+	document.getElementById("div_wds_peer_link_setting").style.display = "none";
+
+	if (document.wireless_basic.wds_mode.options.selectedIndex == 1)
+	{
+		document.getElementById("div_wds_encryp_type").style.visibility = "visible";
+		document.getElementById("div_wds_encryp_type").style.display = "";
+		document.wireless_basic.wds_encryp_type.disabled = false;
+
+		if (document.wireless_basic.wds_encryp_type.options.selectedIndex >= 1)
+		{
+			if (document.wireless_basic.wds_encryp_type.options.selectedIndex == 1)
+			{
+				document.getElementById("div_wds_default_keyid").style.visibility = "visible";
+				document.getElementById("div_wds_default_keyid").style.display = "";
+				document.wireless_basic.wds_default_key.disabled = false;
+			}
+
+			document.getElementById("div_wds_encryp_key").style.visibility = "visible";
+			document.getElementById("div_wds_encryp_key").style.display = "";
+			document.wireless_basic.wds_encryp_key.disabled = false;
+		}
+	}
+	else if (document.wireless_basic.wds_mode.options.selectedIndex >= 2)
+	{
+		document.getElementById("div_wds_peer_link_setting").style.visibility = "visible";
+		document.getElementById("div_wds_peer_link_setting").style.display = "";
+	}
+}
+
+function WdsSecurityOnChange()
+{
+	document.getElementById("div_wds_encryp_key").style.visibility = "hidden";
+	document.getElementById("div_wds_encryp_key").style.display = "none";
+	document.wireless_basic.wds_encryp_key.disabled = true;
+	document.getElementById("div_wds_default_keyid").style.visibility = "hidden";
+	document.getElementById("div_wds_default_keyid").style.display = "none";
+	document.wireless_basic.wds_default_key.disabled = true;
+
+	if (document.wireless_basic.wds_encryp_type.options.selectedIndex >= 1)
+	{
+		if (document.wireless_basic.wds_encryp_type.options.selectedIndex == 1)
+		{
+			document.getElementById("div_wds_default_keyid").style.visibility = "visible";
+			document.getElementById("div_wds_default_keyid").style.display = "";
+			document.wireless_basic.wds_default_key.disabled = false;
+			document.wireless_basic.wds_encryp_key.maxLength = 26;
+	}
+		else
+	{
+			document.wireless_basic.wds_encryp_key.maxLength = 64;
+		}
+
+		document.getElementById("div_wds_encryp_key").style.visibility = "visible";
+		document.getElementById("div_wds_encryp_key").style.display = "";
+		document.wireless_basic.wds_encryp_key.disabled = false;
+	}
+}
+
+function Disable_Allow_TKIP_onClick()
+{
+	if (document.wireless_basic.n_dis_tkip[1].checked == true)
+	{
+		if (1*all_tkip_wep == 1)
+			alert("The change will be downgrage wireless mode to legacy mode, before encryptype from TKIP or WEP change to other type !!!");
+	}
+}
+
+function open_wds_window()
+{
+	window.open("wds.html","WDS_Parameters_List","toolbar=no, location=yes, scrollbars=yes, resizable=no, width=640, height=480")
+}
+
+function Apply()
+{
+	var wireless_mode;
+	var submit_ssid_num;
+	var channel_11a_index;
+	var check_wds_mode;
+	var empty_flag;
+	var isBBand = 0;
+	var isGBand = 1;
+
+	if (document.wireless_basic.ssid.value == '')
+	{
+		alert("Please enter SSID!");
+		document.wireless_basic.ssid.focus();
+		document.wireless_basic.ssid.select();
+		//return false;
+		return;
+	}
+
+	submit_ssid_num = 1;
+
+	empty_flag = 0;
+	for(i = 1; i < 4; i++)
+	{
+		if (eval("document.wireless_basic.mssid_"+i).value != "")
+		{
+			/*
+			if (i == 3)
+			{
+				if (1*apcli_include == 0)
+					submit_ssid_num++;
+			}
+			else
+			*/
+			{
+				if (empty_flag == 1)
+				{
+					alert("Please enter SSID!");
+					eval("document.wireless_basic.mssid_"+(i-1)).focus();
+					eval("document.wireless_basic.mssid_"+(i-1)).select();
+					//return false;
+					return;
+				}
+				submit_ssid_num++;
+		}
+	}
+		else
+		{
+			empty_flag = 1;
+		}
+	}
+
+	document.wireless_basic.bssid_num.value = submit_ssid_num;
+
+
+	if (document.wireless_basic.wds_mode.options.selectedIndex == 1)
+	{
+		if (document.wireless_basic.wds_encryp_type.options.selectedIndex >= 1)
+		{
+			if (document.wireless_basic.wds_encryp_type.options.selectedIndex == 1)
+			{
+				if ((document.wireless_basic.wds_encryp_key.value.length != 5) &&
+					(document.wireless_basic.wds_encryp_key.value.length != 10) &&
+					(document.wireless_basic.wds_encryp_key.value.length != 13) &&
+					(document.wireless_basic.wds_encryp_key.value.length != 26)
+					)
+				{
+					alert('The encryption key should be Alphanumeric(5 or 13 characters.) or Hexadecimal digits(10 or 26 characters.)');
+					document.wireless_basic.wds_encryp_key.focus();
+					document.wireless_basic.wds_encryp_key.select();
+					//return false;
+					return;
+				}
+			}
+			else
+			{
+				if ((document.wireless_basic.wds_encryp_key.value.length < 8) || (document.wireless_basic.wds_encryp_key.value.length > 64))
+				{
+					alert('The entered Pre-Shared Key is invalid. Enter a valid Pre-Shared Key of between 8 to 63 alphanumeric characters or 64 hexadecimal characters. (0-9, a-f and A-F)');
+					document.wireless_basic.wds_encryp_key.focus();
+					document.wireless_basic.wds_encryp_key.select();
+					//return false;
+					return;
+				}
+			}
+		}
+	}
+/*
+	if (document.wireless_basic.wirelessmode.options.selectedIndex >= 3)
+	{
+		if ((document.wireless_basic.n_dis_tkip[1].checked == true) && (1*all_tkip_wep == 1))
+		{
+				document.wireless_basic.wirelessmode.options.selectedIndex = 0;
+		}
+	}
+*/
+	if (document.wireless_basic.wirelessmode.options.selectedIndex == 1)
+	{
+		document.wireless_basic.WirelessMode2.value = 1;	
+		document.wireless_basic.BasicRate2.value = 3;
+		isBBand = 1;
+		isGBand = 0;
+	}
+	else if (document.wireless_basic.wirelessmode.options.selectedIndex == 2)
+	{
+		document.wireless_basic.WirelessMode2.value = 4;	
+		document.wireless_basic.BasicRate2.value = 351;
+	}		
+	else if (document.wireless_basic.wirelessmode.options.selectedIndex == 3)
+	{
+		document.wireless_basic.WirelessMode2.value = 9;	
+		//document.wireless_basic.BasicRate2.value = basicRateTemp;
+		document.wireless_basic.BasicRate2.value = 15;
+	}	
+	else
+	{
+		document.wireless_basic.WirelessMode2.value = document.wireless_basic.wirelessmode.options.selectedIndex;
+		//document.wireless_basic.BasicRate2.value = basicRateTemp;
+		document.wireless_basic.BasicRate2.value = 15;
+	}
+
+	
+	if(document.wireless_basic.wds_encryp_type.options.selectedIndex == 0)
+	{
+		wdsEncrypTypeArray[0] = 'NONE';
+		wdsEncrypTypeArray[1] = 'NONE';
+		wdsEncrypTypeArray[2] = 'NONE';
+		wdsEncrypTypeArray[3] = 'NONE';
+	}
+	else if(document.wireless_basic.wds_encryp_type.options.selectedIndex == 1)
+	{
+		wdsEncrypTypeArray[0] = 'WEP';
+		wdsEncrypTypeArray[1] = 'WEP';
+		wdsEncrypTypeArray[2] = 'WEP';
+		wdsEncrypTypeArray[3] = 'WEP';
+	}
+	else if(document.wireless_basic.wds_encryp_type.options.selectedIndex == 2)
+	{
+		wdsEncrypTypeArray[0] = 'TKIP';
+		wdsEncrypTypeArray[1] = 'TKIP';
+		wdsEncrypTypeArray[2] = 'TKIP';
+		wdsEncrypTypeArray[3] = 'TKIP';
+	}	
+	else if(document.wireless_basic.wds_encryp_type.options.selectedIndex == 3)
+	{
+		wdsEncrypTypeArray[0] = 'AES';
+		wdsEncrypTypeArray[1] = 'AES';
+		wdsEncrypTypeArray[2] = 'AES';
+		wdsEncrypTypeArray[3] = 'AES';
+	}	
+	wdsEncrypType = '';
+	wdsEncrypType = wdsEncrypType + wdsEncrypTypeArray[0];
+	wdsEncrypType = wdsEncrypType + ';';
+	wdsEncrypType = wdsEncrypType + wdsEncrypTypeArray[1];
+	wdsEncrypType = wdsEncrypType + ';';
+	wdsEncrypType = wdsEncrypType + wdsEncrypTypeArray[2];
+	wdsEncrypType = wdsEncrypType + ';';
+	wdsEncrypType = wdsEncrypType + wdsEncrypTypeArray[3];
+	document.wireless_basic.EncrypType2.value = wdsEncrypType;
+
+	if(document.wireless_basic.wds_default_key.options.selectedIndex == 0)
+	{
+		wdsDefaultKeyArray[0] = 1;
+		wdsDefaultKeyArray[1] = 1;
+		wdsDefaultKeyArray[2] = 1;
+		wdsDefaultKeyArray[3] = 1;
+	}
+	else if(document.wireless_basic.wds_default_key.options.selectedIndex == 1)
+	{
+		wdsDefaultKeyArray[0] = 2;
+		wdsDefaultKeyArray[1] = 2;
+		wdsDefaultKeyArray[2] = 2;
+		wdsDefaultKeyArray[3] = 2;
+	}
+	else if(document.wireless_basic.wds_default_key.options.selectedIndex == 2)
+	{
+		wdsDefaultKeyArray[0] = 3;
+		wdsDefaultKeyArray[1] = 3;
+		wdsDefaultKeyArray[2] = 3;
+		wdsDefaultKeyArray[3] = 3;
+	}
+	else if(document.wireless_basic.wds_default_key.options.selectedIndex == 3)
+	{
+		wdsDefaultKeyArray[0] = 4;
+		wdsDefaultKeyArray[1] = 4;
+		wdsDefaultKeyArray[2] = 4;
+		wdsDefaultKeyArray[3] = 4;
+	}
+	wdsDefaultKey = '';
+	wdsDefaultKey = wdsDefaultKey + wdsDefaultKeyArray[0];
+	wdsDefaultKey = wdsDefaultKey + ';';
+	wdsDefaultKey = wdsDefaultKey + wdsDefaultKeyArray[1];
+	wdsDefaultKey = wdsDefaultKey + ';';
+	wdsDefaultKey = wdsDefaultKey + wdsDefaultKeyArray[2];
+	wdsDefaultKey = wdsDefaultKey + ';';
+	wdsDefaultKey = wdsDefaultKey + wdsDefaultKeyArray[3];
+	document.wireless_basic.WdsDefaultKey2.value = wdsDefaultKey;
+
+	if(document.wireless_basic.broadcastssid[1].checked == true)
+	{
+		broadcastssidEnableArray[0] = 1;
+		broadcastssidEnableArray[1] = 1;
+		broadcastssidEnableArray[2] = 1;
+		broadcastssidEnableArray[3] = 1;
+	}
+	else if(document.wireless_basic.broadcastssid[0].checked == true)
+	{
+		broadcastssidEnableArray[0] = 0;
+		broadcastssidEnableArray[1] = 0;
+		broadcastssidEnableArray[2] = 0;
+		broadcastssidEnableArray[3] = 0;
+	}
+	broadcastssidEnable = '';
+	broadcastssidEnable = broadcastssidEnable + broadcastssidEnableArray[0];
+	broadcastssidEnable = broadcastssidEnable + ';';
+	broadcastssidEnable = broadcastssidEnable + broadcastssidEnableArray[1];
+	broadcastssidEnable = broadcastssidEnable + ';';
+	broadcastssidEnable = broadcastssidEnable + broadcastssidEnableArray[2];
+	broadcastssidEnable = broadcastssidEnable + ';';
+	broadcastssidEnable = broadcastssidEnable + broadcastssidEnableArray[3];
+	document.wireless_basic.HideSSID2.value = broadcastssidEnable;		
+
+	var count = 0;
+	var count_2 = 1;
+
+	if(document.wireless_basic.ssid.value != '')
+		count++;
+	if(document.wireless_basic.mssid_1.value != '')
+		count++;
+	if(document.wireless_basic.mssid_2.value != '')
+		count++;
+	if(document.wireless_basic.mssid_3.value != '')
+		count++;
+
+	document.wireless_basic.SSID3.value = document.wireless_basic.ssid.value;
+	document.wireless_basic.bssid_num.value = count;
+
+	if (((isGBand == 1) && (document.wireless_basic.sz11gChannel.options.selectedIndex == 0)) || 
+		((isBBand == 1) && (document.wireless_basic.sz11bChannel.options.selectedIndex == 0)))
+	{
+		document.wireless_basic.AutoChannelSelect2.value = 2;
+	}
+	else
+	{
+		document.wireless_basic.AutoChannelSelect2.value = 0;
+		if (((isGBand == 1) && (document.wireless_basic.sz11gChannel.options.selectedIndex == 14)) || 
+			((isBBand == 1) && (document.wireless_basic.sz11bChannel.options.selectedIndex == 14)))
+			document.wireless_basic.n_bandwidth[0].checked = true;
+	}
+
+	if ((isGBand == 1) && (1*document.wireless_basic.sz11gChannel.value > 1*document.wireless_basic.n_extcha.value))
+		document.wireless_basic.EXTCHA2.value = 0;
+	else
+		document.wireless_basic.EXTCHA2.value = 1;
+	
+	document.wireless_basic.Wds1KeyTemp.value = document.wireless_basic.wds_encryp_key.value;
+	document.wireless_basic.Wds2KeyTemp.value = document.wireless_basic.wds_encryp_key.value;
+	document.wireless_basic.Wds3KeyTemp.value = document.wireless_basic.wds_encryp_key.value;
+	document.wireless_basic.Wds4KeyTemp.value = document.wireless_basic.wds_encryp_key.value;
+
+	if (document.wireless_basic.wds_mode.options.selectedIndex == 0)
+		document.wireless_basic.WdsEnable3.value = 0;
+	else if (document.wireless_basic.wds_mode.options.selectedIndex == 2)
+		document.wireless_basic.WdsEnable3.value = 2;	
+	else if (document.wireless_basic.wds_mode.options.selectedIndex == 3)
+		document.wireless_basic.WdsEnable3.value = 3;
+	else if (document.wireless_basic.wds_mode.options.selectedIndex == 1)
+		document.wireless_basic.WdsEnable3.value = 4;
+	
+	var f=document.wireless_basic;
+	
+	form2Cfg(f);
+
+	subForm(f,'do_cmd.htm','WIRELESS_BASIC',cPage);
+
+	return true;
+
+}
+
+function MCS_onChange()
+{
+	var MCS_Value;
+	MCS_MODE=document.wireless_basic.n_mcs.value;
+	MCS_MODE=1*MCS_MODE;
+	
+	if(MCS_MODE==32)
+	{	
+		document.wireless_basic.n_bandwidth[0].disabled=true;
+		document.wireless_basic.n_bandwidth[1].checked=true;
+	}
+	else
+	{
+		document.wireless_basic.n_bandwidth[0].disabled=false;
+		
+	}
+	Channel_BandWidth_onClick();
+}
+
+function Broadcast_SSID_onClick()
+{
+	if ((document.wireless_basic.broadcastssid[1].checked == true) && (1*wsc_mode > 0))
+	{
+		alert("WPS will be disable!!!");
+	}
+}
+
+</script>
+</head>
+<link rel=stylesheet type=text/css href=style.css>
+<BODY leftmargin=0 topmargin=0 onload=initValue()>
+
+<TABLE WIDTH=100%>
+  <script>pageHead();</script>
+  
+<form method=get name=wireless_basic action=wireless_basic.html onSubmit="return Apply()">
+
+	<table width=100% cellspacing=2 cellpadding=0>
+		<tr> 
+			  <td colspan=2><font face=Arial color=#8bacb1 size=2><b>WI-FI Basic Setup</b></font></td>
+		</tr>
+	</table>
+
+	<table width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+		<tr> 
+			<td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b>Wireless Network</b></font></td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Network Mode</td>
+			<td bgcolor="#FFFFFF">
+				<select name="wirelessmode" id="wirelessmode" size="1" style="{font-family:arial; width:160px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="wirelessModeChange()">
+					<option value = 0 selected>11b/g WiFi</option>
+					<option value = 1>11b</option>
+					<option value = 2>11g Only</option>
+				</select>
+			</td>
+		</tr>
+		<input type="hidden" name="bssid_num">
+		<input type="hidden" name="EncrypType2">
+		<input type="hidden" name="WdsDefaultKey2">
+		<input type="hidden" name="WdsEncrypKey2">
+		<input type="hidden" name="SSID2">
+		<input type="hidden" name="SSID3">		
+		<input type="hidden" name="WirelessMode2">
+		<input type="hidden" name="AutoChannelSelect2">		
+		<input type="hidden" name="BW2">
+		<input type="hidden" name="EXTCHA2">	
+		<input type="hidden" name="HideSSID2">	
+		<input type="hidden" name="BasicRate2">
+		<input type="hidden" name="Wds1KeyTemp">	
+		<input type="hidden" name="Wds2KeyTemp">	
+		<input type="hidden" name="Wds3KeyTemp">	
+		<input type="hidden" name="Wds4KeyTemp">	
+		<input type="hidden" name="WdsEnable3">	
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Network Name(SSID)</td>
+			<td bgcolor="#FFFFFF"><input type=text name=ssid size=20 maxlength=32 value=""></td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Multiple SSID1</td>
+			<td bgcolor="#FFFFFF"><input type=text name=mssid_1 size=20 maxlength=32 value=""></td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Multiple SSID2</td>
+			<td bgcolor="#FFFFFF"><input type=text name=mssid_2 size=20 maxlength=32 value=""></td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Multiple SSID3</td>
+			<td bgcolor="#FFFFFF"><input type=text name=mssid_3 size=20 maxlength=32 value=""></td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Broadcast Network Name (SSID)</td>
+			<td bgcolor="#FFFFFF" class="body-table-td-bottom"><font color="#003366" face=arial><b>
+				<input type=radio name=broadcastssid value="0" checked>Enable&nbsp;
+				<input type=radio name=broadcastssid value="1" onClick="Broadcast_SSID_onClick()">Disable
+			</b></font></td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>BSSID</td>
+			<td bgcolor="#FFFFFF"><% CGI_GET_WLN_MAC_ADDRESS();%></td>
+		</tr>
+		<tr id="div_11a_channel" name="div_11a_channel" style="visibility:visible;display:;">
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Frequency (Channel)</td>
+			<td bgcolor="#FFFFFF">
+				<select id="sz11aChannel" name="sz11aChannel" size="1" style="{font-family:arial; width:160px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="ChannelOnChange()">
+					<option value=0>AutoSelect</option>
+					<% CGI_GET_WLN_11A_CHN_LIST();%>
+				</select>
+			</td>
+		</tr>
+		<tr id="div_11b_channel" name="div_11b_channel" style="visibility:visible;display:;">
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Frequency (Channel)</td>
+			<td bgcolor="#FFFFFF">
+				<select id="sz11bChannel" name="sz11bChannel" size="1" style="{font-family:arial; width:160px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="ChannelOnChange()">
+					<option value=0>AutoSelect</option>
+					<% CGI_GET_WLN_11B_CHN_LIST();%>
+				</select>
+			</td>
+		</tr>
+		<tr id="div_11g_channel" name="div_11g_channel" style="visibility:visible;display:;">
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Frequency (Channel)</td>
+			<td bgcolor="#FFFFFF">
+				<select id="sz11gChannel" name="sz11gChannel" size="1" style="{font-family:arial; width:160px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="ChannelOnChange()">
+					<option value=0>AutoSelect</option>
+					<% CGI_GET_WLN_11G_CHN_LIST();%>
+				</select>
+			</td>
+		</tr>
+	</table>
+	<br>
+	<table width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+		<tr> 
+			<td bgcolor="#B7DCFB" colspan="3"><font color="#333333"><b>Wireless Distribution System(WDS)</b></font></td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>WDS Mode</td>
+			<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<select name="wds_mode" id="wds_mode" size="1" style="{font-family:arial; width:120px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="WdsModeOnChange()">
+					<option value=0 SELECTED>Disable</option>
+					<option value=1>Lazy Mode</option>
+					<option value=2>Bridge Mode</option>
+					<option value=3>Repeater Mode</option>
+				</select>
+			</b></font></td>
+		</tr>
+		<tr id="div_wds_encryp_type" name="div_wds_encryp_type" style="visibility:visible;display:;"> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>EncrypType</td>
+			<td bgcolor="#FFFFFF">
+				<select name="wds_encryp_type" id="wds_encryp_type" size="1" style="{font-family:arial; width:130px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="WdsSecurityOnChange()">
+					<option value=0 selected>NONE</option>
+					<option value=1>WEP</option>
+					<option value=2>TKIP</option>
+					<option value=3>AES</option>
+				</select>
+			</td>
+		</tr>
+		<tr id="div_wds_default_keyid" name="div_wds_default_keyid" style="visibility:visible;display:;">
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Default Key</td>
+			<td bgcolor="#FFFFFF">
+				<select name="wds_default_key" size="1" style="{font-family:arial; width:120px; color:#003366; font-weight: bold; font-size: 9pt;}">
+					<option value=1 selected>Key 1</option>
+					<option value=2>Key 2</option>
+					<option value=3>Key 3</option>
+					<option value=4>Key 4</option>
+				</select>
+			</td>
+		</tr>
+		<tr id="div_wds_encryp_key" name="div_wds_encryp_key" style="visibility:visible;display:;">
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Encryp Key</td>
+			<td bgcolor="#FFFFFF">
+				<input type=text name=wds_encryp_key size=28 maxlength=64 value="">
+			</td>
+		</tr>
+		<tr  id="div_wds_peer_link_setting" name="div_wds_peer_link_setting" style="visibility:visible;display:;"> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Peer Link Setting</td>
+			<td bgcolor="#FFFFFF">
+				<input type=button name="wds_peer_list" style="{font-family:arial; width:180px; color:#003366; font-weight: bold; font-size: 9pt;}" value="WDS Configuration" onClick="open_wds_window()">
+			</td>
+		</tr>
+	</table>
+	<br>
+	<table id="div_11n" name="div_11n" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD" style="display:none">
+		<tr> 
+			<td bgcolor="#B7DCFB" colspan="3"><font color="#333333"><b>HT Physical Mode</b></font></td>
+		</tr>
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Operating Mode</td>
+      		<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+      			<input type=radio name=n_mode value="0" checked>Mixed Mode&nbsp;
+				<input type=radio name=n_mode value="1">Green Field
+    		</b></font></td>
+		</tr>
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Channel BandWidth</td>
+      		<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio name=n_bandwidth value="0" onClick="Channel_BandWidth_onClick()" checked>20&nbsp;
+				<input type=radio name=n_bandwidth value="1" onClick="Channel_BandWidth_onClick()">20/40
+    		</b></font></td>
+		</tr>
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Guard Interval</td>
+      		<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio name=n_gi value="0" checked>long&nbsp;
+				<input type=radio name=n_gi value="1">Auto
+    		</b></font></td>
+		</tr>
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Space-Time Block Code(STBC)</td>
+			<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio name=n_stbc value="0" checked>None&nbsp;
+				<input type=radio name=n_stbc value="1">Used
+			</b></font></td>
+		</td>
+		</tr>
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>MCS</td>
+			<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<select name="n_mcs" size="1" style="{font-family:arial; width:100px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="MCS_onChange()">
+					<% CGI_GET_WLN_MCS_LIST();%>
+        		</select>
+			</b></font></td>
+		</tr>
+<!--
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>MCS</td>
+			<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<select name="n_mcs" size="1" style="{font-family:arial; width:100px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="MCS_onChange()">
+					<option value = 0>0</option>
+					<option value = 1>1</option>
+					<option value = 2>2</option>
+					<option value = 3>3</option>
+					<option value = 4>4</option>
+					<option value = 5>5</option>
+					<option value = 6>6</option>
+					<option value = 7>7</option>
+
+					<option value = 8>8</option>
+					<option value = 9>9</option>
+					<option value = 10>10</option>
+					<option value = 11>11</option>
+					<option value = 12>12</option>
+					<option value = 13>13</option>
+					<option value = 14>14</option>
+					<option value = 15>15</option>
+
+					<option value = 32>32</option>
+					<option value = 33 selected>Auto</option>
+        		</select>
+			</b></font></td>
+		</tr>
+-->
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Reverse Direction Grant(RDG)</td>
+      		<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio name=n_rdg value="0" checked>Disable&nbsp;
+				<input type=radio name=n_rdg value="1">Enable
+    		</b></font></td>
+		</tr>
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Extension Channel</td>
+			<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<select id="n_extcha" name="n_extcha" size="1" style="{font-family:arial; width:160px; color:#003366; font-weight: bold; font-size: 9pt;}">
+					<option value=1 selected>2412MHz (Channel 1)</option>
+        		</select>
+			</b></font></td>
+		</tr>
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Aggregation MSDU(A-MSDU)</td>
+      		<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio name=n_amsdu value="0" checked>Disable&nbsp;
+				<input type=radio name=n_amsdu value="1">Enable
+    		</b></font></td>
+		</tr>
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Disable Allow TKIP</td>
+			<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio name=n_dis_tkip value="0" onClick="Disable_Allow_TKIP_onClick()" checked>Disable&nbsp;
+				<input type=radio name=n_dis_tkip value="1" onClick="Disable_Allow_TKIP_onClick()">Enable
+			</b></font></td>
+		</tr>
+	</table>
+	<br>
+<!--<table id="div_11n_plugfest" name="div_11n_plugfest" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD" style="display:none">-->
+	<table id="div_11n_plugfest" name="div_11n_plugfest" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+		<tr> 
+			<td bgcolor="#B7DCFB" colspan="3"><font color="#333333"><b>Other</b></font></td>
+		</tr>
+<!--
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>40 Mhz Intolerant</td>
+			<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio name=f_40mhz value="0" checked>Disable&nbsp;
+				<input type=radio name=f_40mhz value="1">Enable
+			</b></font></td>
+		</tr>
+-->
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>WiFi Optimum</td>
+			<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio name=wifi_opt value="0" checked>Disable&nbsp;
+				<input type=radio name=wifi_opt value="1">Enable
+			</b></font></td>
+		</tr>
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>HT TxStream</td>
+			<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<select name="tx_stream" size="1" style="{font-family:arial; width:100px; color:#003366; font-weight: bold; font-size: 9pt;}">
+					<% CGI_GET_WLN_TX_STREAM_LIST();%>
+        			</select>
+			</b></font></td>
+		</tr>
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>HT RxStream</td>
+			<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<select name="rx_stream" size="1" style="{font-family:arial; width:100px; color:#003366; font-weight: bold; font-size: 9pt;}">
+					<% CGI_GET_WLN_RX_STREAM_LIST();%>
+        			</select>
+			</b></font></td>
+		</tr>
+	</table>
+	<br>
+
+</form>  
+
+<script>pageButton();</script>
+<script>pageTail();</script>   
+
+</body>
+</html>

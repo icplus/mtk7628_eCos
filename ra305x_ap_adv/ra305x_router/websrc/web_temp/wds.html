@@ -1,0 +1,1198 @@
+<!-- Copyright 2004, Ralink Technology Corporation All Rights Reserved. -->
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=utf8">
+<link href="css.css" rel="stylesheet" type="text/css">
+<SCRIPT language=JavaScript src=wireless.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language="JavaScript" type="text/javascript"> 
+
+/*REAL
+<%
+CGI_MAP(WdsList2, CFG_WLN_WdsList);
+CGI_MAP(WdsEncrypType2, CFG_WLN_WdsEncrypType);
+CGI_MAP(WdsPhyMode2, CFG_WLN_WdsPhyMode);
+CGI_MAP(Wds1KeyTemp, CFG_WLN_Wds1Key);
+CGI_MAP(Wds2KeyTemp, CFG_WLN_Wds2Key);
+CGI_MAP(Wds3KeyTemp, CFG_WLN_Wds3Key);
+CGI_MAP(Wds4KeyTemp, CFG_WLN_Wds4Key);
+CGI_MAP(WdsDefaultKeyID2, CFG_WLN_WdsDefaultKeyID);
+CGI_MAP(WdsEnable2, CFG_WLN_WdsEnable);
+%>
+REAL*/
+
+var wirelessMode = "<% CGI_CFG_GET(CFG_WLN_WirelessMode); %>";
+var wdsList = "<% CGI_CFG_GET(CFG_WLN_WdsList); %>";
+var wdsEncrypType = "<% CGI_CFG_GET(CFG_WLN_WdsEncrypType); %>";
+var wdsPhyMode  = "<% CGI_CFG_GET(CFG_WLN_WdsPhyMode); %>"; 
+var wdsEncrypKey1  = "<% CGI_CFG_GET(CFG_WLN_Wds1Key); %>";
+var wdsEncrypKey2  = "<% CGI_CFG_GET(CFG_WLN_Wds2Key); %>";
+var wdsEncrypKey3  = "<% CGI_CFG_GET(CFG_WLN_Wds3Key); %>";
+var wdsEncrypKey4  = "<% CGI_CFG_GET(CFG_WLN_Wds4Key); %>";
+var wdsDefaultKey  = "<% CGI_CFG_GET(CFG_WLN_WdsDefaultKeyID); %>";
+
+var wdslistArray;
+var wdslistArray2;
+var wdsencrypArray;
+var wdsphyArray;
+var wdsdefaultkeyArray;
+
+var WdsEnableTemp;
+
+function reload_table()
+{
+	document.location = "wds.html";
+}
+
+function RemovePhyModeOption()
+ {
+	var x=document.getElementById("wds_phy_mode_1");
+	var x2=document.getElementById("wds_phy_mode_2");
+	var x3=document.getElementById("wds_phy_mode_3");
+	var x4=document.getElementById("wds_phy_mode_4");
+
+	wirelessMode = 1* wirelessMode;
+
+	if (wirelessMode <= 4)
+	{
+		if (wirelessMode == 1)
+		{
+			x.remove(1);
+			x2.remove(1);
+			x3.remove(1);
+			x4.remove(1);
+			x.remove(2);
+			x2.remove(2);
+			x3.remove(2);
+			x4.remove(2);
+			x.remove(3);
+			x2.remove(3);
+			x3.remove(3);
+			x4.remove(3);
+		}
+		else if ((wirelessMode == 2) || (wirelessMode == 4))
+		{
+			x.remove(0);
+			x2.remove(0);
+			x3.remove(0);
+			x4.remove(0);
+			x.remove(2);
+			x2.remove(2);
+			x3.remove(2);
+			x4.remove(2);
+			x.remove(3);
+			x2.remove(3);
+			x3.remove(3);
+			x4.remove(3);
+		}
+		else
+		{
+			x.remove(2);
+			x2.remove(2);
+			x3.remove(2);
+			x4.remove(2);
+			x.remove(3);
+			x2.remove(3);
+			x3.remove(3);
+			x4.remove(3);
+		}
+	}
+	else
+	{
+		if (wirelessMode == 8)
+		{
+			x.remove(0);
+			x2.remove(0);
+			x3.remove(0);
+			x4.remove(0);
+		}
+	}
+ }
+
+function CheckMAC(mac_addr)
+{
+	var	i, idx;
+
+	for(i = 0; i < 5; i++)
+	{
+		if(isNaN(parseInt(mac_addr.charAt(3*i), 16)))
+		{
+			alert('The MAC address are worng format or using incorrect characters.');
+		    //eval("document.wds.acl_mac"+no).focus();
+		    //eval("document.wds.acl_mac"+no).select();
+			return false;
+		}	
+		else if(isNaN(parseInt(mac_addr.charAt(3*i+1), 16)))
+		{
+			alert('The MAC address are worng format or using incorrect characters.');
+		    //eval("document.wds.acl_mac"+no).focus();
+		    //eval("document.wds.acl_mac"+no).select();
+		    return false;
+		}    
+		else if (mac_addr.charAt(3*i+2) != ':')
+		{
+			alert('The MAC address are worng format or using incorrect characters.');
+			//eval("document.wds.acl_mac"+no).focus();
+			//eval("document.wds.acl_mac"+no).select();
+			return false;     	
+		}    
+	}
+
+	if(isNaN(parseInt(mac_addr.charAt(15), 16)))
+	{
+		alert('The MAC address are worng format or using incorrect characters.');
+		//eval("document.wds.acl_mac"+no).focus();
+		//eval("document.wds.acl_mac"+no).select();
+		return false;
+	}
+	else if(isNaN(parseInt(mac_addr.charAt(16), 16)))
+	{
+		alert('The MAC address are worng format or using incorrect characters.');
+		//eval("document.wds.acl_mac"+no).focus();
+		//eval("document.wds.acl_mac"+no).select();
+		return false;
+	}
+
+	return true;
+}
+
+function SetWdsEnable()
+{	
+	if (opener.document.wireless_basic.wds_mode.options.selectedIndex == 0)
+		WdsEnableTemp = 0;
+	else if (opener.document.wireless_basic.wds_mode.options.selectedIndex == 2)
+		WdsEnableTemp = 2;	
+	else if (opener.document.wireless_basic.wds_mode.options.selectedIndex == 3)
+		WdsEnableTemp = 3;
+	else if (opener.document.wireless_basic.wds_mode.options.selectedIndex == 1)
+		WdsEnableTemp = 4;
+}
+
+function initValue()
+{
+	SetWdsEnable();
+
+	if (wdsList != '')
+	{
+		wdslistArray = wdsList.split(";");
+		for(i = 1; i <= wdslistArray.length; i++)
+			eval("document.wds.peer_ap_"+i).value = wdslistArray[i - 1];
+
+		for (i = wdslistArray.length + 1; i <= 4; i++)
+			eval("document.wds.peer_ap_"+i).value = "00:00:00:00:00:00";
+	}
+	else
+	{
+		for(i = 1; i <= 4; i++)
+			eval("document.wds.peer_ap_"+i).value = "00:00:00:00:00:00";
+	}
+
+	RemovePhyModeOption();
+
+	if (wdsPhyMode != '')
+	{
+		wdsphyArray = wdsPhyMode.split(";");
+		for(i = 1; i <= wdsphyArray.length; i++)
+		{
+			if ((wirelessMode == 2) || (wirelessMode == 8))
+			{
+				if (wdsphyArray[i - 1] == 'OFDM')
+					eval("document.wds.wds_phy_mode_"+i).options.selectedIndex = 0;
+				else if (wdsphyArray[i - 1] == 'HTMIX')
+					eval("document.wds.wds_phy_mode_"+i).options.selectedIndex = 1;
+				else if (wdsphyArray[i - 1] == 'GREENFIELD')
+					eval("document.wds.wds_phy_mode_"+i).options.selectedIndex = 2;
+			
+				//eval("document.wds.wds_phy_mode_"+i).options.selectedIndex = 1*wdsphyArray[i - 1];
+			}
+			else
+			{
+				if (wdsphyArray[i - 1] == 'CCK')
+					eval("document.wds.wds_phy_mode_"+i).options.selectedIndex = 0;
+				else if (wdsphyArray[i - 1] == 'OFDM')
+					eval("document.wds.wds_phy_mode_"+i).options.selectedIndex = 1;
+				else if (wdsphyArray[i - 1] == 'HTMIX')
+					eval("document.wds.wds_phy_mode_"+i).options.selectedIndex = 2;
+				else if (wdsphyArray[i - 1] == 'GREENFIELD')
+					eval("document.wds.wds_phy_mode_"+i).options.selectedIndex = 3;
+			
+				//eval("document.wds.wds_phy_mode_"+i).options.selectedIndex = 1*wdsphyArray[i - 1];
+			}
+		}	
+
+		for (i = wdsphyArray.length + 1; i <= 4; i++)
+		{
+			eval("document.wds.wds_phy_mode_"+i).options.selectedIndex = 0;
+		}
+	}
+	else
+	{
+		for(i = 1; i <= 4; i++)
+			eval("document.wds.wds_phy_mode_"+i).options.selectedIndex = 0;
+	}
+	
+	if (wdsEncrypType != '')
+	{
+		wdsencrypArray = wdsEncrypType.split(";");
+		for(i = 1; i <= wdsencrypArray.length; i++)
+		{
+			if (wdsencrypArray[i - 1] == 'NONE')
+				eval("document.wds.wds_encryp_type_"+i).options.selectedIndex = 0;
+			else if (wdsencrypArray[i - 1] == 'WEP')
+				eval("document.wds.wds_encryp_type_"+i).options.selectedIndex = 1;
+			else if (wdsencrypArray[i - 1] == 'TKIP')
+				eval("document.wds.wds_encryp_type_"+i).options.selectedIndex = 2;
+			else if (wdsencrypArray[i - 1] == 'AES')
+				eval("document.wds.wds_encryp_type_"+i).options.selectedIndex = 3;
+			//eval("document.wds.wds_encryp_type_"+i).options.selectedIndex = 1*wdsencrypArray[i - 1];
+		}
+
+		for (i = wdsencrypArray.length + 1; i <= 4; i++)
+			eval("document.wds.wds_encryp_type_"+i).options.selectedIndex = 0;
+	}
+	else
+	{
+		for(i = 1; i <= 4; i++)
+			eval("document.wds.wds_encryp_type_"+i).options.selectedIndex = 0;
+	}
+
+	for(i = 1; i <= 4; i++)
+	{
+		if (eval("wdsEncrypKey"+i) == '')
+			eval("document.wds.wds_encryp_key_"+i).value = '';
+		else
+			eval("document.wds.wds_encryp_key_"+i).value = eval("wdsEncrypKey"+i);
+	}
+
+	if (wdsDefaultKey != '')
+	{
+		wdsdefaultkeyArray = wdsDefaultKey.split(";");
+		for(i = 1; i <= wdsdefaultkeyArray.length; i++)
+		{
+			eval("document.wds.wds_default_key_"+i).options.selectedIndex = (1*wdsdefaultkeyArray[i - 1]) - 1;
+		}
+
+		for (i = wdsdefaultkeyArray.length + 1; i <= 4; i++)
+			eval("document.wds.wds_default_key_"+i).options.selectedIndex = 0;
+	}
+	else
+	{
+		for(i = 1; i <= 4; i++)
+			eval("document.wds.wds_default_key_"+i).options.selectedIndex = 0;
+	}
+
+	wds_index_switch();
+}
+
+function wdsOptionList()
+{
+	wdslistArray2 = wdsList.split(";");
+
+	for(i = 0; i < wdslistArray2.length; i++)
+	{
+		document.write("<option value=\"" + i + "\">");
+		document.write(wdslistArray2[i]);
+		document.write("</option>");
+	}
+}
+
+function wds_index_switch()
+{
+	document.getElementById("div_wds_peer_link_1").style.visibility = "hidden";
+	document.getElementById("div_wds_peer_link_1").style.display = "none";
+	document.getElementById("div_wds_default_keyid_1").style.visibility = "hidden";
+	document.getElementById("div_wds_default_keyid_1").style.display = "none";
+	document.getElementById("div_wds_encryptype_key_1").style.visibility = "hidden";
+	document.getElementById("div_wds_encryptype_key_1").style.display = "none";
+	document.wds.peer_ap_1.disabled = true;
+	document.wds.wds_phy_mode_1.disabled = true;
+	document.wds.wds_encryp_type_1.disabled = true;
+	document.wds.wds_default_key_1.disabled = true;
+	document.wds.wds_encryp_key_1.disabled = true;
+	document.getElementById("div_wds_peer_link_2").style.visibility = "hidden";
+	document.getElementById("div_wds_peer_link_2").style.display = "none";
+	document.getElementById("div_wds_default_keyid_2").style.visibility = "hidden";
+	document.getElementById("div_wds_default_keyid_2").style.display = "none";
+	document.getElementById("div_wds_encryptype_key_2").style.visibility = "hidden";
+	document.getElementById("div_wds_encryptype_key_2").style.display = "none";
+	document.wds.peer_ap_2.disabled = true;
+	document.wds.wds_phy_mode_2.disabled = true;
+	document.wds.wds_encryp_type_2.disabled = true;
+	document.wds.wds_default_key_2.disabled = true;
+	document.wds.wds_encryp_key_2.disabled = true;
+	document.getElementById("div_wds_peer_link_3").style.visibility = "hidden";
+	document.getElementById("div_wds_peer_link_3").style.display = "none";
+	document.getElementById("div_wds_default_keyid_3").style.visibility = "hidden";
+	document.getElementById("div_wds_default_keyid_3").style.display = "none";
+	document.getElementById("div_wds_encryptype_key_3").style.visibility = "hidden";
+	document.getElementById("div_wds_encryptype_key_3").style.display = "none";
+	document.wds.peer_ap_3.disabled = true;
+	document.wds.wds_phy_mode_3.disabled = true;
+	document.wds.wds_encryp_type_3.disabled = true;
+	document.wds.wds_default_key_3.disabled = true;
+	document.wds.wds_encryp_key_3.disabled = true;
+	document.getElementById("div_wds_peer_link_4").style.visibility = "hidden";
+	document.getElementById("div_wds_peer_link_4").style.display = "none";
+	document.getElementById("div_wds_default_keyid_4").style.visibility = "hidden";
+	document.getElementById("div_wds_default_keyid_4").style.display = "none";
+	document.getElementById("div_wds_encryptype_key_4").style.visibility = "hidden";
+	document.getElementById("div_wds_encryptype_key_4").style.display = "none";
+	document.wds.peer_ap_4.disabled = true;
+	document.wds.wds_phy_mode_4.disabled = true;
+	document.wds.wds_encryp_type_4.disabled = true;
+	document.wds.wds_default_key_4.disabled = true;
+	document.wds.wds_encryp_key_4.disabled = true;
+
+	if (document.wds.wds_index.options.selectedIndex == 0)
+	{
+		document.getElementById("div_wds_peer_link_1").style.visibility = "visible";
+		document.getElementById("div_wds_peer_link_1").style.display = "";
+		document.wds.peer_ap_1.disabled = false;
+		document.wds.wds_phy_mode_1.disabled = false;
+		document.wds.wds_encryp_type_1.disabled = false;
+		if (document.wds.wds_encryp_type_1.options.selectedIndex >= 1)
+		{
+			if (document.wds.wds_encryp_type_1.options.selectedIndex == 1)
+			{
+				document.getElementById("div_wds_default_keyid_1").style.visibility = "visible";
+				document.getElementById("div_wds_default_keyid_1").style.display = "";
+				document.wds.wds_default_key_1.disabled = false;
+				document.wds.wds_encryp_key_1.maxLength = 26;
+			}
+			else
+			{
+				document.wds.wds_encryp_key_1.maxLength = 64;
+			}
+			document.getElementById("div_wds_encryptype_key_1").style.visibility = "visible";
+			document.getElementById("div_wds_encryptype_key_1").style.display = "";
+			document.wds.wds_encryp_key_1.disabled = false;
+		}
+	}
+	else if (document.wds.wds_index.options.selectedIndex == 1)
+	{
+		document.getElementById("div_wds_peer_link_2").style.visibility = "visible";
+		document.getElementById("div_wds_peer_link_2").style.display = "";
+		document.wds.peer_ap_2.disabled = false;
+		document.wds.wds_phy_mode_2.disabled = false;
+		document.wds.wds_encryp_type_2.disabled = false;
+		if (document.wds.wds_encryp_type_2.options.selectedIndex >= 1)
+		{
+			if (document.wds.wds_encryp_type_2.options.selectedIndex == 1)
+			{
+				document.getElementById("div_wds_default_keyid_2").style.visibility = "visible";
+				document.getElementById("div_wds_default_keyid_2").style.display = "";
+				document.wds.wds_default_key_2.disabled = false;
+				document.wds.wds_encryp_key_2.maxLength = 26;
+			}
+			else
+			{
+				document.wds.wds_encryp_key_2.maxLength = 64;
+			}
+			document.getElementById("div_wds_encryptype_key_2").style.visibility = "visible";
+			document.getElementById("div_wds_encryptype_key_2").style.display = "";
+			document.wds.wds_encryp_key_2.disabled = false;
+		}
+	}
+	else if (document.wds.wds_index.options.selectedIndex == 2)
+	{
+		document.getElementById("div_wds_peer_link_3").style.visibility = "visible";
+		document.getElementById("div_wds_peer_link_3").style.display = "";
+		document.wds.peer_ap_3.disabled = false;
+		document.wds.wds_phy_mode_3.disabled = false;
+		document.wds.wds_encryp_type_3.disabled = false;
+		if (document.wds.wds_encryp_type_3.options.selectedIndex >= 1)
+		{
+			if (document.wds.wds_encryp_type_3.options.selectedIndex == 1)
+			{
+				document.getElementById("div_wds_default_keyid_3").style.visibility = "visible";
+				document.getElementById("div_wds_default_keyid_3").style.display = "";
+				document.wds.wds_default_key_3.disabled = false;
+				document.wds.wds_encryp_key_3.maxLength = 26;
+			}
+			else
+			{
+				document.wds.wds_encryp_key_3.maxLength = 64;
+			}
+			document.getElementById("div_wds_encryptype_key_3").style.visibility = "visible";
+			document.getElementById("div_wds_encryptype_key_3").style.display = "";
+			document.wds.wds_encryp_key_3.disabled = false;
+		}
+	}
+	else if (document.wds.wds_index.options.selectedIndex == 3)
+	{
+		document.getElementById("div_wds_peer_link_4").style.visibility = "visible";
+		document.getElementById("div_wds_peer_link_4").style.display = "";
+		document.wds.peer_ap_4.disabled = false;
+		document.wds.wds_phy_mode_4.disabled = false;
+		document.wds.wds_encryp_type_4.disabled = false;
+		if (document.wds.wds_encryp_type_4.options.selectedIndex >= 1)
+		{
+			if (document.wds.wds_encryp_type_4.options.selectedIndex == 1)
+			{
+				document.getElementById("div_wds_default_keyid_4").style.visibility = "visible";
+				document.getElementById("div_wds_default_keyid_4").style.display = "";
+				document.wds.wds_default_key_4.disabled = false;
+				document.wds.wds_encryp_key_4.maxLength = 26;
+			}
+			else
+			{
+				document.wds.wds_encryp_key_4.maxLength = 64;
+			}
+			document.getElementById("div_wds_encryptype_key_4").style.visibility = "visible";
+			document.getElementById("div_wds_encryptype_key_4").style.display = "";
+			document.wds.wds_encryp_key_4.disabled = false;
+		}
+	}
+}
+
+function WdsModeChange()
+{
+	document.getElementById("div_wds_phy_mode").style.visibility = "hidden";
+	document.getElementById("div_wds_phy_mode").style.display = "none";
+	document.wds.wds_phy_mode.disabled = true;
+	document.getElementById("div_wds_encryptype_type").style.visibility = "hidden";
+	document.getElementById("div_wds_encryptype_type").style.display = "none";
+	document.wds.wds_encryp_type.disabled = true;
+	document.getElementById("div_wds_encryptype_key").style.visibility = "hidden";
+	document.getElementById("div_wds_encryptype_key").style.display = "none";
+	document.wds.wds_encryp_key.disabled = true;
+	document.getElementById("wds_mac_list_1").style.visibility = "hidden";
+	document.getElementById("wds_mac_list_1").style.display = "none";
+	document.wds.wds_1.disabled = true;
+	document.getElementById("wds_mac_list_2").style.visibility = "hidden";
+	document.getElementById("wds_mac_list_2").style.display = "none";
+	document.wds.wds_2.disabled = true;
+	document.getElementById("wds_mac_list_3").style.visibility = "hidden";
+	document.getElementById("wds_mac_list_3").style.display = "none";
+	document.wds.wds_3.disabled = true;
+	document.getElementById("wds_mac_list_4").style.visibility = "hidden";
+	document.getElementById("wds_mac_list_4").style.display = "none";
+	document.wds.wds_4.disabled = true;
+
+	if (document.wds.wds_mode.options.selectedIndex >= 2)
+	{
+		document.getElementById("div_wds_phy_mode").style.visibility = "visible";
+		document.getElementById("div_wds_phy_mode").style.display = "";
+		document.wds.wds_phy_mode.disabled = false;
+	}
+
+	if (document.wds.wds_mode.options.selectedIndex >= 1)
+	{
+		document.getElementById("div_wds_encryptype_type").style.visibility = "visible";
+		document.getElementById("div_wds_encryptype_type").style.display = "";
+		document.wds.wds_encryp_type.disabled = false;
+
+		if (document.wds.wds_encryp_type.options.selectedIndex >= 2)
+		{
+			document.getElementById("div_wds_encryptype_key").style.visibility = "visible";
+			document.getElementById("div_wds_encryptype_key").style.display = "";
+			document.wds.wds_encryp_key.disabled = false;
+		}
+	}
+
+	if (document.wds.wds_mode.options.selectedIndex >= 2)
+	{
+		document.getElementById("wds_mac_list_1").style.visibility = "visible";
+		document.getElementById("wds_mac_list_1").style.display = "";
+		document.wds.wds_1.disabled = false;
+		document.getElementById("wds_mac_list_2").style.visibility = "visible";
+		document.getElementById("wds_mac_list_2").style.display = "";
+		document.wds.wds_2.disabled = false;
+		document.getElementById("wds_mac_list_3").style.visibility = "visible";
+		document.getElementById("wds_mac_list_3").style.display = "";
+		document.wds.wds_3.disabled = false;
+		document.getElementById("wds_mac_list_4").style.visibility = "visible";
+		document.getElementById("wds_mac_list_4").style.display = "";
+		document.wds.wds_4.disabled = false;
+	}
+}
+
+function WdsSecurityChange1()
+{
+	document.getElementById("div_wds_encryptype_key_1").style.visibility = "hidden";
+	document.getElementById("div_wds_encryptype_key_1").style.display = "none";
+	document.wds.wds_encryp_key_1.disabled = true;
+	document.getElementById("div_wds_default_keyid_1").style.visibility = "hidden";
+	document.getElementById("div_wds_default_keyid_1").style.display = "none";
+	document.wds.wds_default_key_1.disabled = true;
+
+	if (document.wds.wds_encryp_type_1.options.selectedIndex >= 1)
+	{
+		if (document.wds.wds_encryp_type_1.options.selectedIndex == 1)
+		{
+			document.getElementById("div_wds_default_keyid_1").style.visibility = "visible";
+			document.getElementById("div_wds_default_keyid_1").style.display = "";
+			document.wds.wds_default_key_1.disabled = false;
+			document.wds.wds_encryp_key_1.maxLength = 26;
+		}
+		else
+		{
+			document.wds.wds_encryp_key_1.maxLength = 64;
+		}
+		document.getElementById("div_wds_encryptype_key_1").style.visibility = "visible";
+		document.getElementById("div_wds_encryptype_key_1").style.display = "";
+		document.wds.wds_encryp_key_1.disabled = false;
+	}
+}
+
+function WdsSecurityChange2()
+{
+	document.getElementById("div_wds_encryptype_key_2").style.visibility = "hidden";
+	document.getElementById("div_wds_encryptype_key_2").style.display = "none";
+	document.wds.wds_encryp_key_2.disabled = true;
+	document.getElementById("div_wds_default_keyid_2").style.visibility = "hidden";
+	document.getElementById("div_wds_default_keyid_2").style.display = "none";
+	document.wds.wds_default_key_2.disabled = true;
+
+	if (document.wds.wds_encryp_type_2.options.selectedIndex >= 1)
+		{
+		if (document.wds.wds_encryp_type_2.options.selectedIndex == 1)
+		{
+			document.getElementById("div_wds_default_keyid_2").style.visibility = "visible";
+			document.getElementById("div_wds_default_keyid_2").style.display = "";
+			document.wds.wds_default_key_2.disabled = false;
+			document.wds.wds_encryp_key_2.maxLength = 26;
+		}
+		else
+		{
+			document.wds.wds_encryp_key_2.maxLength = 64;
+		}
+		document.getElementById("div_wds_encryptype_key_2").style.visibility = "visible";
+		document.getElementById("div_wds_encryptype_key_2").style.display = "";
+		document.wds.wds_encryp_key_2.disabled = false;
+			}
+		}
+
+function WdsSecurityChange3()
+		{
+	document.getElementById("div_wds_encryptype_key_3").style.visibility = "hidden";
+	document.getElementById("div_wds_encryptype_key_3").style.display = "none";
+	document.wds.wds_encryp_key_3.disabled = true;
+	document.getElementById("div_wds_default_keyid_3").style.visibility = "hidden";
+	document.getElementById("div_wds_default_keyid_3").style.display = "none";
+	document.wds.wds_default_key_3.disabled = true;
+
+	if (document.wds.wds_encryp_type_3.options.selectedIndex >= 1)
+	{
+		if (document.wds.wds_encryp_type_3.options.selectedIndex == 1)
+		{
+			document.getElementById("div_wds_default_keyid_3").style.visibility = "visible";
+			document.getElementById("div_wds_default_keyid_3").style.display = "";
+			document.wds.wds_default_key_3.disabled = false;
+			document.wds.wds_encryp_key_3.maxLength = 26;
+		}
+		else
+		{
+			document.wds.wds_encryp_key_3.maxLength = 64;
+		}
+		document.getElementById("div_wds_encryptype_key_3").style.visibility = "visible";
+		document.getElementById("div_wds_encryptype_key_3").style.display = "";
+		document.wds.wds_encryp_key_3.disabled = false;
+	}
+}
+
+function WdsSecurityChange4()
+		{
+	document.getElementById("div_wds_encryptype_key_4").style.visibility = "hidden";
+	document.getElementById("div_wds_encryptype_key_4").style.display = "none";
+	document.wds.wds_encryp_key_4.disabled = true;
+	document.getElementById("div_wds_default_keyid_4").style.visibility = "hidden";
+	document.getElementById("div_wds_default_keyid_4").style.display = "none";
+	document.wds.wds_default_key_4.disabled = true;
+
+	if (document.wds.wds_encryp_type_4.options.selectedIndex >= 1)
+	{
+		if (document.wds.wds_encryp_type_4.options.selectedIndex == 1)
+		{
+			document.getElementById("div_wds_default_keyid_4").style.visibility = "visible";
+			document.getElementById("div_wds_default_keyid_4").style.display = "";
+			document.wds.wds_default_key_4.disabled = false;
+			document.wds.wds_encryp_key_4.maxLength = 26;
+		}
+		else
+		{
+			document.wds.wds_encryp_key_4.maxLength = 64;
+		}
+		document.getElementById("div_wds_encryptype_key_4").style.visibility = "visible";
+		document.getElementById("div_wds_encryptype_key_4").style.display = "";
+		document.wds.wds_encryp_key_4.disabled = false;
+		}
+	}
+
+function Apply()
+{
+	if (document.wds.wds_index.options.selectedIndex == 0)
+	{
+		if (document.wds.peer_ap_1.value == "00:00:00:00:00:00")
+		{
+			alert("WDS remote AP MAC Address are empty !!!");
+			document.wds.peer_ap_1.focus();
+			document.wds.peer_ap_1.select(); 
+			return false;
+		}
+
+		if (document.wds.peer_ap_1.value.length == 0)
+		{
+			alert("WDS remote AP MAC Address are empty !!!");
+			document.wds.peer_ap_1.focus();
+			document.wds.peer_ap_1.select(); 
+			return false;
+		}
+
+		if (CheckMAC(document.wds.peer_ap_1.value) == false)
+		{
+			alert("WDS remote AP MAC Address are invalid !!!");
+			document.wds.peer_ap_1.focus();
+			document.wds.peer_ap_1.select(); 
+			return false;
+		}
+
+		if (document.wds.wds_encryp_type_1.options.selectedIndex >= 1)
+		{
+			if (document.wds.wds_encryp_type_1.options.selectedIndex == 1)
+			{
+				if ((document.wds.wds_encryp_key_1.value.length != 5) &&
+					(document.wds.wds_encryp_key_1.value.length != 10) &&
+					(document.wds.wds_encryp_key_1.value.length != 13) &&
+					(document.wds.wds_encryp_key_1.value.length != 26)
+					)
+				{
+					alert('The encryption key should be Alphanumeric(5 or 13 characters.) or Hexadecimal digits(10 or 26 characters.)');
+					document.wds.wds_encryp_key_1.focus();
+					document.wds.wds_encryp_key_1.select();
+					//return false;
+					return;
+				}
+			}
+			else
+			{
+				if ((document.wds.wds_encryp_key_1.value.length < 8) || (document.wds.wds_encryp_key_1.value.length > 64))
+				{
+					alert('The entered Pre-Shared Key is invalid. Enter a valid Pre-Shared Key of between 8 to 63 alphanumeric characters or 64 hexadecimal characters. (0-9, a-f and A-F)');
+					document.wds.wds_encryp_key_1.focus();
+					document.wds.wds_encryp_key_1.select();
+					//return false;
+					return;
+				}
+			}
+		}
+	}
+	else if (document.wds.wds_index.options.selectedIndex == 1)
+	{
+		if (document.wds.peer_ap_2.value == "00:00:00:00:00:00")
+		{
+			alert("WDS remote AP MAC Address are empty !!!");
+			document.wds.peer_ap_2.focus();
+			document.wds.peer_ap_2.select(); 
+			//return false;
+			return;
+		}
+
+		if (document.wds.peer_ap_2.value.length == 0)
+		{
+			alert("WDS remote AP MAC Address are empty !!!");
+			document.wds.peer_ap_2.focus();
+			document.wds.peer_ap_2.select(); 
+			//return false;
+			return;
+		}
+
+		if (CheckMAC(document.wds.peer_ap_2.value) == false)
+		{
+			alert("WDS remote AP MAC Address are invalid !!!");
+			document.wds.peer_ap_1.focus();
+			document.wds.peer_ap_1.select(); 
+			//return false;
+			return;
+		}
+
+		if (document.wds.wds_encryp_type_2.options.selectedIndex >= 1)
+		{
+			if (document.wds.wds_encryp_type_2.options.selectedIndex == 1)
+			{
+				if ((document.wds.wds_encryp_key_2.value.length != 5) &&
+					(document.wds.wds_encryp_key_2.value.length != 10) &&
+					(document.wds.wds_encryp_key_2.value.length != 13) &&
+					(document.wds.wds_encryp_key_2.value.length != 26)
+					)
+				{
+					alert('The encryption key should be Alphanumeric(5 or 13 characters.) or Hexadecimal digits(10 or 26 characters.)');
+					document.wds.wds_encryp_key_2.focus();
+					document.wds.wds_encryp_key_2.select();
+					//return false;
+					return;
+				}
+			}
+			else
+			{
+				if ((document.wds.wds_encryp_key_2.value.length < 8) || (document.wds.wds_encryp_key_2.value.length > 64))
+				{
+					alert('The entered Pre-Shared Key is invalid. Enter a valid Pre-Shared Key of between 8 to 63 alphanumeric characters or 64 hexadecimal characters. (0-9, a-f and A-F)');
+					document.wds.wds_encryp_key_2.focus();
+					document.wds.wds_encryp_key_2.select();
+					//return false;
+					return;
+				}
+			}
+		}
+	}
+	else if (document.wds.wds_index.options.selectedIndex == 2)
+	{
+		if (document.wds.peer_ap_3.value == "00:00:00:00:00:00")
+		{
+			alert("WDS remote AP MAC Address are empty !!!");
+			document.wds.peer_ap_3.focus();
+			document.wds.peer_ap_3.select(); 
+			return false;
+		}
+
+		if (document.wds.peer_ap_3.value.length == 0)
+		{
+			alert("WDS remote AP MAC Address are empty !!!");
+			document.wds.peer_ap_3.focus();
+			document.wds.peer_ap_3.select(); 
+			return false;
+		}
+
+		if (CheckMAC(document.wds.peer_ap_3.value) == false)
+		{
+			alert("WDS remote AP MAC Address are invalid !!!");
+			document.wds.peer_ap_1.focus();
+			document.wds.peer_ap_1.select(); 
+			return false;
+		}
+
+		if (document.wds.wds_encryp_type_3.options.selectedIndex >= 1)
+		{
+			if (document.wds.wds_encryp_type_3.options.selectedIndex == 1)
+			{
+				if ((document.wds.wds_encryp_key_3.value.length != 5) &&
+					(document.wds.wds_encryp_key_3.value.length != 10) &&
+					(document.wds.wds_encryp_key_3.value.length != 13) &&
+					(document.wds.wds_encryp_key_3.value.length != 26)
+					)
+				{
+					alert('The encryption key should be Alphanumeric(5 or 13 characters.) or Hexadecimal digits(10 or 26 characters.)');
+					document.wds.wds_encryp_key_3.focus();
+					document.wds.wds_encryp_key_3.select();
+					//return false;
+					return;
+				}
+			}
+			else
+			{
+				if ((document.wds.wds_encryp_key_3.value.length < 8) || (document.wds.wds_encryp_key_3.value.length > 64))
+				{
+					alert('The entered Pre-Shared Key is invalid. Enter a valid Pre-Shared Key of between 8 to 63 alphanumeric characters or 64 hexadecimal characters. (0-9, a-f and A-F)');
+					document.wds.wds_encryp_key_3.focus();
+					document.wds.wds_encryp_key_3.select();
+					//return false;
+					return;
+				}
+			}
+		}
+	}
+	else if (document.wds.wds_index.options.selectedIndex == 3)
+	{
+		if (document.wds.peer_ap_4.value == "00:00:00:00:00:00")
+		{
+			alert("WDS remote AP MAC Address are empty !!!");
+			document.wds.peer_ap_4.focus();
+			document.wds.peer_ap_4.select(); 
+			return false;
+		}
+
+		if (document.wds.peer_ap_4.value.length == 0)
+		{
+			alert("WDS remote AP MAC Address are empty !!!");
+			document.wds.peer_ap_4.focus();
+			document.wds.peer_ap_4.select(); 
+			return false;
+		}
+
+		if (CheckMAC(document.wds.peer_ap_4.value) == false)
+		{
+			alert("WDS remote AP MAC Address are invalid !!!");
+			document.wds.peer_ap_1.focus();
+			document.wds.peer_ap_1.select(); 
+			return false;
+		}
+
+		if (document.wds.wds_encryp_type_4.options.selectedIndex >= 1)
+		{
+			if (document.wds.wds_encryp_type_4.options.selectedIndex == 1)
+			{
+				if ((document.wds.wds_encryp_key_4.value.length != 5) &&
+					(document.wds.wds_encryp_key_4.value.length != 10) &&
+					(document.wds.wds_encryp_key_4.value.length != 13) &&
+					(document.wds.wds_encryp_key_4.value.length != 26)
+					)
+				{
+					alert('The encryption key should be Alphanumeric(5 or 13 characters.) or Hexadecimal digits(10 or 26 characters.)');
+					document.wds.wds_encryp_key_4.focus();
+					document.wds.wds_encryp_key_4.select();
+					//return false;
+					return;
+				}
+			}
+			else
+			{
+				if ((document.wds.wds_encryp_key_4.value.length < 8) || (document.wds.wds_encryp_key_4.value.length > 64))
+				{
+					alert('The entered Pre-Shared Key is invalid. Enter a valid Pre-Shared Key of between 8 to 63 alphanumeric characters or 64 hexadecimal characters. (0-9, a-f and A-F)');
+					document.wds.wds_encryp_key_4.focus();
+					document.wds.wds_encryp_key_4.select();
+					//return false;
+					return;
+				}
+			}
+		}
+	}
+
+	wdsList = '';
+	for(i = 1; i <= 4; i++)
+	{
+		if ( eval("document.wds.peer_ap_"+i).value != '00:00:00:00:00:00' && eval("document.wds.peer_ap_"+i).value != '')
+			wdsList = wdsList + eval("document.wds.peer_ap_"+i).value;
+		if( i != 4)
+			wdsList = wdsList + ';';
+	}
+	document.wds.WdsList2.value = wdsList;
+
+	wdsEncrypType = '';
+	for(i = 1; i <= 4; i++)
+	{
+		if ( eval("document.wds.wds_encryp_type_"+i).options.selectedIndex == 0)
+			wdsencrypArray[i-1] = 'NONE';
+		else if ( eval("document.wds.wds_encryp_type_"+i).options.selectedIndex == 1)
+			wdsencrypArray[i-1] = 'WEP';
+		else if ( eval("document.wds.wds_encryp_type_"+i).options.selectedIndex == 2)
+			wdsencrypArray[i-1] = 'TKIP';
+		else if ( eval("document.wds.wds_encryp_type_"+i).options.selectedIndex == 3)
+			wdsencrypArray[i-1] = 'AES';
+		wdsEncrypType = wdsEncrypType + wdsencrypArray[i-1];
+		if( i != 4)
+			wdsEncrypType = wdsEncrypType + ';';
+	}
+	document.wds.WdsEncrypType2.value = wdsEncrypType;
+
+	wdsPhyMode = '';
+	for(i = 1; i <= 4; i++)
+	{
+		if ((wirelessMode == 2) || (wirelessMode == 8))
+		{
+			if ( eval("document.wds.wds_phy_mode_"+i).options.selectedIndex == 0)
+				wdsphyArray[i-1] = 'OFDM';
+			else if ( eval("document.wds.wds_phy_mode_"+i).options.selectedIndex == 1)
+				wdsphyArray[i-1] = 'HTMIX';
+			else if ( eval("document.wds.wds_phy_mode_"+i).options.selectedIndex == 2)
+				wdsphyArray[i-1] = 'GREENFIELD';
+		}
+		else
+		{
+			if ( eval("document.wds.wds_phy_mode_"+i).options.selectedIndex == 0)
+				wdsphyArray[i-1] = 'CCK';
+			else if ( eval("document.wds.wds_phy_mode_"+i).options.selectedIndex == 1)
+				wdsphyArray[i-1] = 'OFDM';
+			else if ( eval("document.wds.wds_phy_mode_"+i).options.selectedIndex == 2)
+				wdsphyArray[i-1] = 'HTMIX';
+			else if ( eval("document.wds.wds_phy_mode_"+i).options.selectedIndex == 3)
+				wdsphyArray[i-1] = 'GREENFIELD';
+		}
+		
+		wdsPhyMode = wdsPhyMode + wdsphyArray[i-1];
+		if( i != 4)
+			wdsPhyMode = wdsPhyMode + ';';
+	}
+	document.wds.WdsPhyMode2.value = wdsPhyMode;
+
+	wdsDefaultKey = '';
+	for(i = 1; i <= 4; i++)
+	{
+		if ( eval("document.wds.wds_default_key_"+i).options.selectedIndex == 0)
+			wdsdefaultkeyArray[i-1] = 1;
+		else if ( eval("document.wds.wds_default_key_"+i).options.selectedIndex == 1)
+			wdsdefaultkeyArray[i-1] = 2;
+		else if ( eval("document.wds.wds_default_key_"+i).options.selectedIndex == 2)
+			wdsdefaultkeyArray[i-1] = 3;
+		else if ( eval("document.wds.wds_default_key_"+i).options.selectedIndex == 3)
+			wdsdefaultkeyArray[i-1] = 4;
+		wdsDefaultKey = wdsDefaultKey + wdsdefaultkeyArray[i-1];
+		if( i != 4)
+			wdsDefaultKey = wdsDefaultKey + ';';
+	}
+	document.wds.WdsDefaultKeyID2.value = wdsDefaultKey;
+
+	document.wds.WdsEnable2.value = WdsEnableTemp;
+
+	document.wds.Wds1KeyTemp.value = document.wds.wds_encryp_key_1.value;
+	document.wds.Wds2KeyTemp.value = document.wds.wds_encryp_key_2.value;
+	document.wds.Wds3KeyTemp.value = document.wds.wds_encryp_key_3.value;
+	document.wds.Wds4KeyTemp.value = document.wds.wds_encryp_key_4.value;
+
+	var f=document.wds;
+	
+	form2Cfg(f);
+
+	subForm(f,'do_cmd.htm','WDS',cPage);
+
+	return true;
+}
+
+</script>
+<title>Ralink Wireless Wireless Distribution System</title>
+
+<body leftmargin="50" topmargin="15" marginwidth="0" marginheight="0" onLoad="initValue()">
+<form method=get name=wds action=wds.html onSubmit="return Apply()">
+	<table width = "540" border = "0" cellpadding = "2" cellspacing = "1">
+		<tr align="center">
+			<td><b>Select Peer Link Index</b></td>
+			<td>
+				<select name="wds_index" size="1" style="{font-family:arial; width:240px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="wds_index_switch()">
+<!--				
+					<script>wdsOptionList()</script>
+-->
+          			<option value=0 selected>WDS Peer Link 1</option>
+          			<option value=1>WDS Peer Link 2</option>
+          			<option value=2>WDS Peer Link 3</option>
+          			<option value=3>WDS Peer Link 4</option>
+				</select>
+			</td>
+		</tr>
+	</table>
+	<input type="hidden" name="WdsList2">
+	<input type="hidden" name="WdsEncrypType2">
+	<input type="hidden" name="WdsPhyMode2">
+	<input type="hidden" name="WdsKey2">
+	<input type="hidden" name="WdsDefaultKeyID2">
+	<input type="hidden" name="WdsEnable2">
+	<input type="hidden" name="Wds1KeyTemp">
+	<input type="hidden" name="Wds2KeyTemp">
+	<input type="hidden" name="Wds3KeyTemp">
+	<input type="hidden" name="Wds4KeyTemp">
+	<br>
+	<hr width="540" align="left">
+	<br>
+	<table id="div_wds_peer_link_1" name="div_wds_peer_link_1" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+		<tr> 
+			<td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b>Wireless Distribution System(WDS) Configuration</b></font></td>
+		</tr>
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Peer AP MAC Address</td>
+			<td bgcolor="#FFFFFF">
+				<input type=text name=peer_ap_1 size=28 maxlength=17 value="">
+			</td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Phy Mode</td>
+			<td bgcolor="#FFFFFF">
+				<select id="wds_phy_mode_1" name="wds_phy_mode_1" size="1" style="{font-family:arial; width:130px; color:#003366; font-weight: bold; font-size: 9pt;}">
+					<option value = 0 selected>CCK</option>
+					<option value = 1>OFDM</option>
+					<option value = 2>HTMIX</option>
+					<option value = 3>GREENFIELD</option>
+				</select>
+			</td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>EncrypType</td>
+			<td bgcolor="#FFFFFF">
+				<select name="wds_encryp_type_1" size="1" style="{font-family:arial; width:130px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="WdsSecurityChange1()">
+					<option value=0 selected>NONE</option>
+					<option value=1>WEP</option>
+					<option value=2>TKIP</option>
+					<option value=3>AES</option>
+				</select>
+			</td>
+		</tr>
+		<tr id="div_wds_default_keyid_1" name="div_wds_default_keyid_1" style="visibility:visible;display:;">
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Default Key</td>
+			<td bgcolor="#FFFFFF">
+				<select name="wds_default_key_1" size="1" style="{font-family:arial; width:120px; color:#003366; font-weight: bold; font-size: 9pt;}">
+					<option value=1 selected>Key 1</option>
+					<option value=2>Key 2</option>
+					<option value=3>Key 3</option>
+					<option value=4>Key 4</option>
+				</select>
+			</td>
+		</tr>
+		<tr id="div_wds_encryptype_key_1" name="div_wds_encryptype_key_1" style="visibility:visible;display:;">
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Encryp Key</td>
+			<td bgcolor="#FFFFFF">
+				<input type=text name=wds_encryp_key_1 size=28 maxlength=64 value="">
+			</td>
+		</tr>
+	</table>
+
+	<table id="div_wds_peer_link_2" name="div_wds_peer_link_2" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+		<tr> 
+			<td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b>Wireless Distribution System(WDS) Configuration</b></font></td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Peer AP MAC Address</td>
+			<td bgcolor="#FFFFFF">
+				<input type=text name=peer_ap_2 size=28 maxlength=17 value="">
+			</td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Phy Mode</td>
+			<td bgcolor="#FFFFFF">
+				<select id="wds_phy_mode_2" name="wds_phy_mode_2" size="1" style="{font-family:arial; width:130px; color:#003366; font-weight: bold; font-size: 9pt;}">
+					<option value = 0 selected>CCK</option>
+					<option value = 1>OFDM</option>
+					<option value = 2>HTMIX</option>
+					<option value = 3>GREENFIELD</option>
+				</select>
+			</td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>EncrypType</td>
+			<td bgcolor="#FFFFFF">
+				<select name="wds_encryp_type_2" size="1" style="{font-family:arial; width:130px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="WdsSecurityChange2()">
+					<option value=0 selected>NONE</option>
+					<option value=1>WEP</option>
+					<option value=2>TKIP</option>
+					<option value=3>AES</option>
+				</select>
+			</td>
+		</tr>
+		<tr id="div_wds_default_keyid_2" name="div_wds_default_keyid_2" style="visibility:visible;display:;">
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Default Key</td>
+			<td bgcolor="#FFFFFF">
+				<select name="wds_default_key_2" size="1" style="{font-family:arial; width:120px; color:#003366; font-weight: bold; font-size: 9pt;}">
+					<option value=1 selected>Key 1</option>
+					<option value=2>Key 2</option>
+					<option value=3>Key 3</option>
+					<option value=4>Key 4</option>
+				</select>
+			</td>
+		</tr>
+		<tr id="div_wds_encryptype_key_2" name="div_wds_encryptype_key_2" style="visibility:visible;display:;">
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Encryp Key</td>
+			<td bgcolor="#FFFFFF">
+				<input type=text name=wds_encryp_key_2 size=28 maxlength=64 value="">
+			</td>
+		</tr>
+	</table>
+
+	<table id="div_wds_peer_link_3" name="div_wds_peer_link_3" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+		<tr> 
+			<td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b>Wireless Distribution System(WDS) Configuration</b></font></td>
+		</tr>
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Peer AP MAC Address</td>
+			<td bgcolor="#FFFFFF">
+				<input type=text name=peer_ap_3 size=28 maxlength=17 value="">
+			</td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Phy Mode</td>
+			<td bgcolor="#FFFFFF">
+				<select id="wds_phy_mode_3" name="wds_phy_mode_3" size="1" style="{font-family:arial; width:130px; color:#003366; font-weight: bold; font-size: 9pt;}">
+					<option value = 0 selected>CCK</option>
+					<option value = 1>OFDM</option>
+					<option value = 2>HTMIX</option>
+					<option value = 3>GREENFIELD</option>
+				</select>
+			</td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>EncrypType</td>
+			<td bgcolor="#FFFFFF">
+				<select name="wds_encryp_type_3" size="1" style="{font-family:arial; width:130px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="WdsSecurityChange3()">
+					<option value=0 selected>NONE</option>
+					<option value=1>WEP</option>
+					<option value=2>TKIP</option>
+					<option value=3>AES</option>
+				</select>
+			</td>
+		</tr>
+		<tr id="div_wds_default_keyid_3" name="div_wds_default_keyid_3" style="visibility:visible;display:;">
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Default Key</td>
+			<td bgcolor="#FFFFFF">
+				<select name="wds_default_key_3" size="1" style="{font-family:arial; width:120px; color:#003366; font-weight: bold; font-size: 9pt;}">
+					<option value=1 selected>Key 1</option>
+					<option value=2>Key 2</option>
+					<option value=3>Key 3</option>
+					<option value=4>Key 4</option>
+				</select>
+			</td>
+		</tr>
+		<tr id="div_wds_encryptype_key_3" name="div_wds_encryptype_key_3" style="visibility:visible;display:;">
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Encryp Key</td>
+			<td bgcolor="#FFFFFF">
+				<input type=text name=wds_encryp_key_3 size=28 maxlength=64 value="">
+			</td>
+		</tr>
+	</table>
+
+	<table id="div_wds_peer_link_4" name="div_wds_peer_link_4" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+		<tr> 
+			<td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b>Wireless Distribution System(WDS) Configuration</b></font></td>
+		</tr>
+		<tr>
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Peer AP MAC Address</td>
+			<td bgcolor="#FFFFFF">
+				<input type=text name=peer_ap_4 size=28 maxlength=17 value="">
+			</td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Phy Mode</td>
+			<td bgcolor="#FFFFFF">
+				<select id="wds_phy_mode_4" name="wds_phy_mode_4" size="1" style="{font-family:arial; width:130px; color:#003366; font-weight: bold; font-size: 9pt;}">
+					<option value = 0 selected>CCK</option>
+					<option value = 1>OFDM</option>
+					<option value = 2>HTMIX</option>
+					<option value = 3>GREENFIELD</option>
+				</select>
+			</td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>EncrypType</td>
+			<td bgcolor="#FFFFFF">
+				<select name="wds_encryp_type_4" size="1" style="{font-family:arial; width:130px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="WdsSecurityChange4()">
+					<option value=0 selected>NONE</option>
+					<option value=1>WEP</option>
+					<option value=2>TKIP</option>
+					<option value=3>AES</option>
+				</select>
+			</td>
+		</tr>
+		<tr id="div_wds_default_keyid_4" name="div_wds_default_keyid_4" style="visibility:visible;display:;">
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Default Key</td>
+			<td bgcolor="#FFFFFF">
+				<select name="wds_default_key_4" size="1" style="{font-family:arial; width:120px; color:#003366; font-weight: bold; font-size: 9pt;}">
+					<option value=1 selected>Key 1</option>
+					<option value=2>Key 2</option>
+					<option value=3>Key 3</option>
+					<option value=4>Key 4</option>
+				</select>
+			</td>
+		</tr>
+		<tr id="div_wds_encryptype_key_4" name="div_wds_encryptype_key_4" style="visibility:visible;display:;">
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Encryp Key</td>
+			<td bgcolor="#FFFFFF">
+				<input type=text name=wds_encryp_key_4 size=28 maxlength=64 value="">
+			</td>
+		</tr>
+	</table>
+
+	<table align="center" width = "540" border = "0" cellpadding = "2" cellspacing = "1">
+		<tr>
+			<td height="10"></td>
+		</tr>  
+		<tr align="center">
+			<td>
+				<input type=submit style="{width:120px;}" value="Apply">&nbsp;&nbsp;
+				<input type=reset  style="{width:120px;}" value="Cancel" onClick="reload_table()">
+				<input type="button" name="Close" value="Close" style="{width:120px;}" onClick="window.close()">
+			</td>
+		</tr>
+	</table>
+</form>
+</body>
+</html>

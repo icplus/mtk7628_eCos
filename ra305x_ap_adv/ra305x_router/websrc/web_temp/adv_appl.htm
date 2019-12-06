@@ -1,0 +1,262 @@
+<HTML>
+<HEAD>
+<TITLE>Ralink Wireless Access Point</TITLE>
+<META HTTP-EQUIV=Content-Type CONTENT="no-cache">
+<META HTTP-EQUIV=Content-Type CONTENT="text/html; charset=utf8">
+<SCRIPT language=JavaScript src=lang.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+</HEAD>
+
+<script language="JavaScript">
+/*DEMO*/ 
+addCfg("SPL1",1,"0;Battle.net;6112;tcp/udp;6112;tcp/udp");
+addCfg("SPL2",2,"1;Dialpad;51200-51201,51210;tcp/udp;7175;tcp/udp");
+addCfg("SPL3",3,"0;ICU II;2000-2038,2050-2051,2069,2085,3010-3030;tcp/udp;2019;tcp/udp");
+addCfg("SPL4",4,"1;MSN Gaming Zone;2300-2400,28800-29000;tcp/udp;47624;tcp/udp");
+addCfg("SPL5",5,"0;PC-to-Phone;12120,12122,24150-24220;tcp/udp;12053;tcp/udp");
+addCfg("SPL6",6,"0;Quick Time 4;6970-6999;tcp/udp;554;tcp/udp");
+addCfg("SPL7",7,"");
+for(i=8;i<=32;i++) setCfg("SPL"+i,"");
+addCfg("VS1",1,"1;Virtual Server FTP;100;tcp;192.168.0.2;21;1;3600-46833;99");
+addCfg("VS2",2,"0;Virtual Server HTTP;80;tcp;0.0.0.0;80;1;54133-67890;67");
+addCfg("VS3",3,"1;Virtual Server HTTPS;443;tcp;0.0.0.0;443;0;0;0");
+addCfg("VS4",4,"0;Virtual Server DNS;53;udp;0.0.0.0;53;0;0;0");
+addCfg("VS5",5,"1;Virtual Server SMTP;25;tcp;0.0.0.0;25;0;0;0");
+addCfg("VS6",6,"0;Virtual Server POP3;110;tcp;0.0.0.0;110;0;0;0");
+addCfg("VS7",7,"0;Virtual Server Telnet;23;tcp;0.0.0.0;23;0;0;0");
+addCfg("VS8",8,"0;IPSec;500;udp;0.0.0.0;500;0;0;0");
+addCfg("VS9",9,"1;PPTP;1723;tcp;0.0.0.0;1723;0;0;0");
+addCfg("VS10",10,"0;NetMeeting;1720;tcp;0.0.0.0;1720;0;0;0");
+addCfg("VS11",11,"0;DCS-1000;80;tcp;0.0.0.0;80;0;0;0");
+addCfg("VS12",12,"0;DCS-2000;80;tcp;0.0.0.0;80;0;0;0");
+addCfg("VS13",13,"0;DVC-1000;1720;tcp;0.0.0.0;1720;0;0;0");
+addCfg("VS14",14,"");
+for(i=15;i<=32;i++) setCfg("VS"+i,"");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP_ARRAY(SPL, CFG_NAT_PTRG+1, 32);
+CGI_MAP_ARRAY(VS, CFG_NAT_VTS+1, 32);
+%>
+REAL*/
+var max=32;
+var count=0;
+var AppList=new Array();
+var SelRow=-1;
+var SelRowBC;
+var prot=["tcp/udp","tcp","udp"];
+var lang="adv_appl"
+function generateVS()
+{
+	var str=new String("");
+	for(j=1;j<=max;j++){
+		if(getCfg("SPL"+j))
+   		{
+		count++;
+		AppList[j]=getCfg("SPL"+j);
+		var s = AppList[j].split(";");
+        str+="<tr>";
+        str+="<td><input type=\"checkbox\" name=\"en\""+(s[0]=="1"? " checked ": " ")+" disabled></td>";
+        str+="<td>"+s[1]+"</td>";
+        str+="<td>"+s[4]+"</td>";
+        str+="<td>"+s[2]+"</td>";
+        str+="<td>";
+        str+="<img src=\"images/edit.gif\" width=\"15\" height=\"17\" border=\"0\" alt=\"edit\" onclick=\"EditRow("+j+")\">";
+        str+="<img src=\"images/delet.gif\" width=\"15\" height=\"18\" border=\"0\" alt=\"delete\" onClick=\"doDelete("+(j+1)+")\">";
+        str+="</td>";
+        str+="</tr>";
+    	}
+	}
+	document.writeln(str);
+	document.getElementById('sum').innerHTML=count+'/'+max+" <span id=_12>(Lots/Total Lots)</span>";
+}
+
+function EditRow(r)
+{
+	var f = document.frmSA;
+	var s = AppList[r].split(";");
+	f.editRow.value = r;
+	if (s[0]=="1")
+	{
+	    f.enable[0].checked=true;
+	}
+	else
+	{
+	    f.enable[1].checked=true;
+	}
+	f.name.value = s[1];
+	v=s[4].split("-");
+	f.triPort1.value = v[0];
+	f.triPort2.value = (v[1]?v[1]:"");
+	f.pubPort.value = s[2];
+	f.triType.selectedIndex=ProtToIdx(prot, s[5]);
+	f.pubType.selectedIndex=ProtToIdx(prot, s[3]);
+	SelectRow("tabSA",r);
+	f.enable[0].focus();
+}
+
+function Cancel()
+{
+    var f = document.frmSA;
+    f.editRow.value = "-1"
+    SelectRow("tabSA",-1)
+    f.reset();
+}
+function Help(){
+	window.open("help_adv.htm#spap","help");
+}
+function preSubmit()
+{
+var f = document.frmSA;
+    for(j=1;j<=max;j++){
+	if (AppList[j]) m=AppList[j];
+	else m="";
+	setCfg("SPL"+j,m);
+    }
+    form2Cfg(f);
+    subForm(f,'do_cmd.htm','NAT',cPage);
+}
+
+function Apply()
+{
+    if (checkParameter()==false) return;
+    var f = document.frmSA;
+    var num;
+    
+    if (f.editRow.value == "-1") num=count+1;
+    else num=f.editRow.value;
+    if (num>max)
+    {
+           alert(Alerts[28]+max+Alerts[29]); 
+           return;
+    }
+    AppList[num]=boolToStr(f.enable[0].checked)+";"+
+		f.name.value+";"+
+		f.pubPort.value+";"+
+		IdxToProt(prot,f.pubType.selectedIndex)+";"+
+		portRange(f.triPort1.value,f.triPort2.value)+";"+
+		IdxToProt(prot,f.triType.selectedIndex);
+    preSubmit();
+}
+
+function doDelete(num)
+{
+    if (confirm(Alerts[30])==false) return;
+    var f = document.frmVS;
+    rmEntry(AppList, num-1);
+    preSubmit();
+}
+
+function checkParameter()
+{
+	var f = document.frmSA;
+	var i=0;
+	
+	//name
+	if (isBlank(f.name.value)) { alert(Alerts[17]); return false;}
+	if(!chksc(f.name.value,Alerts[9])) return false;
+	// trigger port begin
+	if (!chkPortRange(f.triPort1.value,f.triPort2.value,Alerts[18])) return false;
+	
+	// public port
+
+	if (!chkPortRangeFmt(f.pubPort.value,Alerts[24]))
+		return false;
+
+	if (!checkSame())
+	{
+	   alert(Alerts[25]);
+	   return false;
+	}
+
+	if (f.enable[1].checked) return true; //skip chk with virtuals
+
+	for (i=1;i<=max;i++)
+	{
+		var sp=getCfg("VS"+i);
+		var s=sp.split(";");
+		if (s[0]=='1')
+			if (!chkPortRange2(s[2],f.pubPort.value)){ alert(Alerts[26]+ s [1] +Alerts[27]); return false;}
+	}
+	return true;
+}
+
+function checkSame()
+{
+    var f = document.frmSA;
+    var str1=new String("");
+   
+    str1=f.pubPort.value+";"+IdxToProt(prot,f.pubType.selectedIndex)+";"+portRange(f.triPort1.value,f.triPort2.value)+";"+
+             IdxToProt(prot,f.triType.selectedIndex);
+    for(i=1;i<AppList.length;i++)
+    	if ((i!=f.editRow.value) && AppList[i].toString().indexOf(str1) >=0)
+    		return false;
+    return true;
+}
+</script>
+<link rel=stylesheet type=text/css href=style.css>
+<BODY BGCOLOR=#FFFFFF leftmargin=0 topmargin=0>
+
+<TABLE WIDTH=765 BORDER=0 CELLSPACING=0 CELLPADDING=0 ALIGN=center HEIGHT=100%>
+<script>pageHead();</script>
+<form name=frmSA>
+<input type=hidden name=editRow value=-1>
+<table width=100% border=0 cellpadding=0 height=30>
+<tr> 
+      <td colspan=4 height=14><font color=#8bacb1 size=2 face=Arial><b><span id=_0>Special Applications</span></b></font></td>
+</tr>
+<tr> 
+      <td width=18%>&nbsp;</td>
+      <td height=11 colspan=3><input type=radio name=enable value=1><span id=_1>Enable</span><input type=radio name=enable value=0 checked><span id=_2>Disable</span></td>
+</tr>
+<tr> 
+      <td width=18%><span id=_3>Name</span></td>
+      <td height=12 colspan=3><input type=text name=name size=30 maxlength=31><!--<input type="button" value="Clear" onClick="doReset()" name="clear">--></td>
+</tr>
+<tr> 
+      <td width=18%><span id=_4>Trigger Port</span></td>
+      <td height=25 colspan=3><input type=text name=triPort1 size=5 maxlength=5 value="">-<input type=text name=triPort2 size=5 maxlength=5 value=""></td>
+</tr>
+<tr> 
+      <td width=18%><span id=_5>Trigger Type</span></td>
+      <td height=25 colspan=3><select name=triType size=1><option value=0>Both</option><option value=1 selected>TCP</option><option value=2>UDP</option></select></td>
+</tr>
+<tr> 
+      <td width=18%><span id=_6>Public Port</span></td>
+      <td height=25 colspan=3><input type=text name=pubPort size=30 maxlength=60></td>
+</tr>
+<tr> 
+      <td width=18%><span id=_7>Public Type</span></td>
+      <td height=25 colspan=3><select name=pubType size=1><option value=0>Both</option><option value=1 selected>TCP</option><option value=2>UDP</option></select></td>
+</tr>
+<tr >
+   	<td colspan=4 valign=bottom  align=right>
+	<script>pageButton();</script>
+	</td>
+  </tr>
+<tr> 
+      <td colspan=3 valign=bottom><font color=#8bacb1 size=2 face=Arial><b><span id=_8>Special Applications List</span></b></font></td>
+	<td align=right id=sum></td>
+</tr>
+<tr> 
+      <td colspan=4>
+      <table border=0 id=tabSA width=100% cellpadding=0 cellspacing=0>
+      <tr bgcolor=#b7dcfb> 
+          <td>&nbsp;</td>
+          <td><font color=#333333><span id=_9>Name</span></font></td>
+          <td><font color=#333333><span id=_10>Trigger</span></font></td>
+          <td><font color=#333333><span id=_11>Public Port</span></font></td>
+          <td>&nbsp;</td>
+      </tr>
+      <!-- Virtual Server lists //--><script>generateVS();</script><!-- Virtual Server Lists //-->
+      </table>
+      </td>
+</tr>
+</table>
+</form>
+          
+<script>pageTail();</script>   
+<script>chglang();</script> 
+</BODY></HTML>

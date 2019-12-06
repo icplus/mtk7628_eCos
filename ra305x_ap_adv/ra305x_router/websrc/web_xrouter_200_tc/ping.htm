@@ -1,0 +1,146 @@
+<HTML> 
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<title>Ralink Wireless Access Point</title>
+<script language=JavaScript src=wireless.js></script>
+<script language=JavaScript src=utils.js></script>
+<script language=JavaScript src=spec.js></script>
+<script language=JavaScript src=utils_adv.js></script>
+<script language="JavaScript">
+var my_xml;
+		
+		// you have to load language object for displaying words in each html page and load html object for the redirect or return page
+
+/*DEMO*/
+var pingip="10.10.10.1";
+addCfg("opmode",100,"1");
+/*END_DEMO*/
+/*REAL
+var pingip='<%char *cmd = CGI_QUERY("PING");%>';
+<% CGI_MAP(opmode, CFG_SYS_OPMODE);%>
+REAL*/
+var __opmode = 1*getCfg("opmode");
+var PING_RESULT="<%CGI_get_ping_result(req);%>";
+
+function init()
+{
+	f=document.frmSetup;
+	str="";
+	cfg2Form(f);
+
+	if (pingip != "")
+		f.pingIp.value = pingip;
+
+	if (PING_RESULT == "") {
+		document.getElementById("ping_block").style.display = "none";
+	} else {
+		str+="<tr>";
+		str+="<td width=100%>"+PING_RESULT+"</td>";
+		str+="</tr>";
+		if (document.all)
+		{
+			document.all("sLog").innerHTML=str;
+		}
+		else if (document.getElementById)
+		{
+			document.getElementById("sLog").innerHTML=str;
+		}
+		document.getElementById("ping_block").style.display = "";
+	}
+}
+
+function doPing(f)
+{
+	if(f.pingIp.value=="")
+	{
+		alert("The host name or IP address cannot be empty.");
+		return;
+	}	
+	addFormElm('CCMD', 4);
+   	addFormElm('PING', f.pingIp.value);
+    	subForm(f,cPage,'SYS_CONF',cPage);
+}
+function Help(){
+	window.open("help_tools.htm#misc","help");
+}
+</SCRIPT>
+<link rel=stylesheet type=text/css href=style.css>
+</HEAD>
+
+<BODY leftMargin=0 topMargin=0 onload=init()>
+<script>pageHead();</script>
+
+<table width="100%">
+<tr><td>
+<form  name=frmSetup  id=tools_misc_form>
+	<INPUT type=hidden name=CCMD value="100">
+	<INPUT type=hidden name=CMD value=SYS_CONF>
+	<INPUT type=hidden name=CCMD value="100">
+	<INPUT type=hidden name=PING>
+
+	<table id="content_container"  border="0" cellspacing="0">
+		<tr>
+			<td valign="top" id="maincontent_container">
+			
+
+	<div id="maincontent">				 
+		<div id="box_header">
+<tr> 
+      <td height=20><br></td>
+</tr>
+			<td colspan=2 height=20><b><font color=#8bacb1 face=Arial size=2>Ping Test</font></b></td>
+
+		</div>
+<tr> 
+      <td height=20><br></td>
+</tr>
+ 	 	<div class="box">
+		
+		<table cellSpacing="1" cellPadding="1"  border="0" width="525">
+			<tr>
+				<td align="right" class="duple"><b>Ping Host IP : </b></td>
+				<td>&nbsp;
+					<input type=text name=pingIp id=pingIp size=30 maxlength=63>&nbsp;&nbsp;<input type=button value=Ping onClick=doPing(document.frmSetup)>	 
+					
+				</td>
+			</tr>
+			<tr>
+				
+			</tr>
+		</table>
+		</div>
+
+ 	 	<div class="box"  id="ping_block">
+		
+		<table cellSpacing="1" cellPadding="1"  border="0" width="525">
+		<tr> 
+		      <td height=20><br></td>
+		</tr>
+		<td align="left" class="duple"><b>Ping Result: </b></td>
+			<tr>
+				<td width="100">
+				</td>
+				<td align="left">
+					<div id=sLog></div>
+				</td>
+			</tr>
+		</table>
+		</div>
+	</div>
+
+								</td>			
+								<td id="sidehelp_container">
+									<div id="help_text">
+									
+									</div>
+								</td>
+							</tr>
+						</table>
+	
+</form>
+</td></tr></table>
+
+<script>pageTail();</script>
+</BODY>
+</HTML>

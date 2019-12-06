@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ralink Wireless Access Point</title>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<link REL=stylesheet TYPE="text/css" HREF="style.css">
+<SCRIPT language="JavaScript" src="js/utils.js"></SCRIPT>
+<SCRIPT language="JavaScript" src="js/spec.js"></SCRIPT>
+<SCRIPT language="JavaScript">
+
+/*DEMO*/
+addCfg("PUN", 50, "Jack");
+addCfg("PSN", 51, "Hinet");
+addCfg("PMTU", 52, "1400");
+addCfg("PIDL", 53, "60");
+addCfg("PCM", 55, 2 );
+addCfg("PIPEN", 56, 0 );
+addCfg("PIP", 56, "223.128.9.130" );
+addCfg("DSFIX",37,"1");
+addCfg("DS1",0x34,"168.95.1.1");
+addCfg("DS2",0x35,"");
+addCfg("WMAC",31,"00:CC:22:33:44:55");
+addCfg("clnEn",52,"1");
+addCfg("PPW", 54, "******" );
+var cln_MAC = "00:12:34:56:78:90" ;
+/*END_DEMO*/
+
+/*REAL<% #ifdef CONFIG_L2TP_OVER_PPPOE%>REAL*/
+/*REAL
+<%
+CGI_MAP(PUN, CFG_POE_USER);
+CGI_MAP(PSN, CFG_POE_SVC);
+CGI_MAP(PMTU, CFG_POE_MTU);
+CGI_MAP(PIDL, CFG_POE_IDLET );
+CGI_MAP(PCM, CFG_POE_AUTO);
+CGI_MAP(PIPEN, CFG_POE_SIPE);
+CGI_MAP(PIP, CFG_POE_SIP);
+CGI_MAP(DSFIX,CFG_DNS_FIX);
+CGI_MAP(DS1, CFG_DNS_SVR+1);
+CGI_MAP(DS2, CFG_DNS_SVR+2);
+CGI_MAP(WMAC, CFG_WAN_DHCP_MAC);
+CGI_MAP(clnEn, CFG_WAN_DHCP_MAC_EN);
+%>
+addCfg("PPW",<%CGI_CFG_ID(CFG_POE_PASS);%>,"******");
+var cln_MAC = <%CGI_GET_CLN_MAC();%> ;
+REAL*/
+setCfg("PIDL",getCfg("PIDL")/60);
+/*REAL<%#endif //CONFIG_L2TP_OVER_PPPOE%>REAL*/
+
+/*DEMO*/
+addCfg("opmode",101,"1");
+addCfg("WANT",100,"5");
+addCfg("LTUN", 50, "l2tp_user");
+addCfg("LTMTU", 51, "1400");
+addCfg("LTIDL", 52, "60");
+addCfg("LTIP", 53, "10.10.10.221");
+addCfg("LTMSK", 54, "255.255.255.0");
+addCfg("LTSVR", 55, "10.10.10.227");
+addCfg("LTCM", 57, "1" );
+addCfg("LTWANIF", 59, 1);
+addCfg("LTGW",65,"10.10.10.254");
+addCfg("LTWANIF",56,1);
+addCfg("LTPW", 58, "******");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+CGI_MAP(WANT, CFG_WAN_IP_MODE);
+CGI_MAP(LTUN, CFG_L2T_USER);
+CGI_MAP(LTMTU, CFG_L2T_MTU);
+CGI_MAP(LTIDL, CFG_L2T_IDLET );
+CGI_MAP(LTIP, CFG_L2T_IP );
+CGI_MAP(LTMSK, CFG_L2T_MSK );
+CGI_MAP(LTSVR, CFG_L2T_SVR );
+CGI_MAP(LTCM, CFG_L2T_AUTO);
+CGI_MAP(LTWANIF, CFG_L2T_WANIF);
+CGI_MAP(LTGW,CFG_L2T_GW);
+CGI_MAP(LTWANIF, CFG_L2T_WANIF);
+%>
+addCfg("LTPW", <%CGI_CFG_ID(CFG_L2T_PASS);%> , "******" );
+REAL*/
+addCfg("mode",0,"5");
+
+var __opmode = 1*getCfg("opmode");
+
+function Apply() {
+	var f=document.L2T;
+	/*REAL<% #ifdef CONFIG_L2TP_OVER_PPPOE%>REAL*/
+    if(f.LTWANIF[2].checked)
+    { 
+ 	  if (!rangeCheck(f.PMTU,1000,1492,"MTU")) return ;
+	  //if (!rangeCheck(f.LTMTU,546,1456,"MTU")) return ;
+	  //setting pppoe idle time and mtu based on l2tp setting
+	  f.PIDL.value = f.LTIDL.value;
+	  //if (!rangeCheck(f.PIDL,0,60,"idle time")) return ;
+	  
+      if(f.PCM[0].checked){//set connection mode by pppoe  
+	    f.LTCM[0].checked = true;
+      }else if(f.PCM[1].checked){
+        f.LTCM[1].checked = true;
+      }else if(f.PCM[2].checked){
+        f.LTCM[2].checked = true;
+      }
+	  
+	  if (!strCheck(f.PUN,"user name")) return;
+	   
+	  if (!strCheck(f.PPW,"user password")) return;
+	  if (!chkPwdUpdate(f.PPW,f._ps1,f._changed1)) return ;
+   
+	  if (f.PIPEN[1].checked)//if static pppoe, check.
+	  {
+		if (!verifyIP2(f.PIP,"IP address")) return ;
+		if (!verifyIP0(f.DS1,"primary DNS address")) return ;
+		if (!verifyIP0(f.DS2,"secondary DNS address")) return ;
+	  }
+	   
+	  if (!verifyMAC(f.WMAC,"MAC address",1)) return ;
+        
+	  setCfg("DSFIX",evalDnsFix(f.DS1.value,f.DS2.value));
+	  if (f.PIPEN[0].checked) setCfg("DSFIX",0); // if dynamic, don't use fix dns   
+	  setCfg("PIDL",getCfg("PIDL")*60);//set pppoe idle time
+	  
+    }
+	/*REAL<%#endif //CONFIG_L2TP_OVER_PPPOE%>REAL*/
+	
+	if(f.LTWANIF[1].checked)//l2tp static ip
+	{
+		if (!verifyIP2(f.LTIP,"IP address")) return ;
+		if (!ipMskChk(f.LTMSK,"subnet mask")) return ;
+		if (!verifyIP0(f.LTGW,"gateway address")) return ;
+	}
+	if (!verifyIP2(f.LTSVR,"server IP address/name")) return ;
+	if (!rangeCheck(f.LTMTU,546,1460,"MTU")) return ;
+	if (!rangeCheck(f.LTIDL,60,3600,"idle time")) return ; 
+	if (!chkStrLen(f.LTUN,1,255,"user name")) return ;
+	if (!chkStrLen(f.LTPW,0,255,"user password")) return ;
+	if (!chkPwdUpdate(f.LTPW,f._ps2,f._changed)) return;
+
+	setCfg("WANT",5);
+	form2Cfg(f);
+	subForm(f,'do_cmd.htm','LAN',cPage);
+}
+
+function init() {
+	var f = document.L2T;
+	cfg2Form(f);
+	clickL2T();
+
+	/*REAL<% #ifdef CONFIG_L2TP_OVER_PPPOE%>REAL*/
+	if(f.LTWANIF[2].checked)
+	  clickPOE();
+	if (f.clnEn.value=='1') 
+	  setCln(f,getCfg("WMAC")); 
+	else clrCln(f);
+	/*REAL<%#endif //CONFIG_L2TP_OVER_PPPOE%>REAL*/
+}
+
+function Cancel()
+{
+	init();
+}
+function Help()
+{
+	window.open("help_home.htm#l2tp","help");
+}
+
+function clickL2T()
+{
+	var f = document.L2T; 
+    var b;
+			
+    /*REAL<% #ifdef CONFIG_L2TP_OVER_PPPOE%>REAL*/
+	if(f.LTWANIF[2].checked)
+	{	document.getElementById("l2tp_pppoe").style.display="";
+	    document.getElementById("l2tp_client_setting").style.display="none";
+		document.getElementById("pppoe_connection_mode").style.display="";
+		document.getElementById("l2tp_connection_mode").style.display="none";
+		clickPOE();
+	}
+	else
+	/*REAL<%#endif //CONFIG_L2TP_OVER_PPPOE%>REAL*/
+	{
+		document.getElementById("l2tp_pppoe").style.display="none";
+		document.getElementById("l2tp_client_setting").style.display="";
+		document.getElementById("pppoe_connection_mode").style.display="none";
+		document.getElementById("l2tp_connection_mode").style.display="";
+
+		b = ((f.LTWANIF[0].checked)? true:false);
+	    f.LTIP.disabled = b;
+        f.LTMSK.disabled = b;
+	    f.LTGW.disabled = b; 
+	}
+   
+}
+
+function clickPOE()
+{
+	var f = document.L2T; 
+	var b = ((f.PIPEN[0].checked)? true : false);
+	f.PIP.disabled = f.DS1.disabled = f.DS2.disabled = b; 
+}
+
+function setL2tpClientSelection()
+{
+	var str = "";
+	str+="<tr>\
+	<td width=34%>&nbsp;</td>\
+	<td width=66%>\
+	<input type=radio value=0 name=LTWANIF onClick=clickL2T()>Dynamic IP\
+	<input type=radio value=1 name=LTWANIF onClick=clickL2T()>Static IP";
+	/*REAL<% #ifdef CONFIG_L2TP_OVER_PPPOE%>REAL*/
+	str+="<input type=radio value=2 name=LTWANIF onClick=clickL2T()>PPPoE";
+	/*REAL<%#endif //CONFIG_L2TP_OVER_PPPOE%>REAL*/
+	str+="</td>\
+	</tr>";
+	document.write(str);
+}
+
+function init_show()
+{
+	var f = document.L2T; 
+	var b = ((f.LTWANIF[0].checked)? true:false);
+	f.LTIP.disabled = b;
+    f.LTMSK.disabled = b;
+	f.LTGW.disabled = b; 
+
+    /*REAL<% #ifdef CONFIG_L2TP_OVER_PPPOE%>REAL*/
+	if(f.LTWANIF[2].checked)
+	{	document.getElementById("l2tp_pppoe").style.display="";
+	    document.getElementById("l2tp_client_setting").style.display="none";
+		document.getElementById("pppoe_connection_mode").style.display="";
+		document.getElementById("l2tp_connection_mode").style.display="none";
+	}
+	else	
+	/*REAL<%#endif //CONFIG_L2TP_OVER_PPPOE%>REAL*/	
+	{
+		document.getElementById("l2tp_pppoe").style.display="none";
+		document.getElementById("l2tp_client_setting").style.display="";
+		document.getElementById("pppoe_connection_mode").style.display="none";
+		document.getElementById("l2tp_connection_mode").style.display="";
+	}
+   
+}
+</SCRIPT>
+
+</head>
+
+<body leftmargin=0 topmargin=0 Onload=init()>
+<script>pageHead();</script>
+<FORM name=L2T>
+	<script>pageWanSel(Number(getCfg("opmode")));</script>
+
+<table width=100%>
+<tr> 
+	<td colspan=2 height=30><font face=Arial size=2 color=#8bacb1><b>L2TP Client</b></td>
+</tr>
+<script>setL2tpClientSelection();</script>
+</table>
+
+<table width=100% id="l2tp_pppoe">
+<tr>
+	<td width=34%>&nbsp;</td>
+</tr>
+<tr>
+	<td height=30><font face=Arial size=2 color=#8bacb1>PPP over Ethernet</font></td>
+	<td>
+	<input type=radio value=0 name=PIPEN onClick=clickPOE()>Dynamic PPPoE 
+	<input type=radio value=1 name=PIPEN onClick=clickPOE()>Static PPPoE
+	</td>
+</tr>
+<tr>
+	<td>PPPoE User Name</td>
+	<td><input type=text name=PUN size=30 maxlength=63></td>
+</tr>
+<tr>
+	<td>PPPoE User Password</td>
+	<td><input type=password name=PPW size=30 maxlength=63 value=****** onKeyPress=chkPwd1Chr(PPW,_ps1,_changed1);></td>
+			<input type=hidden name=_changed1 value=0>
+</tr>
+<tr>
+	<td>Confirm Password</td>
+	<td><input type=password name=_ps1 size=30 maxlength=63 value=****** onKeyPress=chkPwd1Chr(PPW,this,_changed1);></td>
+</tr>
+<tr>
+	<td>Service Name</td>
+	<td><input type=text name=PSN size=30 maxlength=63>(Optional)</td>
+</tr>
+<tr>
+	<td>IP Address</td>
+	<td><input type=text name=PIP size=16 maxlength=15></td>
+</tr>
+<tr> 
+	<td>MAC Address</td>
+	<td> 
+	<input type=hidden name=clnEn>
+	<input name=WMAC size=2 maxlength=2> -
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2>(Optional) 
+	<input type=button name=cln onClick=clnMac(this.form)>
+	</td>
+</tr>
+<tr>
+	<td>Primary DNS Address</td>
+	<td><input type=text name=DS1 size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td>Secondary DNS Address</td>
+	<td>
+		<input type=text name=DS2 size=16 maxlength=15>(Optional)
+		<input type=text name=PIDL maxlength=4 size=4 style="display:none">
+	</td>
+</tr>
+<tr>
+	<td>PPPoE MTU</td>
+	<td><input type=text name=PMTU maxlength=4 size=5></td>
+</tr>
+</table>
+
+<table width=100% id="l2tp_client_setting">
+<tr>
+	<td width=34%>&nbsp;</td>
+</tr>
+<tr> 
+	<td>IP Address</td>
+	<td><input type=text name=LTIP size=16 maxlength=15></td>
+</tr>
+<tr> 
+	<td>Subnet Mask</td>
+	<td><input type=text name=LTMSK size=16 maxlength=15></td>
+</tr>
+<tr> 
+	<td>Gateway</td>
+	<td><input type=text name=LTGW size=16 maxlength=15></td>
+</tr>
+</table>
+
+<table width=100%>
+<tr>
+	<td width=34%>&nbsp;</td>
+</tr>
+<tr> 
+	<td>Server IP Address/Name</td>
+	<td><input type=text name=LTSVR size=16 maxlength=15></td>
+</tr>
+<tr> 
+	<td>L2TP User Name</td>
+	<td><input type=text name=LTUN size=32 maxlength=63></td>
+</tr>
+<tr> 
+	<td>L2TP User Password</td>
+	<td><input type=password name=LTPW size=32 maxlength=63 value=****** onkeypress=chkPwd1Chr(LTPW,_ps2,_changed)></td>
+			<input type=hidden name=_changed value=0>
+</tr>
+<tr> 
+	<td>Confirm Password</td>
+	<td><input type=password name=_ps2 size=32 maxlength=63 value=****** onkeypress=chkPwd1Chr(LTPW,this,_changed)></td>
+</tr>
+<tr> 
+	<td>Maximum Idle Time</td>
+	<td><input type=text name=LTIDL maxlength=4 size=4>Sec</td>
+</tr>
+<tr> 
+	<td>MTU</td>
+	<td><input type=text name=LTMTU maxlength=4 size=5></td>
+</tr>
+</table>
+<!--add for l2tp only-->
+<table width=100% id="l2tp_connection_mode">
+<tr>
+	<td width=34%>&nbsp;</td>
+</tr>
+<tr>
+	<td>Connection mode</td>
+	<td>
+	<input type=radio name=LTCM value=0>Auto connection
+	<input type=radio name=LTCM value=2>Manual connection
+	<input type=radio name=LTCM value=1>Connection in use
+	</td>
+</tr>
+</table>
+<!--add for l2tp over pppoe-->
+<table width=100% id="pppoe_connection_mode">
+<tr>
+	<td width=34%>&nbsp;</td>
+</tr>
+<tr>
+	<td>Connection mode</td>
+	<td>
+	<input type=radio name=PCM value=0>Auto connection
+	<input type=radio name=PCM value=2>Manual connection
+	<input type=radio name=PCM value=1>Connection in use
+	</td>
+</tr>
+</table>
+	<script>pageButton();</script>
+</form>
+
+<script>pageTail();</script>
+</BODY>
+</HTML>

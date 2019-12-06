@@ -1,0 +1,134 @@
+<html>
+<head>
+<title>Ralink Wireless Access Point</title>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=big5">
+<link REL=stylesheet TYPE="text/css" HREF="style.css">
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+/*DEMO*/
+addCfg("opmode",101,"1");
+addCfg("WANT",100,"1");
+addCfg("WANIP",31,"10.10.10.221");
+addCfg("WANMSK",32,"255.255.255.0");
+addCfg("WANGW",33,"10.10.10.253");
+addCfg("MTU",50,"1500");
+addCfg("DSFIX",0x33,"1");
+addCfg("DS1",0x34,"168.95.1.1");
+addCfg("DS2",0x35,"");
+addCfg("WMAC",51,"00:CC:11:22:33:44");
+addCfg("clnEn",52,"1");
+var cln_MAC="00:CC:AA:00:12:45";
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+CGI_MAP(WANIP, CFG_WAN_IP);
+CGI_MAP(WANMSK, CFG_WAN_MSK);
+CGI_MAP(WANGW, CFG_WAN_GW);
+CGI_MAP(MTU, CFG_WAN_MTU);
+CGI_MAP(DSFIX, CFG_DNS_FIX);
+CGI_MAP(DS1, CFG_DNS_SVR+1);
+CGI_MAP(DS2, CFG_DNS_SVR+2);
+CGI_MAP(WANT, CFG_WAN_IP_MODE);
+CGI_MAP(WMAC, CFG_WAN_DHCP_MAC);
+CGI_MAP(clnEn, CFG_WAN_DHCP_MAC_EN);
+%>
+var cln_MAC = <%CGI_GET_CLN_MAC();%> ;
+REAL*/
+addCfg("mode",0,"1");
+
+var __opmode = 1*getCfg("opmode");
+
+function Apply() {
+	var f=document.SIP;
+	if (!verifyIP2(f.WANIP,"IP 位址")) return ;
+	if (!ipMskChk(f.WANMSK,"子網路遮罩")) return ;
+	if (!verifyIP2(f.WANGW,"ISP 閘道器位址")) return ;
+
+	if (!verifyMAC(f.WMAC,"MAC 位址",1)) return	;
+	if (!verifyIP2(f.DS1,"主要的 DNS 伺服器")) return ;
+	if (!verifyIP0(f.DS2,"次要的 DNS 伺服器")) return ;
+	if (!rangeCheck(f.MTU,576,1500,"MTU")) return ;
+
+	setCfg("DSFIX",1);
+	setCfg("WANT",1);
+	form2Cfg(f);
+	subForm(f,'do_cmd.htm','LAN',cPage);
+}
+
+function init() {
+	var f=document.SIP;
+	cfg2Form(f);
+	if (f.clnEn.value=='1') setCln(f,getCfg("WMAC")); else clrCln(f);
+}
+
+function Cancel()
+{
+	init();
+}
+
+function Help()
+{
+	window.open("help_home.htm#fixed","help");
+}
+</SCRIPT>
+
+</head>
+
+<body leftmargin=0 topmargin=0 Onload=init()>
+<script>pageHead();</script>
+
+<FORM name=SIP>
+<script>pageWanSel(Number(getCfg("opmode")));</script>
+<br><br>
+
+<table width=100%>
+<tr>
+	<td colspan=2 height=30><font face=Arial size=2 color=#8bacb1><b>固定 IP 位址</b></td>
+</tr>
+<tr>
+	<td width=34%>IP 位址</td>
+	<td width=66%><input name=WANIP size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td>子網路遮罩</td>
+	<td><input name=WANMSK size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td>ISP 閘道器位址</td>
+	<td><input name=WANGW size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td>MAC 位址</td>
+	<td>
+	<input type=hidden name=clnEn>
+	<input name=WMAC size=2 maxlength=2> -
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2>(可不填) 
+	<input type=button name=cln onClick=clnMac(this.form)>
+	</td>
+</tr>
+<tr>
+	<td>主要的 DNS 伺服器</td>
+	<td><input name=DS1 size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td>次要的 DNS 伺服器</td>
+	<td><input name=DS2 size=16 maxlength=15>(可不填)</td>
+</tr>
+<tr>
+	<td>MTU</td>
+	<td><input name=MTU maxlength=4 size=5></td>
+</tr>
+	</FORM>
+</table>
+
+<script>pageButton();</script>
+<script>pageTail();</script>
+</BODY>
+</HTML>

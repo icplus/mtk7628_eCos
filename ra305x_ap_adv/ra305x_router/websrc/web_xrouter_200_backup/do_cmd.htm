@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
+<html>
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/style.css" rel="stylesheet" rev="stylesheet" type="text/css" />
+    <title>Ralink Wireless Access Point</title>
+    <script language="JavaScript" src="js/utils.js"></script>
+    <script language="JavaScript" src="js/spec.js"></script>
+    <script language="JavaScript" src="js/utils_adv.js"></script>
+    <script language="JavaScript">
+    /*DEMO*/
+    addCfg("opmode", 100, "3");
+    /*END_DEMO*/
+    /*REAL
+    <%
+    CGI_MAP(opmode, CFG_SYS_OPMODE);
+    %>
+    REAL*/
+    var __opmode = 1 * getCfg("opmode");
+    var lang = "<% CGI_CFG_GET(CFG_SYS_Language); %>";
+
+    var my_xml;
+
+    // you have to load language object for displaying words in each html page and load html object for the redirect or return page
+
+    var err_msg = [
+        "Error",
+        "Saving Error",
+        "Out of Range",
+        "Ping Result: Timeout",
+        "Only administrators can change settings",
+        "Invalid File"
+    ];
+    if(lang == 1)
+    {
+            var ok_msg = [
+                    "设置成功，点击“继续”按钮继续！",
+                    "保存成功",
+                    "Ping Results: Alive",
+                    "重启",
+                    "E-mail has been sent",
+                    "Upgrade is complete",
+                    "Upgrade is complete",
+                    "正在连接"
+                            ];
+    }
+   else{
+            var ok_msg = [
+                   "Setup is successful, click the 'Continue' button to continue!",
+                   "Save Settings",
+                   "Ping Results: Alive",
+                   "Reboot",
+                   "E-mail has been sent",
+                   "Upgrade is complete",
+                   "Upgrade is complete",
+                   "Connecting"
+                   ];
+   }
+    var rc = 0;
+    var go;
+    var nowait = '0';
+    var msg = '';
+    var cmd;
+
+    function gurl(u) {
+        if (u == '') u = 'wz.htm';
+        location = u;
+    }
+
+    /*REAL
+        var cmd='<%char *cmd = CGI_QUERY("CMD");%>';
+        var nowait='<%char * nowait=CGI_QUERY("nowait");%>';
+        if (cmd=='SYS_UPG')  msg = "Update..";
+    REAL*/
+    </SCRIPT>
+</HEAD>
+
+<BODY>
+    <script>
+    pageHead();
+    </script>
+    <!--REAL
+<%
+#ifdef CONFIG_ZWEB
+if (cmd && strcmp(cmd, "SYS_UPG") == 0)
+{
+    extern int lock_web_file(char *filename);
+}
+#endif
+%>
+<% if (!nowait) { %>
+REAL-->
+    <div style="width:60%;height:200px;margin:0 auto; text-align:center;">
+        <div>
+            <div id="MSG" style="margin-bottom:60px;margin-left:20px">
+                <!--<script>
+                document.write(msg);
+                </script>-->
+            </div>
+            <div id="IMG"></div>
+            <div id="BTN"></div>
+        </div>
+    </div>
+    <!--REAL
+<%}%>
+REAL-->
+    <script>
+    /*REAL
+                var go='<%CGI_QUERY("GO");%>';
+            <%
+            #ifdef CONFIG_ZWEB
+            if (cmd && strcmp(cmd, "SYS_UPG") == 0)
+            {
+                extern int unlock_web_file(char *filename);
+            }
+            #endif
+            %>
+            REAL*/
+
+    if (nowait == 1 && rc >= 0) {
+        gurl(go);
+    }
+
+    if (rc >= 0) {
+        if (rc < ok_msg.length) {
+            msg = ok_msg[rc];
+            IMG = "<img src='/images/right.png'>";
+        } else {
+            msg = "Success";
+            IMG = "<img src='/images/right.png'>";
+        }
+    } else {
+        var i = -1 - rc;
+        if (i < err_msg.length) {
+            msg = err_msg[i];
+        } else {
+            msg = "Error";
+        }
+    }
+
+    switch (rc) {
+        case 5:
+            btn = '<input type="button" value="Reboot" onclick="gurl("do_cmd.htm?CMD=SYS_CONF&CCMD=0&nowait=1")" class="btn" />';
+            break;
+
+        default:
+            btn = '<input type="button" value="Continue" onclick="gurl(go)" class="btn" />';
+            break;
+    }
+    /*DEMO*/
+    btn = '<input type="button" value="Continue" onclick="history.go(-1)" class="btn" />'
+        /*END_DEMO*/
+
+    if (nowait != 1) {
+        document.getElementById("MSG").innerHTML = msg;
+        document.getElementById("BTN").innerHTML = btn;
+    }
+    </script>
+    <script>
+    pageTail();
+    </script>
+</body>
+
+</html>

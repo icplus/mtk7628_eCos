@@ -1,0 +1,233 @@
+<!-- Copyright 2006, Ralink Technology Corporation All Rights Reserved. -->
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=utf8">
+<link href="css.css" rel="stylesheet" type="text/css">
+<title>Ralink Wireless Access Point</title>
+<SCRIPT language=JavaScript src=lang.js></SCRIPT>
+<SCRIPT language=JavaScript src=wireless.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language="JavaScript" type="text/javascript"> 
+
+/*REAL
+<%
+CGI_MAP(n_autoba, CFG_WLN_HT_AutoBA);
+CGI_MAP(n_mpdu_density, CFG_WLN_HT_MpduDensity);
+CGI_MAP(ba_window_size, CFG_WLN_HT_BAWinSize);
+CGI_MAP(n_decline, CFG_WLN_HT_BADecline);
+%>
+REAL*/
+
+var AutoBA = "<% CGI_CFG_GET(CFG_WLN_HT_AutoBA); %>";
+var MpduDensity = "<% CGI_CFG_GET(CFG_WLN_HT_MpduDensity); %>";
+var BAWindowSize = "<% CGI_CFG_GET(CFG_WLN_HT_BAWinSize); %>";
+var BADecline = "<% CGI_CFG_GET(CFG_WLN_HT_BADecline); %>";
+var datSubWinVar = null;
+
+function checkBrowser()
+{
+  this.ver=navigator.appVersion
+  this.dom=document.getElementById?1:0
+  return this;
+}
+
+function open_add_window()
+{
+	var bw=new checkBrowser();
+
+	if(bw.dom)
+	{
+		if ((datSubWinVar != null) && (datSubWinVar.closed == false))
+			datSubWinVar.close();
+		datSubWinVar = window.open('originator_add_ba.html','AddOriginatorBA','width=420,height=340,resizable=1,scrollbars=yes');
+	}
+	else
+	{
+		if ((datSubWinVar != null) && (datSubWinVar.closed == false))
+			datSubWinVar.close();
+		datSubWinVar = window.open('originator_add_ba.html','AddOriginatorBA','width=420,height=340,resizable=1,scrollbars=yes');
+	}
+}
+
+function open_del_ori_window()
+{
+	var bw=new checkBrowser();
+
+	if(bw.dom)
+	{
+		if ((datSubWinVar != null) && (datSubWinVar.closed == false))
+			datSubWinVar.close();
+		datSubWinVar = window.open('originator_del_ba.html','DelOriginatorBA','width=420,height=340,resizable=1,scrollbars=yes');
+	}
+	else
+	{
+		if ((datSubWinVar != null) && (datSubWinVar.closed == false))
+			datSubWinVar.close();
+		datSubWinVar = window.open('originator_del_ba.html','DelOriginatorBA','width=420,height=340,resizable=1,scrollbars=yes');
+	}
+}
+
+function open_del_rec_window()
+{
+	var bw=new checkBrowser();
+
+	if(bw.dom)
+	{
+		if ((datSubWinVar != null) && (datSubWinVar.closed == false))
+			datSubWinVar.close();
+		datSubWinVar = window.open('recipient_del_ba.html','DelRecipientBA','width=420,height=340,resizable=1,scrollbars=yes');
+	}
+	else
+	{
+		if ((datSubWinVar != null) && (datSubWinVar.closed == false))
+			datSubWinVar.close();
+		datSubWinVar = window.open('recipient_del_ba.html','DelRecipientBA','width=420,height=340,resizable=1,scrollbars=yes');
+	}
+}
+
+function initValue()
+{
+	if (1*AutoBA == 0)
+		document.wireless_block_ack.n_autoba[0].checked = true;
+	else
+		document.wireless_block_ack.n_autoba[1].checked = true;
+
+	document.wireless_block_ack.n_mpdu_density.options.selectedIndex = 1*MpduDensity;
+
+	if (1*BADecline == 0)
+		document.wireless_block_ack.n_decline[0].checked = true;
+	else
+		document.wireless_block_ack.n_decline[1].checked = true;
+
+	//if ((1*BAWindowSize >=1) && (1*BAWindowSize <=32))
+		//document.wireless_block_ack.ba_window_size.value = 1*BAWindowSize;
+	//else
+		//document.wireless_block_ack.ba_window_size.value = 8;
+}
+
+function init()
+{
+	var f=document.LAN;
+	cfg2Form(f);
+}
+function Cancel() {
+	init();
+}
+function Help(){
+	window.open("help_home.htm#lan","help");
+}
+function Apply()
+{
+	//var BaWinSize = document.wireless_block_ack.ba_window_size.value;
+
+	//if ((BaWinSize <= 0) && (BaWinSize > 32))
+	//{
+		//alert("Block ACK Window size are wrong !!!");
+		//document.wireless_basic.ssid.focus();
+		//document.wireless_basic.ssid.select();
+		//return false;
+	//}
+
+	var f=document.wireless_block_ack;
+	
+	form2Cfg(f);
+
+	subForm(f,'do_cmd.htm','WIRELESS_BLOCK_ACK',cPage);
+
+	return true;
+	
+}
+</script>
+</head>
+
+<link rel=stylesheet type=text/css href=style.css>
+<BODY leftmargin=0 topmargin=0 onload=initValue()>
+
+<TABLE WIDTH=100%>
+  <script>pageHead();</script>
+
+<form method=get name=wireless_block_ack action=wireless_block_ack.html onSubmit="return Apply()">
+
+	<table width=100% cellspacing=2 cellpadding=0>
+		<tr> 
+			  <td colspan=2><font face=Arial color=#8bacb1 size=2><b>Wi-Fi Block Ack Setup</b></font></td>
+		</tr>
+	</table>	
+	
+<table width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+	<tr> 
+		<td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b>11n & Block ACK Setup</b></font></td>
+	</tr>
+	<tr>
+		<td width="45%" bgcolor="#E8F8FF" nowrap>Auto Block ACK</td>
+		<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+			<input type=radio name=n_autoba value="0" checked>Disable&nbsp;
+			<input type=radio name=n_autoba value="1">Enable
+		</b></font></td>
+	</tr>
+	<tr>
+		<td width="45%" bgcolor="#E8F8FF" nowrap>MPDU Density</td>
+		<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+			<select name="n_mpdu_density" size="1" style="{font-family:arial; width:100px; color:#003366; font-weight: bold; font-size: 9pt;}">
+				<option value=0 selected>0</option>
+				<option value=1>1</option>
+				<option value=2>2</option>
+				<option value=3>3</option>
+				<option value=4>4</option>
+				<option value=5>5</option>
+				<option value=6>6</option>
+				<option value=7>7</option>
+        	</select>
+		</b></font></td>
+	</tr>
+<!--
+	<tr>
+		<td width="45%" bgcolor="#E8F8FF" nowrap>Block ACK Window Size</td>
+		<td bgcolor="#FFFFFF"><input type=text name=ba_window_size size=8 maxlength=2 value=""> (range 1 - 32, default 8)</td>
+	</tr>
+-->
+	<tr>
+		<td width="45%" bgcolor="#E8F8FF" nowrap>Decline BA Req</td>
+		<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+			<input type=radio name=n_decline value="0" checked>Disable&nbsp;
+			<input type=radio name=n_decline value="1">Enable
+		</b></font></td>
+	</tr>
+</table>
+<br><br>
+<table width="423" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+	<tr> 
+		<td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b>Originator</b></font></td>
+	</tr>
+</table>
+<iframe src="ba_originator_sta_info.html" name="ba_originator_sta_info" width="423" height="220" align="left">
+</iframe>
+<br>
+<br><br><br><br><br>
+&nbsp;&nbsp;<input type=button style="{width:117px;}" name="add_originator_ba" value="Add" onClick="open_add_window();">
+<br><br>
+&nbsp;&nbsp;<input type=button style="{width:117px;}" name="del_originator_ba" value="Delete" onClick="open_del_ori_window();">
+<br><br><br><br><br><br><br>
+<table width="423" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+	<tr> 
+		<td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b>Recipient</b></font></td>
+	</tr>
+</table>
+<iframe src="ba_recipient_sta_info.html" name="ba_recipient_sta_info" width="423" height="220" align="left">
+</iframe>
+<br>
+<br><br><br><br><br>
+&nbsp;&nbsp;<input type=button style="{width:117px;}" name="del_recipient_ba" value="Delete" onClick="open_del_rec_window();">
+<br><br><br><br><br><br><br><br><br>
+
+</form>
+
+<script>pageButton();</script>
+<script>pageTail();</script> 
+
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!-- Copyright 2004, Ralink Technology Corporation All Rights Reserved. -->
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<link href="css.css" rel="stylesheet" type="text/css">
+<title>Ralink Wireless Access Point Add Originator BA Session</title>
+<script language="JavaScript" type="text/javascript">
+var PrRow=null;
+var PrColorSelection;
+var ColorSelection='skyblue';
+var STAMACADDR="";
+
+function SelectRow(Obj, vMAC)
+{
+	if (PrRow != null)
+	{
+		PrRow.style.backgroundColor = PrColorSelection;
+	}
+
+	PrRow = Obj;
+	PrColorSelection=Obj.style.backgroundColor;
+	Obj.style.backgroundColor=ColorSelection;
+	STAMACADDR = vMAC;
+
+	document.recipient_del_ba.n_ba_sta_macaddr.value = STAMACADDR;
+}
+
+function UpdateBAValue()
+{
+	opener.location.href = "wireless_block_ack.html";
+	window.close();
+}
+
+function checkValue()
+{
+	var f = document.forms[0];
+
+	f.submit();
+	setTimeout('UpdateBAValue()', 2000);
+
+	return true;
+}
+</script>
+</head>
+
+<body>
+<form method=get name=recipient_del_ba action=recipient_del_ba.html>
+<table align="center" width="320" border="0" cellspacing="0" cellpadding="0">
+	<tr>
+		<td align="right">
+			<input type="button" name="Refresh" value="Refresh" style="font-size: 9pt;" onClick="window.location.reload()">
+			<input type="button" name="Close" value="Close" style="font-size: 9pt;" onClick="window.close()">
+		</td>
+	</tr>
+</table>
+<br>
+<table align="center" width="320" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+	<tr>
+		<td width="45%" bgcolor="#E8F8FF" nowrap>TID</td>
+		<td bgcolor="#FFFFFF" colspan="2"><font color="#003366" face=arial><b>
+			<select name="n_tid" size="1" style="{font-family:arial; width:100px; color:#003366; font-weight: bold; font-size: 9pt;}">
+				<option value = 0>0</option>
+				<option value = 1>1</option>
+				<option value = 2>2</option>
+				<option value = 3>3</option>
+				<option value = 4>4</option>
+				<option value = 5>5</option>
+				<option value = 6>6</option>
+				<option value = 7>7</option>
+        	</select>
+		</b></font></td>
+	</tr>
+</table>
+<br>
+<table align="center" width="320" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+	<tr>
+		<td align="center" bgcolor="#B7DCFB"colspan="3"><font color="#333333"><b>Station Associate List</b></font></td>
+	</tr>
+	<tr>
+		<td align="center" bgcolor="#E8F8FF" nowrap>MAC Address</td>
+		<td align="center" bgcolor="#E8F8FF" nowrap>AID</td>
+		<td align="center" bgcolor="#E8F8FF" nowrap>Power Save</td>
+	</tr>
+	<% CGI_WLN_HT_STA_ASSOCIATE_LIST();%>
+	
+</table>
+<br>
+<input type="hidden" name="n_ba_sta_macaddr">
+<table align="center" width = "320" border = "0" cellpadding = "2" cellspacing = "1">
+	<tr align="center">
+		<td>
+			<input type=button style="{width:120px;}" name="Apply" value="Apply" onClick="return checkValue();"> &nbsp; &nbsp; <input type=reset  style="{width:120px;}" value="Cancel" onClick="window.location.reload()">
+		</td>
+	</tr>
+</table>
+</form>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<HTML>
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=utf8">
+<TITLE>Ralink Wireless Access Point</TITLE>
+	<link REL=stylesheet TYPE="text/css" HREF="style.css">
+
+<SCRIPT language=JavaScript src=lang.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+/*DEMO*/
+addCfg("LANIP",0,"192.168.0.1");
+addCfg("LANMSK",0,"255.255.255.0");
+addCfg("dns",6,1);
+addCfg("domain",7,'');
+addCfg("lanspeed",8,1);
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(LANIP, CFG_LAN_IP);
+CGI_MAP(LANMSK, CFG_LAN_MSK);
+CGI_MAP(dns, CFG_DNS_EN);
+CGI_MAP(domain, CFG_SYS_DOMAIN);
+CGI_MAP(lanspeed, CFG_LAN_PHY);
+%>
+REAL*/
+var lang="lanst"
+function init()
+{
+	var f=document.LAN;
+	cfg2Form(f);
+}
+function Cancel() {
+	init();
+}
+function Apply() {
+	var f=document.LAN;
+	var LIP = f.LANIP.value;
+	var WIP = "<%CGI_WAN_IP() ;%>";
+	var WanMSK = "<% CGI_WAN_MSK(); %>";
+	var LanMsk="<% CGI_CFG_GET(CFG_LAN_MSK); %>";
+
+	if (!verifyIP2(f.LANIP,"IP address")) return ;
+	if (!ipMskChk(f.LANMSK,"subnet mask")) return ;
+
+	if(ByMask_IPrange(LIP, LanMsk, 0)==ByMask_IPrange(WIP, WanMSK, 0))
+	{
+			alert("Attention: LAN IP and WAN IP should not in the same subnet!!\nWAN IP:"+WIP+"\nLAN IP:"+LIP);
+			return;
+	}
+
+	form2Cfg(f);
+
+	subForm(f,'do_cmd.htm','LAN',cPage);
+}
+function Help(){
+	window.open("help_home.htm#lan","help");
+}
+</SCRIPT>
+</HEAD>
+
+<BODY leftmargin=0 topmargin=0 onLoad=init()>
+<script>pageHead();</script>
+
+<FORM name=LAN>
+<table width=100% border=0 height=152>
+<tr>
+<td colspan=2 height=20><font face=Arial color=#8bacb1 size=2><b><span id=_0>LAN Settings</span></b></font></td>
+</tr>
+<tr>
+<td width=30%><span id=_1>IP Address</span></td>
+<td><input name=LANIP size=16 maxlength=15 ></td>
+</tr>
+<tr>
+<td><span id=_2>Subnet Mask</span></td>
+<td><input name=LANMSK size=16 maxlength=15 ></td>
+</tr>
+<tr>
+<td><span id=_3>Domain Name</span></td>
+<td><input name=domain size=40 maxlength=31><span id=_7>(Optional)</span></td>
+</tr>
+<tr>
+	<td colspan=2 height=20>&nbsp;</td>
+	</tr>
+	<tr>
+		<td colspan=2 height=20><b><font face="Arial" color="#8bacb1" size=2><span id=_4>DNS Relay</span></b></font></td>
+	</tr>
+	<tr>
+		<td height=20 align=right></td>
+		<td height=20><input type=radio name=dns value=1><span id=_5>Enable</span><input type=radio name=dns value=0><span id=_6>Disable</span></td>
+	</tr>
+	<tr>
+		<td></td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td colspan=2 height=20><b><font face="Arial" color="#8bacb1" size=2>LAN SPEED</b></font></td>
+	</tr>
+	<tr>
+		<td height=20 align=right></td>
+		<td height=20>
+			<input name="lanspeed" type="radio" value="2">10M &nbsp;
+			<input name="lanspeed" type="radio" value="4">100M &nbsp;
+			<input name="lanspeed" type="radio" value="0">AUTO
+		</td>
+	</tr>	
+<tr>
+</table>
+</form>
+
+<script>pageButton();</script>
+<script>pageTail();</script>
+<script>chglang();</script>
+</BODY>
+</HTML>

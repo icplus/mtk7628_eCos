@@ -1,0 +1,86 @@
+<HTML> 
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<link rel=stylesheet type=text/css href=style.css>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT> 
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT> 
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+/*DEMO*/
+	addCfg("opmode",100,"3");
+    FirwareVerion="v1.00(C)";
+    FirwareDate=dateStrC(1103895780+28800);
+/*END_DEMO*/
+/*REAL
+    FirwareVerion="v<%CGI_CUST_VER_STR();%>";
+    FirwareDate=dateStrC(<%CGI_FMW_BUILD_SEC();%>);
+REAL*/
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+
+
+var __opmode = 1*getCfg("opmode");
+
+function Apply(){
+	f=document.frmSetup;
+	if(f.files.value=="")
+       {
+		alert("請選擇檔案!");
+		return ;
+	}      
+	if(confirm('您確定要升級嗎?')){
+	f.submit() ;
+	}
+}
+function Cancel() {
+	init();
+}
+function Help(){
+	window.open("help_tools.htm#fwug","help");
+}
+function init()
+{
+	document.frmSetup.reset();
+}
+</SCRIPT>
+
+</HEAD>
+
+<BODY leftmargin=0 topmargin=0 onLoad=init()>
+<script>pageHead();</script>
+
+<form  name=frmSetup method=POST action=do_cmd.htm enctype=multipart/form-data>
+<input type=hidden name=CMD value=SYS_UPG>
+<INPUT type=hidden name=GO value=firmware.htm>
+<table width=100% border=0 cellpadding=0 height=217>
+<tr>
+      <td height=30 colspan=2><font face=Arial color=#8bacb1 size=2><b>韌體更新</b></font></td>
+</tr>
+
+<tr>
+      <td height=70 colspan=2>
+注意！系統進行韌體更新時不可關閉電源；系統完成更新會自動重新啟動。</td>
+</tr>
+
+<tr>
+      <td height=10 colspan=2 align=center><FONT SIZE=2><B>目前韌體版本: <script language="JavaScript">document.write(FirwareVerion);</script></b></font></td>
+</tr>
+<tr>
+      <td height=10 colspan=2 align=center><FONT SIZE=2><B><b>韌體日期: <script language="JavaScript">document.write(FirwareDate);</script></b></font></td>
+</tr>
+<tr>
+      <td height=54 colspan=2 align=center><input type=file name=files size=20></td>
+</tr>
+</table>
+</form>
+
+<script>pageButton();</script>
+<script>pageTail();</script>
+</BODY>
+</HTML>

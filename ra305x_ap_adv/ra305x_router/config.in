@@ -1,0 +1,338 @@
+#
+#
+mainmenu_name 'Ralink Router Software Configuration'
+
+mainmenu_option next_comment
+comment 'BSP Library (CPU) Select'
+comment 'Mediatek SOC Platform'
+define_bool CONFIG_RA305X y
+string 'BSP Library Directory'  CONFIG_BSP_DIR
+endmenu
+
+if [ "$CONFIG_RA305X" = "y" ]; then
+	define_bool CONFIG_IPHDR_ALIGN y
+	define_bool CONFIG_MIPS y
+fi
+
+
+mainmenu_option next_comment
+comment 'Hardware Configuration'
+comment 'System Configuration'
+	int '  RAM size (MB)' CONFIG_XROUTER_RAM_SIZE 8	
+	
+	comment 'Ethernet Switch Settings'
+	if [ "$CONFIG_RA305X" = "y" ]; then
+		hex '  WAN portmask' CONFIG_RA305X_WAN_PORTMASK	0x01
+		hex '  LAN portmask' CONFIG_RA305X_LAN_PORTMASK	0x1e
+		bool 'Enable Long Loop'	CONFIG_RALINKETH_LONG_LOOP
+		if [ "$CONFIG_RALINKETH_LONG_LOOP" = "y" ]; then
+		bool "Enable Long Loop 3 State" CONFIG_USER_LONG_LOOP_3_STATE
+		fi
+		bool "CONFIG_ETH_ONE_PORT_ONLY(P0)" CONFIG_ETH_ONE_PORT_ONLY
+mainmenu_option next_comment
+comment 'LAN Port Mapping Config'
+		hex '  LAN PORT1 mask' CONFIG_RA305X_PORT1_MASK	0x10
+		hex '  LAN PORT2 mask' CONFIG_RA305X_PORT2_MASK	0x08
+		hex '  LAN PORT3 mask' CONFIG_RA305X_PORT3_MASK	0x04
+		hex '  LAN PORT4 mask' CONFIG_RA305X_PORT4_MASK	0x02
+endmenu
+
+
+	comment 'IPTV Setting'
+		bool 'Support IPTV'	CONFIG_IPTV
+		if [ "$CONFIG_IPTV" = "y" ]; then
+		bool "IPTV Fix Port" CONFIG_IPTV_FIX_PORT  
+		if [ "$CONFIG_IPTV_FIX_PORT" = "y" ]; then
+		hex '  IPTV portmask' CONFIG_RA305X_IPTV_PORTMASk 0x02
+		
+		fi
+		fi
+	fi
+		
+	comment 'Watchdog Timer Settings'
+	bool '  Support Hardware Watchdog' CONFIG_HARDWARE_WATCHDOG n
+	if [ "$CONFIG_HARDWARE_WATCHDOG" = "y" ]; then
+		int '  Watchdog Timer Interval (seconds)' CONFIG_HARDWARE_WATCHDOG_INTERVAL	30
+	fi
+endmenu
+
+mainmenu_option next_comment
+comment 'Software Module options'
+
+comment 'System interfaces configuration'
+bool 'Support WAN I/F'  CONFIG_WANIF
+	if [ "$CONFIG_WANIF" = "y" ]; then
+string 'Specify WAN interface name'  CONFIG_DEFAULT_WAN_NAME
+	fi
+bool 'Support LAN I/F'  CONFIG_LANIF
+	if [ "$CONFIG_LANIF" = "y" ]; then
+string 'Specify LAN interface name'  CONFIG_DEFAULT_LAN_NAME
+	fi
+	if [ "$CONFIG_WIRELESS" = "y" ]; then
+		string 'Specify wireless interface name'  CONFIG_WIRELESS_NAME
+	fi
+	
+bool 'Support FTP Server'  CONFIG_SUPPORT_FTPD
+bool 'Support File System'  CONFIG_FILE_SYSTEM	
+bool 'Support USB Host'  CONFIG_USBHOST	
+bool 'Support Bridge'  CONFIG_BRIDGE
+
+comment 'LED option'
+bool 'Support LED setting'  CONFIG_LED
+
+comment 'BUTTON option'
+bool 'Support Reset default configurarion'  CONFIG_RST
+
+comment 'Networking'
+	int 'MBUF Memory Usage (KB)' CONFIG_NET_MBUF_USAGE	256
+	int 'Cluster Memory Usage (KB)' CONFIG_NET_CLUSTER_USAGE	512
+	bool 'Cluster Size = 2048 ' CONFIG_NET_CLUSTER_SIZE_2048
+	bool 'Net Cluster Pool Group 2' CONFIG_NET_CLUSTER_GROUP2
+	if [ "$CONFIG_NET_CLUSTER_GROUP2" = "y" ]; then
+		int ' Group2 Cluster Memory Usage (KB)' CONFIG_NET_CLUSTER_4K_USAGE	500
+		bool '   Group2 Cluster Size = 2048 ' CONFIG_NET_CLUSTER_GROUP2_SIZE_2048
+	fi
+	bool 'NET MALLOC use cmalloc?' CONFIG_NET_USE_CMALLOC
+	if [ ! "$CONFIG_NET_USE_CMALLOC" = "y" ]; then
+		int '  MBUF MALLOC Usage (KB)' CONFIG_NET_MALLOC_USAGE 256
+	fi
+
+comment  'TCP/IP'
+bool 'Support IPv6 Protocol'	CONFIG_IPV6
+bool 'Support Fast TCP 2MSL'	CONFIG_TCP_FAST_2MSL
+bool 'Support Muticast Routing'  CONFIG_MROUTING
+
+comment 'PPP'
+bool 'Support PPPOE'  CONFIG_PPPOE
+	if [ "$CONFIG_PPPOE" = "y" ]; then
+		bool '  Do not send PADT if received non-current Session ID' CONFIG_POE_DONT_SEND_PADT_WRONG_SID
+		bool '  Manual connection mode with idle time out' CONFIG_PPP_MANUAL_MODE_WITH_IDLE
+	fi
+bool 'Support PPTP'  CONFIG_PPTP
+	if [ "$CONFIG_PPTP" = "y" ]; then
+		bool '  Open PPTP Boost Mode' CONFIG_PPTP_BMODE
+	fi
+	if [ "$CONFIG_PPPOE" = "y" -a "$CONFIG_PPTP" = "y" ]; then
+		bool 'Support for PPTP_PPPOE' CONFIG_PPTP_PPPOE
+	fi	
+bool 'Support L2TP'  CONFIG_L2TP
+	if [ "$CONFIG_L2TP" = "y" ]; then
+		bool '  Open L2TP Boost Mode' CONFIG_L2TP_BOOST_MODE
+	fi
+	if [ "$CONFIG_PPPOE" = "y" -a "$CONFIG_L2TP" = "y" ]; then
+		bool '  Open L2TP Over PPPOE Mode' CONFIG_L2TP_OVER_PPPOE
+	fi
+
+if [ "$CONFIG_PPPOE" = "y" -o "$CONFIG_PPTP" = "y" -o "$CONFIG_L2TP" = "y" ]; then
+	comment	'PPP Advanced Configuration'
+	define_bool CONFIG_PPP y
+	
+	int 'Maximum PPP sessions' CONFIG_PPP_NUM_SESSIONS	1
+	bool 'Support for MS CHAP' CONFIG_CHAPMS
+	bool 'KeepAlive Force Disconnected' CONFIG_POE_KL_FORCE_DISCON
+	bool 'Passive send LCP echo request' CONFIG_POE_PASSIVE_LCP_ECHO_REPLY
+	if [ "$CONFIG_POE_PASSIVE_LCP_ECHO_REPLY" = "y" ]; then
+		int 'LCP server echo request interval(seconds)' CONFIG_LCP_SERV_ECHO_INTERVAL 30
+		int 'Maximum LCP server echo fails' CONFIG_MAX_LCP_SERV_ECHO_FAILS	5
+	fi
+	int 'LCP echo request interval(seconds)' CONFIG_LCP_ECHO_INTERVAL 30
+	int 'Maximum LCP echo fails' CONFIG_MAX_LCP_ECHO_FAILS	5
+	bool 'Stop dial up if authentication fail' CONFIG_POE_STOP_DIAL_IF_AUTH_FAIL
+	bool 'Support MPPE'  CONFIG_MPPE
+fi
+
+comment 'Router Function'
+
+bool 'Support Telnet Server'  CONFIG_TELNET
+
+bool 'Support mDNS'  CONFIG_mDNS
+	if [ "$CONFIG_mDNS" = "y" ]; then
+	    	bool '    Bonjour support' CONFIG_mDNS_Bonjour
+		if [ "$CONFIG_mDNS_Bonjour" = "y" ]; then
+	    	bool '    	Bonjour Debug support' CONFIG_mDNS_Bonjour_DEBUG
+
+	fi
+	fi
+
+bool 'Support NTP'  CONFIG_NTP
+	if [ "$CONFIG_NTP" = "y" ]; then
+	    	bool '  Do not save NTP time and update the LOG time when NTP sync' CONFIG_NTP_NO_SAVE_TIME
+	fi
+
+bool 'Support DHCP Client'  CONFIG_DHCPC
+	if [ "$CONFIG_DHCPC" = "y" ]; then
+		bool '  DHCP client do not support init-reboot state' CONFIG_DHCPC_INIT_REBOOT_STATE_DISABLE
+		bool '  Support Big Pond Authentication Client'  CONFIG_BPA
+	fi
+	
+	if [ "$CONFIG_IPV6" = "y" ]; then
+	bool 'Support DHCPV6'  CONFIG_DHCPV6
+		if [ "$CONFIG_DHCPV6" = "y" ]; then
+		bool '	Support DHCPv6 Client' CONFIG_DHCPV6_CLIENT
+		bool '	Support DHCPv6 Server' CONFIG_DHCPV6_SERVER
+	fi
+	fi
+	
+bool 'Support DHCP Server'  CONFIG_DHCPS
+	if [ "$CONFIG_DHCPS" = "y" ]; then
+		bool '  DHCPD save dynamic clients' DHCPD_SAVE_DYNAMIC_CLIENTS
+		bool '  DHCPD use WAN domain name' CONFIG_DHCPS_WAN_DOMAIN
+	fi	
+	
+
+	
+bool 'Support MAC Clone in all WAN mode' WAN_ALL_MODE_DO_MACCLONE 
+bool 'Support UPnP'  CONFIG_UPNP
+bool 'Support LLTD'  CONFIG_LLTD_DAEMON
+
+comment	'Routing'
+bool 'Fixed Static Route Table' CONFIG_FIXED_STATIC_RT_TABLE
+if [ "$CONFIG_FIXED_STATIC_RT_TABLE" = "y" ]; then
+	int '  Maximum Static Router Entries' CONFIG_STATIC_RT_NUM 20
+fi
+
+comment	'DNS'
+bool 'Support DNS Proxy'  CONFIG_DNS
+if [ "$CONFIG_DNS" = "y" ]; then
+	int '  Maximum DNS cache Entries' CONFIG_DNS_CACHE_NUM 100
+fi
+int 'Maximum WAN DNS Server Number' CONFIG_AUTO_DNS_NUM 3
+int 'Maximum Static DNS Server Number' CONFIG_STATIC_DNS_NUM 3
+comment ' '
+bool 'Support DDNS Client'  CONFIG_DDNS
+if [ "$CONFIG_DDNS" = "y" ]; then
+	hex '  Oray Client Id (Hex)' CONFIG_ORAY_CLIENTID	1001
+	hex '  Oray Client Ver (Hex)' CONFIG_ORAY_CLIENTVER	3612
+	hex '  Oray Client Key (Hex)' CONFIG_ORAY_CLIENTKEY	19790629
+	string '  Oray Server'        CONFIG_ORAY_SERVER 
+fi
+
+comment 'SysLog'
+bool 'Support Syslog'  CONFIG_SYSLOG
+if [ "$CONFIG_SYSLOG" = "y" ]; then
+	#bool '  SysLog single Pool '	CONFIG_LOG_SINGLE_POOL
+	int '  SysLog Pool Size '	CONFIG_LOG_BUF_LEN 16384
+	int '  SysLog Maximum Count' CONFIG_LOG_MAX_COUNT 65535
+	int '  SysLog Send Mail Threshold ' CONFIG_LOG_MAIL_THRESH 400
+	int '  SysLog Num of Mail Address to Send' CONFIG_LOG_MAIL_ADDR_NUM 1
+fi
+
+comment	'NAT'
+bool 'Support NAT'  CONFIG_NAT
+	if [ "$CONFIG_NAT" = "y" ]; then
+		int '  Max NAT Table Entries' CONFIG_NAT_TABLE_MAX 2047
+		bool '  Support port restricted cone NAT' CONFIG_NAT_PORT_RESTRICTED_CONE
+		bool '  Super DMZ' CONFIG_SUPERDMZ
+		bool '  NAPT using sequential port' CONFIG_NAPT_SEQUENTIAL_PORT
+	fi
+
+comment	'Firewall'
+bool 'Support Firewall'  CONFIG_FW
+
+	if [ "$CONFIG_FW" = "y" ]; then
+		comment  '  Firewall Advanced'
+    	bool '  Mac Address Filter' CONFIG_FW_MACF
+    	bool '  Enable Mac Address Filter log' CONFIG_MACFLT_LOG
+		bool '  URL Filter' CONFIG_FW_URLF
+		if [ "$CONFIG_FW_URLF" = "y" ]; then
+		    string 'URL Blocked web file' CONFIG_FW_URL_BLOCK_PAGE
+		fi
+		bool '  Enable URL Filter log' CONFIG_URLFLT_LOG
+		bool '  block any traffic from port-scaner' CONFIG_FW_ISOLATE_PORTSCANER
+		bool '  FW determine default outbound policy according to packet rules ' CONFIG_FW_AUTO_DEFAULT_POLICY
+#		bool '  Support ARP Virus Recovery' CONFIG_ARP_VIRUS_RECOVERY n
+	fi
+
+comment	'  QoS'
+bool 'Support QoS'  CONFIG_QOS
+
+
+bool 'Support HTTP Server'  CONFIG_HTTPD
+	if [ "$CONFIG_HTTPD" = "y" ]; then
+		comment  'HTTP Server Advanced'
+		bool 'Real-time Web Pages Uncompression'  CONFIG_ZWEB
+		if [ "$CONFIG_ZWEB" = "y" ]; then
+			int  'Maximum zweb page size' CONFIG_ZWEB_MAX_PAGE_SIZE 32768
+		fi
+		bool 'Do not check duplicated login'  CONFIG_WITHOUT_CHECK_DUP_LOGIN
+		bool 'Multi User Support' CONFIG_HTTPD_MULTI_USER
+		if [ "$CONFIG_HTTPD_MULTI_USER" = "y" ]; then
+			int  'Maximum User accounts' CONFIG_HTTPD_MAX_USERS 2
+			bool 'Fixed Administrator Account Name' CONFIG_HTTPD_ADMIN_NAME_FIXED y
+			if [ "$CONFIG_HTTPD_ADMIN_NAME_FIXED" = "y" ]; then
+				string 'Administrator Account Name' CONFIG_HTTPD_ADMIN_NAME "admin"
+			fi
+		fi
+		bool 'Diagnostic Web Page'  CONFIG_WEB_DIAG
+		int 'Maximum System Memory Used for Firmware Upgrade (KB)' CONFIG_HTTP_UPGRADE_SYSMEM 384
+		string 'Defalut Page'  CONFIG_DEFAULT_PAGE "index.htm"
+fi
+
+comment 'CLI option'
+bool 'Unhide all net command' CONFIG_CLI_NET_CMD
+bool 'Unhide all OS command' CONFIG_CLI_OS_CMD
+if [ "$CONFIG_CLI_OS_CMD" = "y" ]; then
+bool 'Support cpuload command' CONFIG_CPULOAD
+fi
+bool 'Unhide all cfg command' CONFIG_CLI_CFG_CMD
+bool 'Unhide all mft command' CONFIG_CLI_MFT_CMD
+bool 'Unhide all debug command' CONFIG_CLI_DBG_CMD
+if [ "$CONFIG_CLI_DBG_CMD" = "y" ]; then
+bool 'Support advanced debug command' CONFIG_CLI_ADV_DBGCMD
+fi
+
+comment 'CFG option'
+bool	'Support Configuration ID String Check'	CONFIG_CFG_FMW_IDSTR_EN
+if [ "$CONFIG_CFG_FMW_IDSTR_EN" = "y" ]; then
+    string 'Configuration ID String'	CONFIG_CFG_FMW_IDSTR
+fi
+endmenu
+
+mainmenu_option next_comment
+	comment 'Wireless Settings'
+	comment 'Wireless Feature Configuration'
+	bool 'Enable Wireless driver'  CONFIG_WIRELESS
+	bool 'Enable 802.11X Daemon'  CONFIG_80211X_DAEMON
+	bool 'Enable ATE Daemon'  CONFIG_ATE_DAEMON
+	bool 'Enable Sniffer Daemon'  CONFIG_SNIFFER_DAEMON
+endmenu
+
+mainmenu_option next_comment
+comment 'Customerization'
+
+bool 'Specify Customerized Version String'  CONFIG_CUST_VER_STR_EN
+if [ "$CONFIG_CUST_VER_STR_EN" = "y" ]; then
+	string 'Version String(External)' CONFIG_CUST_VER_STR "1.0.0"
+	string 'Version String(Internal)' CONFIG_CUST_VER_STR_INTERNAL "1.0.0"
+fi
+string 'Download Image Location' CONFIG_DL_IMAGE
+string 'Download compressed Image Location' CONFIG_DL_ZIMAGE
+
+bool  'Support Download Cookie' CONFIG_DL_COOKIE
+if [ "$CONFIG_DL_COOKIE" = "y" ]; then
+	string 'Download Cookie' CONFIG_DL_COOKIE_STR
+fi
+
+
+comment 'Router Basic Information'
+string 'Device Name'  CONFIG_DEVICE_NAME
+string 'Model Name'   CONFIG_MODEL_NAME
+string 'Manufacturer' CONFIG_MANUF_NAME
+string 'Model Hareware Revision' CONFIG_MDOEL_HW_VER
+string 'Model Locale' CONFIG_FRM_LOCALE
+string 'Manufacturer description' CONFIG_MANUF_DESC
+
+
+if [ "$CONFIG_HTTPD" = "y" ]; then
+comment 'HTTP options'
+string 'Web Pages directory'  CONFIG_WEB_DIR web_xrouter_200
+bool 'Multi Language WebUI' CONFIG_WEB_TEMP
+if [ "$CONFIG_WEB_TEMP" = "y" ]; then
+	bool 'English' CONFIG_ENGLISH
+	bool 'TChinese' CONFIG_TCHINESE
+fi
+string 'CGI directory' CONFIG_CGI_DIR cgi_v2
+bool 'CGI user supplied function support' CONFIG_CGI_USERS
+string 'Web authentication directory' CONFIG_AUTH_DIR auth_v2
+fi;
+endmenu

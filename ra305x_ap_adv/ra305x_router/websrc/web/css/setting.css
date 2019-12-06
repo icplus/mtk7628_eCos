@@ -1,0 +1,223 @@
+html,body {
+    height: 100%;
+	width:100%;
+	margin:0;
+	padding:0;
+	font-family:微软雅黑;
+}
+/* PC或中大型笔记本设备 desktop */
+
+    @media all and (min-width: 1201px) {
+
+        .title-desktop{
+
+            display: block !important;
+
+        }
+
+        .container {
+
+            width: 100%;
+
+        }
+
+    }
+
+    /* 中小型笔记本或大平板 laptop */
+
+    @media all and (min-width: 980px) and (max-width: 1200px) {
+
+        .title-laptop{
+
+            display: block !important;
+
+        }
+
+        .container {
+
+            width: 920px;
+
+        }
+
+    }
+
+    /* 中型平板或小型笔记本 tablet */
+
+    @media all and (min-width: 768px) and (max-width: 979px) {
+
+        .title-tablet{
+
+            display: block !important;
+
+        }
+
+        .container {
+
+            width: 720px;
+
+        }
+
+    }
+
+    /* 手机或小平板 phone */
+
+    @media all and (max-width: 767px) {
+
+        .title-phone{
+
+            display: block !important;
+
+        }
+
+        .container {
+
+            width: 100%;
+
+        }
+
+    }
+input,
+button,
+select,
+textarea{outline:none}
+.form_select {
+    background: url('../images/select_arrow.png') no-repeat;
+}
+#page_header{
+	background-color:#ffc69e;
+	width:100%;
+	height:auto;
+	margin:0;
+	text-align:center;
+	display: block !important;
+	overflow:hidden;
+}
+h1 {
+	font-size: 25px;
+    color: #fff;
+    text-align: center;
+    height: auto;
+    line-height: 140px;
+    font-weight: 1000;
+	margin:0;
+}
+#page_main{
+	width:auto;
+	height:448px;
+	margin:0 auto;
+	display: block !important;
+}
+#wifi_Info{
+	width:320px;
+	height:80px;
+	margin:0 auto;
+	margin-top:40px;
+}
+
+#wifi-sel{
+	width:320px;
+	height:36px;
+	line-height:36px;
+	font-size:16px;
+	color:#999;
+	border: solid 0px #000;
+	appearance:none;
+	-moz-appearance:none;
+	-webkit-appearance:none;
+	text-indent: 5px;
+}
+
+option{
+	font-size:16px;
+}
+
+#btn_submit{
+	width:320px;
+	height:48px;
+	margin-top:40px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align:center;
+}
+#passwd {
+    position: relative;
+    z-index: 33;
+    width: 318px;
+    margin: 0 auto;
+    border: 1px solid #d8d8d8;
+    height: 36px;
+    line-height: 36px;
+}
+.form-label {
+    margin-right: 0;
+    padding-right: 5px;
+	position: absolute;
+    left: 10px;
+    top: 0;
+    text-align: left;
+    height: 36px;
+    line-height: 36px;
+	float: left;
+    padding-right: 10px;
+    margin-right: 10px;
+    line-height: 36px;
+    text-align: right;
+	cursor: default;
+	color:#999;
+}
+.txt-psd {
+    position: absolute;
+    left: 95px;
+    top: 0;
+    width: 220px;
+}
+.input-text {
+    border-radius: 2px;
+    height: 36px;
+    line-height: 36px;
+    padding: 0 0px 0 0;
+    border: none;
+}
+#btn{
+	width:320px;
+	height:48px;
+	color:#FFF;
+    background: #bb7f56;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    vertical-align: baseline;
+    font-family: '微软雅黑';
+	border-radius: 40px;
+	font-size: 20px;
+}
+.settingheader{
+	width:90%;
+	height:100%;
+	margin:0 auto;
+}
+.leftbox{
+	width:25%;
+	height:100%;
+	float:left;
+	text-align:right;
+	display:black;
+	margin-top:25px;
+}
+.rightbox{
+	width:70%;
+	height:100%;
+	float:right;
+	text-align:left;
+	display:black;
+	margin-top:35px;
+}
+.bigfont{
+	font-size:5vw;
+	font-weight:bold;
+	color:#ffffff;
+}
+.smallfont{
+	font-size:4vw;
+	color:#ffffff;
+}

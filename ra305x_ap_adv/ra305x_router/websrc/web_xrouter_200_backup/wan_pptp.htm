@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ralink Wireless Access Point</title>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<link REL=stylesheet TYPE="text/css" HREF="style.css">
+<SCRIPT language="JavaScript" src="js/utils.js"></SCRIPT>
+<SCRIPT language="JavaScript" src="js/utils_adv.js"></SCRIPT>
+<SCRIPT language="JavaScript" src="js/spec.js"></SCRIPT>
+<SCRIPT language="JavaScript">
+
+/*DEMO*/
+addCfg("opmode",101,"1");
+addCfg("WANT",100,"4");
+addCfg("PTUN", 50, "pptp_user");
+addCfg("PTMTU", 51, "1400");
+addCfg("PTIDL", 52, "60");
+addCfg("PTIP", 53, "10.10.10.221");
+addCfg("PTMSK", 54, "255.255.255.0");
+addCfg("PTSVR", 55, "10.10.10.227");
+addCfg("PTID", 56, "pptp_id");
+addCfg("PTCM", 57, "1" );
+addCfg("PTPW", 58, "******");
+addCfg("PTWANIF", 59, 1);
+addCfg("PTGW",65,"10.10.10.254");
+addCfg("PTWANIF",66,0);
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+CGI_MAP(WANT, CFG_WAN_IP_MODE);
+CGI_MAP(PTUN, CFG_PTP_USER);
+CGI_MAP(PTMTU, CFG_PTP_MTU);
+CGI_MAP(PTIDL, CFG_PTP_IDLET );
+CGI_MAP(PTIP, CFG_PTP_IP );
+CGI_MAP(PTMSK, CFG_PTP_MSK );
+CGI_MAP(PTSVR, CFG_PTP_SVR );
+CGI_MAP(PTID, CFG_PTP_ID);
+CGI_MAP(PTCM, CFG_PTP_AUTO);
+CGI_MAP(PTWANIF, CFG_PTP_WANIF);
+CGI_MAP(PTGW,CFG_PTP_GW);
+%>
+addCfg("PTPW", <%CGI_CFG_ID(CFG_PTP_PASS);%> , "******" );
+REAL*/
+addCfg("mode",0,"4");
+
+var __opmode = 1*getCfg("opmode");
+/*DEMO*/
+addCfg("PUN", 50, "Jack");
+addCfg("PSN", 51, "Hinet");
+addCfg("PMTU", 52, "1400");
+addCfg("PIDL", 53, "60");
+addCfg("PCM", 55, 2 );
+addCfg("PIPEN", 56, 0 );
+addCfg("PIP", 56, "223.128.9.130" );
+addCfg("DSFIX",37,"1");
+addCfg("DS1",0x34,"168.95.1.1");
+addCfg("DS2",0x35,"");
+addCfg("WMAC",31,"00:CC:22:33:44:55");
+addCfg("clnEn",52,"1");
+addCfg("PPW", 54, "******" );
+var cln_MAC = "00:12:34:56:78:90" ;
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(PUN, CFG_POE_USER);
+CGI_MAP(PSN, CFG_POE_SVC);
+CGI_MAP(PMTU, CFG_POE_MTU);
+CGI_MAP(PIDL, CFG_POE_IDLET );
+CGI_MAP(PCM, CFG_POE_AUTO);
+CGI_MAP(PIPEN, CFG_POE_SIPE);
+CGI_MAP(PIP, CFG_POE_SIP);
+CGI_MAP(DSFIX,CFG_DNS_FIX);
+CGI_MAP(DS1, CFG_DNS_SVR+1);
+CGI_MAP(DS2, CFG_DNS_SVR+2);
+CGI_MAP(WMAC, CFG_WAN_DHCP_MAC);
+CGI_MAP(clnEn, CFG_WAN_DHCP_MAC_EN);
+%>
+addCfg("PPW",<%CGI_CFG_ID(CFG_POE_PASS);%>,"******");
+var cln_MAC = <%CGI_GET_CLN_MAC();%> ;
+REAL*/
+setCfg("PIDL",getCfg("PIDL")/60);
+
+function Apply() {
+	var f=document.PTP;
+
+	if (!verifyIP2(f.PTSVR,"server IP address/name")) return ;	
+	if (!rangeCheck(f.PTIDL,60,3600,"idle time")) return ; 
+	if (!chkStrLen(f.PTUN,0,255,"user name")) return ;
+	if (!chkStrLen(f.PTPW,0,255,"user password")) return ;
+	if (!chkPwdUpdate(f.PTPW,f._ps2,f._changed2)) return;
+	
+	/*REAL<% #ifdef CONFIG_PPTP_PPPOE%>REAL*/
+	if(f.PTWANIF[2].checked)
+	{
+		//pptp MTU case for pppoe mode
+		if (!rangeCheck(f.PTMTU,546,1452,"MTU")) return ;
+		//pppoe connect mode apply to pptp mode
+		f.PTCM[0].checked =  f.PCM[0].checked;
+		f.PTCM[1].checked =  f.PCM[1].checked;
+		f.PTCM[2].checked =  f.PCM[2].checked;
+		//setting pppoe idle time and mtu based on pptp setting
+		f.PIDL.value = Math.round(f.PTIDL.value/60);
+		//f.PMTU.value = 1488;//f.PTMTU.value + 40;
+		//pppoe part verify
+		if (!rangeCheck(f.PMTU,1000,1492,"MTU")) return ;
+		if (!rangeCheck(f.PIDL,0,60,"idle time")) return ;
+		if (isBlank(f.PUN.value)) { alert("Invalid user name"); return ;}
+		if (!strCheck(f.PUN,"user name")) return;
+		if (!strCheck(f.PPW,"user password")) return;
+		if (!chkPwdUpdate(f.PPW,f._ps1,f._changed1)) return ;
+
+		if (f.PIPEN[1].checked)
+		{
+			if (!verifyIP2(f.PIP,"IP address")) return ;
+			if (!verifyIP0(f.DS1,"primary DNS address")) return ;
+			if (!verifyIP0(f.DS2,"secondary DNS address")) return ;
+		}
+		if (!verifyMAC(f.WMAC,"MAC address",1)) return ;
+
+		setCfg("DSFIX",evalDnsFix(f.DS1.value,f.DS2.value));
+		if (f.PIPEN[0].checked) setCfg("DSFIX",0); // if dynamic, don't use fix dns
+
+		//setCfg("WANT",3);
+		setCfg("WANT",4);
+		form2Cfg(f);
+		setCfg("PIDL",getCfg("PIDL")*60);
+		subForm(f,'do_cmd.htm','LAN+WAN',cPage);
+	}
+	else
+	{	//pptp MTU case for static ip and dynamic ip mode
+		if (!rangeCheck(f.PTMTU,546,1460,"MTU")) return ;
+		
+		if (f.PTWANIF[1].checked)
+		{
+			if (!verifyIP2(f.PTIP,"IP address")) return ;
+			if (!ipMskChk(f.PTMSK,"subnet mask")) return ;
+			if (!verifyIP0(f.PTGW,"gateway address")) return ;
+		}
+		setCfg("WANT",4);
+		form2Cfg(f);
+		setCfg("PIDL",getCfg("PIDL")*60);
+		subForm(f,'do_cmd.htm','LAN',cPage);
+	}
+	/*REAL<% #else //CONFIG_PPTP_PPPOE%>REAL*/
+	{	
+		if (!rangeCheck(f.PTMTU,546,1460,"MTU")) return ;
+		
+		if (f.PTWANIF[1].checked)
+		{
+			if (!verifyIP2(f.PTIP,"IP address")) return ;
+			if (!ipMskChk(f.PTMSK,"subnet mask")) return ;
+			if (!verifyIP0(f.PTGW,"gateway address")) return ;
+		}
+		setCfg("WANT",4);
+		form2Cfg(f);
+		subForm(f,'do_cmd.htm','LAN',cPage);
+	}
+	/*REAL<% #endif //CONFIG_PPTP_PPPOE%>REAL*/	
+}
+
+function init() {
+	var f=document.PTP;
+	cfg2Form(document.PTP);
+	clickPTP();	
+	/*REAL<% #ifdef CONFIG_PPTP_PPPOE%>REAL*/	
+	if (f.clnEn.value=='1') setCln(f,getCfg("WMAC")); else clrCln(f);
+	clickPOE();
+	/*REAL<% #endif //CONFIG_PPTP_PPPOE%>REAL*/
+}
+
+function Cancel()
+{
+	init();
+}
+function Help()
+{
+	window.open("help_home.htm#pptp","help");
+}
+
+function clickPTP()
+{
+	/*REAL<% #ifdef CONFIG_PPTP_PPPOE%>REAL*/
+	var f = document.PTP; 
+	var b = ((f.PTWANIF[0].checked)? true : ((f.PTWANIF[2].checked)? true : false));
+	f.PTIP.disabled = b;
+	f.PTMSK.disabled = b;
+	f.PTGW.disabled = b;  
+	
+	if(f.PTWANIF[2].checked)
+	{	document.getElementById("pptp_pppoe").style.display="";
+		document.getElementById("pptp_staticip").style.display="none";
+		document.getElementById("pppoe_connection_mode").style.display="";
+		document.getElementById("pptp_connection_mode").style.display="none";
+	}
+	else	
+	{
+		document.getElementById("pptp_pppoe").style.display="none";
+		document.getElementById("pptp_staticip").style.display="";
+		document.getElementById("pppoe_connection_mode").style.display="none";
+		document.getElementById("pptp_connection_mode").style.display="";
+	}
+	/*REAL<% #else //CONFIG_PPTP_PPPOE%>REAL*/
+	var f = document.PTP; 
+	var b = ((f.PTWANIF[0].checked)? true : false);
+	f.PTIP.disabled = b;
+	f.PTMSK.disabled = b;
+	f.PTGW.disabled = b;  
+	document.getElementById("pptp_pppoe").style.display="none";
+	document.getElementById("pptp_staticip").style.display="";
+	document.getElementById("pppoe_connection_mode").style.display="none";
+	document.getElementById("pptp_connection_mode").style.display="";
+	/*REAL<% #endif //CONFIG_PPTP_PPPOE%>REAL*/
+}
+
+/*REAL<% #ifdef CONFIG_PPTP_PPPOE%>REAL*/
+function clickPOE()
+{
+	var f = document.PTP; 
+	var b = ((f.PIPEN[0].checked)? true : false);
+	f.PIP.disabled = f.DS1.disabled = f.DS2.disabled = b; 
+}
+/*REAL<% #endif //CONFIG_PPTP_PPPOE%>REAL*/
+
+function genConnectMode()
+{
+	var str = "";
+	str+="<tr>\
+	<td width=34%>&nbsp;</td>\
+	<td width=66%>\
+	<input type=radio value=0 name=PTWANIF onClick=clickPTP()>Dynamic IP\
+	<input type=radio value=1 name=PTWANIF onClick=clickPTP()>Static IP";
+	/*REAL<% #ifdef CONFIG_PPTP_PPPOE%>REAL*/
+	str+="<input type=radio value=2 name=PTWANIF onClick=clickPTP()>PPPoE";
+	/*REAL<% #endif //CONFIG_PPTP_PPPOE%>REAL*/
+	str+="</td>\
+	</tr>";
+	document.write(str);
+}
+
+</SCRIPT>
+
+</head>
+
+<body leftmargin=0 topmargin=0 Onload=init()>
+<script>pageHead();</script>
+<FORM name=PTP>
+	<script>pageWanSel(Number(getCfg("opmode")));</script>
+<table width=100%>
+<tr>
+	<td colspan=2 height=30><font face=Arial size=2 color=#8bacb1><b>PPTP Client</b></td>
+</tr>
+<script>genConnectMode();</script>
+<!--
+<tr>
+	<td width=34%>&nbsp;</td>
+	<td width=66%> 
+	<input type=radio value=0 name=PTWANIF onClick=clickPTP()>Dynamic IP
+	<input type=radio value=1 name=PTWANIF onClick=clickPTP()>Static IP
+	<input type=radio value=2 name=PTWANIF onClick=clickPTP()>PPPoE
+	</td>
+</tr>-->
+</table>
+<table width=100% id="pptp_pppoe">
+<tr>
+	<td width=34%>&nbsp;</td>
+</tr>
+<tr>
+	<td height=30><font face=Arial size=2 color=#8bacb1>PPP over Ethernet</font></td>
+	<td>
+	<input type=radio value=0 name=PIPEN onClick=clickPOE()>Dynamic PPPoE 
+	<input type=radio value=1 name=PIPEN onClick=clickPOE()>Static PPPoE
+	</td>
+</tr>
+<tr>
+	<td>PPPoE User Name</td>
+	<td><input type=text name=PUN size=30 maxlength=63></td>
+</tr>
+<tr>
+	<td>PPPoE User Password</td>
+	<td><input type=password name=PPW size=30 maxlength=63 value=****** onKeyPress=chkPwd1Chr(PPW,_ps1,_changed1);></td>
+			<input type=hidden name=_changed1 value=0>
+</tr>
+<tr>
+	<td>Confirm Password</td>
+	<td><input type=password name=_ps1 size=30 maxlength=63 value=****** onKeyPress=chkPwd1Chr(PPW,this,_changed1);></td>
+</tr>
+<tr>
+	<td>Service Name</td>
+	<td><input type=text name=PSN size=30 maxlength=63>(Optional)</td>
+</tr>
+<tr>
+	<td>IP Address</td>
+	<td><input type=text name=PIP size=16 maxlength=15></td>
+</tr>
+<tr> 
+	<td>MAC Address</td>
+	<td> 
+	<input type=hidden name=clnEn>
+	<input name=WMAC size=2 maxlength=2> -
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2>(Optional) 
+	<input type=button name=cln onClick=clnMac(this.form)>
+	</td>
+</tr>
+<tr>
+	<td>Primary DNS Address</td>
+	<td><input type=text name=DS1 size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td>Secondary DNS Address</td>
+	<td>
+		<input type=text name=DS2 size=16 maxlength=15>(Optional)
+		<input type=text name=PIDL maxlength=4 size=4 style="display:none">
+	</td>
+</tr>
+<tr>
+	<td>PPPoE MTU</td>
+	<td><input type=text name=PMTU maxlength=4 size=5></td>
+</tr>
+</table>
+<table width=100% id="pptp_staticip">
+<tr>
+	<td width=34%>&nbsp;</td>
+</tr>
+<tr>
+	<td>IP Address</td>
+	<td><input type=text name=PTIP size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td>Subnet Mask</td>
+	<td><input type=text name=PTMSK size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td>Gateway</td>
+	<td><input type=text name=PTGW size=16 maxlength=15></td>
+</tr>
+</table>
+<table width=100%>
+<tr>
+	<td width=34%>&nbsp;</td>
+</tr>
+<tr>
+	<td>Server IP Address/Name</td>
+	<td><input type=text name=PTSVR size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td>PPTP User Name</td>
+	<td><input type=text name=PTUN size=32 maxlength=63></td>
+</tr>
+<tr>
+	<td>PPTP User Password</td>
+	<td><input type=password name=PTPW size=32 maxlength=31 value=****** onkeypress=chkPwd1Chr(this,_ps2,_changed2)></td>
+		<input type=hidden name=_changed2 value=0>
+</tr>
+<tr>
+	<td>Confirm Password</td>
+	<td><input type=password name=_ps2 size=32 maxlength=31 value=****** onkeypress=chkPwd1Chr(PTPW,this,_changed2)></td>
+</tr>
+<tr>
+	<td>Maximum Idle Time</td>
+	<td><input type=text name=PTIDL maxlength=4 size=4>Sec</td>
+</tr>
+<tr>
+	<td>PPTP MTU</td>
+	<td><input type=text name=PTMTU maxlength=4 size=5></td>
+</tr>
+</table>
+<table width=100% id="pptp_connection_mode">
+<tr>
+	<td width=34%>&nbsp;</td>
+</tr>
+<tr>
+	<td>Connection mode</td>
+	<td>
+	<input type=radio name=PTCM value=0>Auto connection
+	<input type=radio name=PTCM value=2>Manual connection
+	<input type=radio name=PTCM value=1>Connection in use
+	</td>
+</tr>
+</table>
+<table width=100% id="pppoe_connection_mode">
+<tr>
+	<td width=34%>&nbsp;</td>
+</tr>
+<tr>
+	<td>Connection mode</td>
+	<td>
+	<input type=radio name=PCM value=0>Auto connection
+	<input type=radio name=PCM value=2>Manual connection
+	<input type=radio name=PCM value=1>Connection in use
+	</td>
+</tr>
+</table>
+	<script>pageButton();</script>
+</form>
+
+<script>pageTail();</script>
+</BODY>
+</HTML>

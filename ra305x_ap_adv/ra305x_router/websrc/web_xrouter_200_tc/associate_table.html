@@ -1,0 +1,67 @@
+<!-- Copyright 2004, Ralink Technology Corporation All Rights Reserved. -->
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<link href="css.css" rel="stylesheet" type="text/css">
+<title>Ralink Wireless Access Point Station Associate List</title>
+<script language="JavaScript" type="text/javascript">
+var STAMACADDR="";
+
+function CheckValue()
+{
+	return true;
+}
+
+function del_associate_onClick(vMAC)
+{
+	STAMACADDR = vMAC;
+	document.associate_table.real_mac.value = STAMACADDR;
+}
+
+function reload_table()
+{
+	document.location = "associate_table.html?SECURITY_INDEX=0";
+}
+</script>
+</head>
+
+<body>
+<form method=get name=associate_table action=associate_table.html onSubmit="return CheckValue()">
+	<table align="center" width="700" border="0" cellspacing="0" cellpadding="0">
+	<tr> 
+		<td align="right">
+			<input type="button" name="Refresh" value="Refresh" style="font-size: 9pt;" onClick="reload_table()">
+			<input type="button" name="Close" value="Close" style="font-size: 9pt;" onClick="window.close()">
+		</td>
+	</tr>
+	</table>
+	<br>
+	<table align="center" width="700" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+	<tr> 
+		<td align="center" bgcolor="#B7DCFB"colspan="8"><font color="#333333"><b>Station Associate List</b></font></td>
+	</tr>
+	<tr>
+		<td align="center" bgcolor="#E8F8FF" nowrap>&nbsp;</td>
+		<td align="center" bgcolor="#E8F8FF" nowrap>MAC Address</td>
+		<td align="center" bgcolor="#E8F8FF" nowrap>802.11 PhyMode</td>
+		<td align="center" bgcolor="#E8F8FF" nowrap>AID</td>
+		<td align="center" bgcolor="#E8F8FF" nowrap>Power Save</td>
+		<td align="center" bgcolor="#E8F8FF" nowrap>MIMO Power Save</td>
+		<td align="center" bgcolor="#E8F8FF" nowrap>BandWidth</td>
+		<td align="center" bgcolor="#E8F8FF" nowrap>Current TX Rate</td>
+	</tr>
+	<% CGI_WLN_STATION_ASSOCIATE_LIST();%>
+	<input type="hidden" name="real_mac">
+	</table>
+	<br>
+	<table align="center" width = "700" border = "0" cellpadding = "2" cellspacing = "1">
+	<tr>
+		<td height="10"></td>
+	</tr>  
+
+	</table>
+</form>
+</body>
+</html>

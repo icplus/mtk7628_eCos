@@ -1,0 +1,159 @@
+<HTML>
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+/*DEMO*/
+addCfg("logSrvEnb", 50, "1");
+addCfg("smtp", 52, "mail");
+addCfg("sendto",53,"support@router.com");
+addCfg("logServer",54,"192.168.1.254");
+addCfg("logMode",55,29);
+addCfg("logMail",56, "0");
+addCfg("opmode",100,"1");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(logSrvEnb, CFG_LOG_RM_EN);
+CGI_MAP(smtp, CFG_LOG_MAIL_IP);
+CGI_MAP(sendto, CFG_LOG_E_MAIL);
+CGI_MAP(logServer, CFG_LOG_SYS_IP);
+CGI_MAP(logMode, CFG_LOG_MODE);
+CGI_MAP(logMail, CFG_LOG_RM_TYPE);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+
+var __opmode = 1*getCfg("opmode");
+
+function preDownload(f) {
+   f.action="syslog.bin" ;
+   f.submit() ;
+}
+
+function doSubmit(sent)
+{
+	var f=document.frmLog;
+	var sm=f.smtp.value;
+	var s2=f.sendto.value;
+	var cmd='LOG';
+	f.logMode.value = (f.type1.checked)|(f.type2.checked<<1)|(f.type3.checked<<2)|(f.type4.checked<<3)|(f.type5.checked<<4);
+	if (f.logSrvEnb[0].checked && f.logServer.value.length==0) { alert("Invalid Remote Syslog Server!"); return -1;}
+	if (f.logSrvEnb[0].checked) { if(!verifyIP2( f.logServer,"Remote Syslog Server"))  return -1;}
+	if (sent)
+	{
+		if ( sm.length==0 ) { alert("Invalid SMTP Server!"); return -1;}
+		if ( s2.length==0 || s2.indexOf('@')<=0 || s2.indexOf('@')>=(s2.length-1)) { alert("Invalid E-mail Address!"); return -1;}
+		cmd='SYS_LOG_MAIL';
+	}
+	
+	if (sm.length==0 || s2.length==0)
+		f.logMail.value=0;
+	else
+		f.logMail.value=1;
+
+	form2Cfg(f);
+	subForm(f,'do_cmd.htm',cmd,cPage);
+}
+
+function init()
+{
+	var f=document.frmLog;
+	cfg2Form(f);
+	tmp=f.logMode.value;
+	f.type1.checked=((tmp&1) > 0);
+	f.type2.checked=((tmp&2) > 0);
+	f.type3.checked=((tmp&4) > 0);
+	f.type4.checked=((tmp&8) > 0);
+	f.type5.checked=((tmp&16) > 0);
+}
+function Cancel(){
+	init();
+}
+function Apply(){
+	doSubmit(0);
+}
+
+function Help(){
+	window.open("help_status.htm#logs","help");
+}
+
+</SCRIPT>
+<link rel=stylesheet type=text/css href=style.css>
+</HEAD>
+
+<BODY leftMargin=0 topMargin=0 onload=init()>
+<script>pageHead();</script>
+
+<form name=frmLog method=POST>
+	  <INPUT type=hidden name=logMode>
+	  <INPUT type=hidden name=logMail>
+<table width=100% cellspacing=2 cellpadding=0>
+<tr>
+	  <td colspan=3 height=22><font face=Arial color=#8bacb1 size=2><b>Log Settings</b></font></td>
+</tr>
+<tr valign="top">
+	  <td colspan=3 height=40>Logs can be saved by sending it to an admin email address or a storage server.</td>
+</tr>
+<tr><td colspan=3 width=10% align=left>Remote Syslog Server</td></tr>
+<tr>
+	  <td width=10%></td>
+	  <td width=30%>Remote Syslog Server / IP Address</td>
+	  <td><input name=logServer size=30 maxlength=30>
+	  <input type=radio name=logSrvEnb value=1>Enable<input type=radio name=logSrvEnb value=0 checked>Disable</td>
+</tr>
+<tr><td colspan=3>E-Mail Notification</td></tr>
+<tr>
+	  <td></td>
+	  <td>SMTP Server / IP Address</td>
+	  <td><input name=smtp size=30 maxlength=30></td>
+</tr>
+<tr>
+	  <td></td>
+	  <td>E-mail Address</td>
+	  <td>
+	  <input name=sendto size=30 maxlength=99>
+	  <input type=button value="Send Mail Now" name=sendnow onClick=doSubmit(1)>
+	  </td>
+</tr>
+<tr>
+		<td></td>
+	  <td>Save Logs To Local Hard Drive</td>
+	  <td>
+	  <!-- <input type="button" name="backup" value=儲存 onClick="window.location.href='/syslog';"> -->
+	  <input type="button" name="backup" value=Save onClick="preDownload(this.form);">
+	  </td>
+</tr>
+
+<tr><td colspan=3>Log Type</td></tr>
+<tr>
+	<td></td>
+	<td colspan=2><input type=checkbox name=type1 value=1>System Activity</td>
+</tr>
+<tr>
+	  <td></td>
+	  <td colspan=2><input type=checkbox name=type2 value=2>Debug Information</td>
+</tr>
+<tr>
+	<td></td>
+	<td colspan=2><input type=checkbox name=type3 value=4>Attacks</td>
+</tr>
+<tr>
+	  <td></td>
+	  <td colspan=2><input type=checkbox name=type4 value=8>Dropped Packets</td>
+</tr>
+<tr>
+	  <td></td>
+	  <td colspan=2><input type=checkbox name=type5 value=16>Notice</td>
+</tr>
+
+</table>
+</form>
+
+<script>pageButton();</script>
+<script>pageTail();</script>
+</BODY>
+</HTML>

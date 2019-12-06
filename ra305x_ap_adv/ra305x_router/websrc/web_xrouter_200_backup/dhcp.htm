@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<SCRIPT language="JavaScript" src="js/utils.js"></SCRIPT>
+<SCRIPT language="JavaScript" src="js/spec.js"></SCRIPT>
+<SCRIPT language="JavaScript" src="js/utils_adv.js"></SCRIPT>
+<SCRIPT language="JavaScript">
+
+/*DEMO*/
+addCfg("LANIP",20,"192.168.0.1");
+addCfg("DHS",21,"192.168.0.100");
+addCfg("DHE",23,"192.168.0.199");
+addCfg("dhcpsvr",24,1);
+addCfg("DHLT",25,604800);
+addCfg("opmode",100,"1");
+var ctime=0;
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(LANIP, CFG_LAN_IP);
+CGI_MAP(DHS, CFG_LAN_DHCPD_START);
+CGI_MAP(DHE, CFG_LAN_DHCPD_END);
+CGI_MAP(dhcpsvr, CFG_LAN_DHCPD_EN);
+CGI_MAP(DHLT, CFG_LAN_DHCPD_LEASET);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+var ctime="<%CGI_TIME();%>";
+REAL*/
+
+
+/*DEMO*/
+addCfg("LS1",1,'sta1;192.168.0.101;00:00:33:44:55:10;1;0');
+addCfg("LS2",2,'sta2;192.168.0.102;00:00:33:44:55:11;3;0');
+addCfg("LS3",3,'sta3;192.168.0.203;00:00:33:44:55:12;3;0');
+addCfg("LS4",4,'sta4;192.168.0.104;00:00:33:44:55:13;1;0');
+addCfg("LS5",5,'sta5;192.168.0.205;00:00:33:44:55:14;1;0');
+addCfg("LS6",6,'sta6;192.168.0.206;00:00:33:44:55:15;1;0');
+addCfg("LS7",7,'sta7;192.168.0.207;00:00:33:44:55:16;3;0');
+addCfg("LS8",8,'sta8;192.168.0.208;00:00:33:44:55:17;1;0');
+addCfg("LS9",9,'sta9;192.168.0.209;00:00:33:44:55:18;3;0');
+addCfg("LS10",10,'');
+/*
+addCfg("LS10",10,'sta10;192.168.0.210;00:00:33:44:01:10;3;0');
+addCfg("LS11",11,'sta11;192.168.0.211;00:00:33:44:01:11;1;0');
+addCfg("LS12",12,'sta12;192.168.0.212;00:00:33:44:01:12;1;0');
+addCfg("LS13",13,'sta13;192.168.0.213;00:00:33:44:01:13;1;0');
+addCfg("LS14",14,'sta14;192.168.0.214;00:00:33:44:01:14;1;0');
+addCfg("LS15",15,'sta15;192.168.0.215;00:00:33:44:01:15;1;0');
+addCfg("LS16",16,'sta16;192.168.0.216;00:00:33:44:01:16;1;0');
+addCfg("LS17",17,'sta17;192.168.0.217;00:00:33:44:01:17;1;0');
+addCfg("LS18",18,'sta18;192.168.0.218;00:00:33:44:01:18;1;0');
+addCfg("LS19",19,'sta19;192.168.0.219;00:00:33:44:01:19;1;0');
+addCfg("LS20",20,'sta20;192.168.0.220;00:00:33:44:02:20;1;0');
+addCfg("LS21",21,'sta21;192.168.0.221;00:00:33:44:02:21;1;0');
+addCfg("LS22",22,'sta22;192.168.0.222;00:00:33:44:02:22;1;0');
+addCfg("LS23",23,'sta23;192.168.0.223;00:00:33:44:02:23;1;0');
+addCfg("LS24",24,'sta24;192.168.0.224;00:00:33:44:02:24;1;0');
+addCfg("LS25",25,'sta25;192.168.0.225;00:00:33:44:02:25;1;0');
+addCfg("LS26",26,'sta26;192.168.0.226;00:00:33:44:02:26;1;0');
+addCfg("LS27",27,'sta27;192.168.0.227;00:00:33:44:02:27;1;0');
+addCfg("LS28",28,'sta28;192.168.0.228;00:00:33:44:02:28;1;0');
+addCfg("LS29",29,'sta29;192.168.0.229;00:00:33:44:02:29;1;0');
+addCfg("LS30",30,'sta20;192.168.0.230;00:00:33:44:03:30;3;0');
+addCfg("LS31",31,'sta31;192.168.0.231;00:00:33:44:03:31;1;0');
+addCfg("LS32",32,'sta32;192.168.0.232;00:00:33:44:03:32;1;0');
+*/
+/*END_DEMO*/
+/*REAL
+<%CGI_MAP_ARRAY(LS, CFG_LAN_DHCPD_SLEASE+1, 32);%>
+REAL*/
+
+var max=32;
+var dhcpList=new Array();
+var __opmode = 1*getCfg("opmode");
+
+
+for (var i=0; i<max; i++)
+{
+	var l=getCfg("LS"+(1+i));
+	if (l) dhcpList[i]=l;
+	else break;
+}
+
+var dynList=new Array(
+/*DEMO*/
+'apple;192.168.0.103;00:22:33:44:55:10;0;1101452408',
+'organge;192.168.0.105;00:22:33:44:55:14;0;1101480072'
+/*END_DEMO*/
+/*REAL
+<% CGI_GET_DHC_DYN_LIST(); %>
+REAL*/
+);
+
+var s_max=32;
+var dyn_sel_idx;
+var LANIP=getCfg("LANIP");
+var netip=LANIP.replace(/\.\d{1,3}$/,".");
+var dhs=getCfg("DHS").match(/\d{1,3}$/);
+var dhe=getCfg("DHE").match(/\d{1,3}$/);
+var s_edit_idx;
+var SelRowBC;
+var SelRow = -1;
+
+function init()
+{
+	var f=document.frmSetup;
+	f.dips.value=f.dips.defaultValue=getCfg("DHS").match(/\d{1,3}$/);
+	f.dipe.value=f.dipe.defaultValue=getCfg("DHE").match(/\d{1,3}$/);
+	cfg2Form(f);
+	dyn_sel_idx=-1;
+	SelectRow("tab",-1)
+}
+
+function Cancel()
+{
+	init();
+	document.frmSetup.reset();
+	s_edit_idx=dhcpList.length;
+}
+function Help()
+{
+	window.open("help_home.htm#dhcp","help");
+}
+function Apply()
+{
+	doSubmit(0);
+}
+function doSubmit(del) {
+	var f=document.frmSetup;
+	var ip4=getCfg("LANIP").match(/\d{1,3}$/);
+	if (!rangeCheck(f.dips,1,254,"the starting IP address of the available IP address pool")) return ;
+	if (f.dips.value==ip4) { alert("The starting IP address is the IP address of the system"); return }
+
+	if (!rangeCheck(f.dipe,1,254,"the ending IP address of the available IP address pool")) return ;
+	if (f.dipe.value==ip4) { alert("The ending IP address is the IP address of the system"); return }
+
+	if (Number(f.dips.value)>Number(f.dipe.value)) {
+	  alert("The starting IP address of the available IP address pool should be less than or equal to the ending one.");
+	  return ;
+	}
+
+	var net=getCfg("LANIP").replace(/\.\d{1,3}$/,".");
+	setCfg("DHS",net+f.dips.value);
+	setCfg("DHE",net+f.dipe.value);
+
+	if (!del)
+		if (chkStatic()) return ;
+
+	for (i=0; i<max;i++)
+	{
+		//addFormElm('list'+(i+1), dhcpList[i]);
+		if (dhcpList[i])
+			setCfg("LS"+(1+i),dhcpList[i]);
+		else
+			setCfg("LS"+(1+i),'');
+	}
+	form2Cfg(f);
+	subForm(f,'do_cmd.htm','DHCP',cPage);
+}
+
+function showStList()
+{
+var m='';
+var r=1;
+	for (i=0;i<dhcpList.length;i++) {
+		var s=dhcpList[i].split(";");
+		if (s.length<5) break;
+		r++;
+		m+='<tr>';
+		m+='<td>'+'<input type=checkbox  DISABLED '+((s[3]=='3')? '' : 'CHECKED')+'></td>';
+		m+='<td>'+s[0]+'</td>';
+		m+='<td>'+s[1]+'</td>';
+		m+='<td>'+s[2]+'</td>';
+		m+='<td align=center><img src=images/edit.gif border=0 alt="Edit" onclick=doSel('+i+','+r+')>';
+		m+='<img src=images/delet.gif border=0 alt="Delete" onClick=doDel('+i+')></td>';
+		m+='</tr>';
+	}
+	s_edit_idx=dhcpList.length;
+	document.write(m);
+	document.getElementById('sum').innerHTML=(s_edit_idx)+'/'+s_max+" (Lots/Total Lots)";
+}
+
+function showDynList()
+{
+var m='';
+	for (i=0;i<dynList.length;i++) {
+		var s=dynList[i].split(";");
+		if (s.length<5) break;
+		m+='<tr>';
+		m+='<td>'+s[0]+'</td>';
+		m+='<td>'+s[1]+'</td>';
+		m+='<td>'+s[2]+'</td>';
+		//m+=('<td>'+timeStr(s[4]-ctime)+'</td>');
+		m+=('<td>'+dateStr(s[4])+'</td>');
+		m+='</tr>';
+	}
+	document.write(m);
+	document.getElementById('dsum').innerHTML=(dynList.length)+'/'+(dhe-dhs+1)+" (Lots/Total Lots)";
+}
+
+function cloneMAC(f){
+	if (dynList.length==0) return ;
+	dyn_sel_idx=f.dhcp.value;
+	doEdit(dynList[dyn_sel_idx]);
+}
+
+function doSel(i,r){
+	SelectRow("tab",r);
+	doEdit(dhcpList[i]);
+	s_edit_idx=i;
+}
+function doEdit(str){
+	var f=document.frmSetup;
+	var c = str.split(";");
+	f.name.value = c[0];
+	var mm = c[1].split(".")
+	f.revIP4.value = mm[3];
+	decomMAC2(f.mac,c[2],1);
+	if (c[3]=='1') f.en[0].checked=true; else f.en[1].checked=true;
+}
+
+function doDel(i){
+	if (!confirm("Are you sure you want to delete this item?")) return;
+	var f=document.frmSetup;
+	rmEntry(dhcpList, i);
+	doSubmit(1);
+}
+
+function chkStatic(){
+	var f= document.frmSetup;
+	var mac=combinMAC2(f.mac);
+	var ip=f.revIP4.value;
+	var name=f.name.value;
+
+	if (ip=='' && name=='' && mac=='') return 0; // no input
+	if (isBlank(name)) { alert("Since the host name is blank, static DHCP will not be enable."); return -1; }
+	if(!chksc(name,"host name")) return -1;
+
+	ip=Number(ip);
+	if (!rangeCheck(f.revIP4,1,254,"static DHCP IP address")) return -1;
+	if (!macsCheck(mac,"static DHCP MAC address")) return -1;
+	if (LANIP.match(/\d{1,3}$/)==parseInt(ip)) { alert("The LAN IP address you entered above is the IP address of the system."); return -1; }
+	if (s_edit_idx >= s_max) { alert("There can be at most "+s_max+" clients in the static DHCP client list. \n\nPlease delete unnecessary data."); return -1;}
+	for (var k=0;k<dhcpList.length;k++) {
+		if (s_edit_idx==k) continue;
+		var ss=dhcpList[k].split(';');
+		if (ss[1]==(netip+ip)) { alert("This static DHCP IP has been used.\n Please use another."); return -1; }
+		if (ss[2]==mac) { alert("DHCP: Repeat users"); return -1; }
+	}
+	//for (var k=0;k<dynList.length;k++) {
+	//	if (k==dyn_sel_idx) continue; // skip check itself
+	//	var ss=dynList[k].split(';');
+	//	if (ss[1]==(netip+ip)) { alert("�T�w DHCP IP ��}�w�g�Q�ϥΤF\n��Ч�Υt�@��"); return -1; }
+	//	if (ss[2]==mac) { alert("DHCP �ϥΪ̭���"); return -1; }
+	//}
+	var set=name+';'+netip+ip+';'+mac+';'+(f.en[0].checked? '1' : '3')+';0';
+	dhcpList[s_edit_idx]=set;
+
+	return 0;
+}
+
+function genList(){
+	var m='';
+	for (i=0;i<dynList.length;i++) {
+		var s=dynList[i].split(";");
+		if (s.length<5) break;
+		m+='<option value='+i+'>'+s[0]+','+s[1]+','+s[2]+'</option>';
+	}
+	document.write(m);
+}
+
+
+
+</SCRIPT>
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</HEAD>
+
+<BODY leftmargin=0 topmargin=0 onload=init()>
+<script>pageHead();</script>
+
+<form name=frmSetup>
+<table width=100% border=0 height=215>
+<tr>
+<td colspan=2 height=15><font face=Arial color=#8bacb1 size=2><b>DHCP Server</b></font></td>
+</tr>
+<tr>
+<td width=32%>DHCP Server</td>
+<td><input type=radio value=1 name=dhcpsvr>Enable<input type=radio name=dhcpsvr value=0 checked>Disable</td>
+</tr>
+<tr>
+<td>Starting IP Address</td>
+<td><script>document.write(netip);</script>
+<input name=dips size=3 maxlength=3>
+
+</td>
+</tr>
+<tr>
+<td>Ending IP Address</td>
+<td><script>document.write(netip);</script>
+<input name=dipe size=3 maxlength=3>
+
+</td>
+</tr>
+	<tr>
+		<td height=22>Lease Time</td>
+		<td height=22>
+			<select name=DHLT size=1>
+			<option value=3600>1 Hour</option>
+			<option value=7200>2 Hours</option>
+			<option value=10800>3 Hours</option>
+			<option value=86400>1 Day</option>
+			<option value=172800>2 Days</option>
+			<option value=259200>3 Days</option>
+			<option value=604800>1 Week</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" height=22>&nbsp;</td>
+	</tr>
+	<tr>
+		<td colspan=2 height=15><font face=Arial color=#8bacb1 size=2><b>Static DHCP</b></font></td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><input type=radio value=1 name=en>Enable<input type=radio value=0 name=en CHECKED>Disable</td>
+	</tr>
+	<tr>
+		<td>Host Name</td>
+		<td><input name=name size=19 maxlength=19></td>
+	</tr>
+	<tr>
+		<td>IP Address</td>
+		<td><script>document.write(netip);</script>
+			<input name=revIP4 size=3 maxlength=3>
+		</td>
+	</tr>
+	<tr>
+		<td>MAC Address</td>
+		<td>
+			<input name=mac size=1 maxlength=2>-
+			<input name=mac size=1 maxlength=2>-
+			<input name=mac size=1 maxlength=2>-
+			<input name=mac size=1 maxlength=2>-
+			<input name=mac size=1 maxlength=2>-
+			<input name=mac size=1 maxlength=2>
+		</td>
+	</tr>
+	<tr>
+		<td height=22>DHCP Client</td>
+		<td height=22><select name=dhcp size=1><script>genList();</script>
+			</select><input type=button name=clone value=Clone onClick=cloneMAC(this.form)>
+		</td>
+	</tr>
+	<tr>
+		<td colspan=2><br></td>
+	</tr>
+	<tr>
+		<td colspan=2 alight=right><script>pageButton();</script></td>
+	</tr>
+</table>
+<table width=100% id=tab cellpadding=0 cellspacing=0>
+	<tr>
+		<td colspan=4 height=30><font face=Arial color=#8bacb1 size=2><b>Static DHCP Client Table</b></font></td>
+		<td align=right id=sum></td>
+	</tr>
+	<tr bgcolor=#B7DCFB>
+		<td>&nbsp;</td>
+		<td width=20%>Host Name</font></td>
+		<td width=25%>IP Address</font></td>
+		<td width=25%>MAC Address</font></td>
+		<td>&nbsp;</td>
+	</tr>
+	<script>showStList();</script>
+</table>
+<table width=100% border=0 cellpadding=0 cellspacing=0>
+	<tr>
+		<td colspan=3 height=30><font face=Arial color=#8bacb1 size=2><b>Dynamic DHCP Client Table</b></font></td>
+		<td align=right id=dsum>
+	</tr>
+	<tr bgcolor=#B7DCFB>
+		<td width=20%>Host Name</font></td>
+		<td width=25%>IP Address</font></td>
+		<td width=25%>MAC Address</font></td>
+		<td>Expired Time</font></td>
+	</tr>
+	<script>showDynList();</script>
+</table>
+</form>
+<script>pageTail();</script>
+</BODY>
+</HTML>

@@ -1,0 +1,377 @@
+<HTML>
+<HEAD>
+<TITLE>Ralink Wireless Access Point</TITLE>
+<META HTTP-EQUIV=Content-Type CONTENT="no-cache">
+<META HTTP-EQUIV=Content-Type CONTENT="text/html; charset=big5">
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+</HEAD>
+
+<script language="JavaScript">
+/*DEMO*/
+addCfg("lanip",10,"192.168.0.1");
+addCfg("lanmsk",11,"255.255.255.0");
+addCfg("check",70,1);
+addCfg("CL1",90,"0;test1;0.0.0.0;20-21;tcp;0;7200-33600;1");
+addCfg("CL2",91,"0;test1;0.0.0.0;80;tcp;0;0;0");
+addCfg("CL3",92,"0;test1;0.0.0.0;443;tcp;0;0;0");
+addCfg("CL4",93,"0;test1;0.0.0.0;53;udp;0;0;0");
+addCfg("CL5",94,"0;test1;0.0.0.0;25;tcp;0;0;0");
+addCfg("CL6",95,"0;test1;0.0.0.0;110;tcp;0;0;0");
+addCfg("CL7",96,"0;test1;0.0.0.0;23;tcp;0;0;0");
+addCfg("CL8",97,"");
+addCfg("CL9",98,"");
+addCfg("CL10",99,"");
+addCfg("opmode",100,"1");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(lanip, CFG_LAN_IP);
+CGI_MAP(lanmsk, CFG_LAN_MSK);
+CGI_MAP(check, CFG_FW_FLT_CLN_EN);
+CGI_MAP_ARRAY(CL, CFG_FW_FLT_CLN+1, 32);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+var max=32;
+var count=0;
+var IPList=new Array();
+var SelRowBC;
+var SelRow = -1; 
+var prot=["tcp/udp","tcp","udp"];
+var lanip=getCfg("lanip");
+var lanmsk=getCfg("lanmsk");
+var __opmode = 1*getCfg("opmode");
+
+function generateHTML()
+{
+	var str=new String("");
+	for(j=1;j<=max;j++){
+      if(getCfg("CL"+j))
+      {
+		count++;
+		IPList[j]=getCfg("CL"+j);
+   		var s = IPList[j].split(";");
+        str+="<tr>";
+        str+="<td><input type=\"checkbox\" name=\"en\""+(s[0]=="1"? " checked ":" ")+" disabled></td>";
+        str+="<td>"+s[2]+"</td>";
+        str+="<td>"+ProtToStr(s[4])+" "+((s[3]=="")?"*":s[3])+"</td>";
+        str+="<td>"+showSchedule(s[5],s[6],s[7])+"</td>";
+        str+="<td>";
+        str+="<img src=\"images/edit.gif\" width=\"15\" height=\"17\" border=\"0\" alt=\"Edit\" onclick=\"EditRow("+j+")\">";
+        str+="<img src=\"images/delet.gif\" width=\"15\" height=\"18\" border=\"0\" alt=\"Delete\" onClick=\"doDelete("+(j+1)+")\">";
+        str+="</td>";
+        str+="</tr>";
+        }
+	}
+	document.writeln(str);
+	document.getElementById('sum').innerHTML=count+'/'+max+" (Lots/Total Lots)";
+}
+
+function EditRow(r)
+{
+	var f = document.frmIPF;
+	var s = IPList[r].split(";");
+	f.editRow.value = r;
+	if (s[0]=="1")
+	{
+	    f.enable[0].checked=true;
+	}
+	else
+	{
+	    f.enable[1].checked=true;
+	}
+	v=s[2].split("-");
+	f.ip1.value = v[0];
+	f.ip2.value = v[1]?v[1]:"";
+	f.protocol.selectedIndex=ProtToIdx(prot,s[4]);
+	if(s[3]=="") 
+	{
+		f.port1.value="*";
+		f.port2.value="";
+	}
+	else
+	{
+		v=s[3].split("-");
+		f.port1.value = v[0];
+		f.port2.value = v[1]?v[1]:"";
+	}
+	setSchedule(f,s[5],s[6],s[7]);
+	SelectRow("tabIPF",r);
+	f.enable[0].focus();
+}
+
+function Cancel()
+{
+    var f = document.frmIPF;
+    f.editRow.value = "-1"
+    SelectRow("tabIPF",-1)
+    f.reset();
+}
+function Help(){
+	window.open("help_adv.htm#ipf","help");
+}
+function preSubmit()
+{
+    var f = document.frmIPF;
+    for(j=1;j<=max;j++){
+	if (IPList[j]) m=IPList[j];
+	else m="";
+	setCfg("CL"+j,m);
+    }
+    form2Cfg(f);
+    subForm(f,'do_cmd.htm','WAN',cPage);
+}
+
+function Apply()
+{
+    if (checkParameter()==false) return;
+    var f = document.frmIPF;
+    var num;
+    
+    if (f.editRow.value == "-1") num=count+1;
+    else  num=f.editRow.value;
+    
+    if (num>max)
+    {
+		alert("There can be at most "+max+" information in IP filter list. \n\nPlease delete unnecessary data."); 
+		return;
+    }
+    
+	IPList[num]=Number(f.enable[0].checked)+";"+
+		""+";"+
+		ipRange(f.ip1.value,f.ip2.value)+";"+
+		portRange(f.port1.value,f.port2.value)+";"+
+		IdxToProt(prot,f.protocol.selectedIndex)+";"+
+		Number(f.schd[1].checked)+";"+
+		Schedule2str(f);
+	preSubmit();
+}
+
+function doDelete(num)
+{
+    if (confirm("Are you sure you want to delete this item?")==false) return;
+    var f = document.frmIPF;
+    rmEntry(IPList, num-1);
+    preSubmit();
+}
+
+function checkParameter()
+{
+    var f = document.frmIPF;
+    
+    if (evalIP(f.ip1.value)==getCfg("lanip")) { alert("The IP address you entered is the IP address of the system."); return false;}
+    if (!isSameClass(f.ip1.value,lanip,lanmsk)) { alert("The input IP address should be LAN IP."); return false; }
+	if (!chkIpRange(f.ip1.value,f.ip2.value,'')) return false;
+	if (!chkPortRange(f.port1.value,f.port2.value,'','*')) return false;
+
+    // check the same rules
+    if(!checkSameRule()) { alert("This item has been set.");	return false;}
+    if(f.schd[1].checked){
+    	st=(f.hour1.selectedIndex+12*f.am1.selectedIndex)*3600+(f.min1.selectedIndex)*5*60;
+    	et=(f.hour2.selectedIndex+12*f.am2.selectedIndex)*3600+(f.min2.selectedIndex)*5*60;
+    	if(et<st || (f.day1.selectedIndex==(f.day2.selectedIndex+1))){ alert("Invalid Scheduling Range"); return false;} 
+    }
+    return true;
+}
+
+function checkSameRule()
+{
+    var f = document.frmIPF;
+   st=(f.hour1.selectedIndex+12*f.am1.selectedIndex)*3600+(f.min1.selectedIndex)*5*60;
+    et=(f.hour2.selectedIndex+12*f.am2.selectedIndex)*3600+(f.min2.selectedIndex)*5*60;
+    if (et > 86400) et=86400;
+    day=0;
+    cb=0;
+    for(k=0;k<7;k++)
+    {
+    	if (f.day2.selectedIndex+1 == k) 
+    		cb=0;
+        if (f.day1.selectedIndex == k) 
+        	cb=1;
+        day |= (cb<<k);
+    }
+    
+   str1=Number(f.enable[1].checked)+";"+
+                            ""+";"+
+		ipRange(f.ip1.value,f.ip2.value)+";"+
+		portRange(f.port1.value,f.port2.value)+";"+
+		IdxToType(f.protocol.selectedIndex)+";"+
+		Number(f.schd[1].checked)+";"+
+		st+"-"+ et+";"+
+		day;
+   for(i=1;i<IPList.length;i++)
+    	if ((i!=f.editRow.value) && IPList[i].toString().indexOf(str1) >=0)
+    		return false;
+    		
+   return true;
+}
+</script>
+<link rel=stylesheet type=text/css href=style.css>
+<BODY BGCOLOR=#FFFFFF leftmargin=0 topmargin=0>
+<TABLE WIDTH=765 BORDER=0 CELLSPACING=0 CELLPADDING=0 ALIGN=center HEIGHT=100%>
+<script>pageHead();</script>      
+<form name=frmIPF>
+<input type=hidden name=editRow value=-1>
+<table width=100% border=0 cellspacing=0 cellpadding=0>
+<tr> 
+      <td colspan=4 height=20><font color=#8babc1 size=2 face=Arial><b>Filters</b></font></td>
+</tr>
+<tr> 
+      <td width=20%><input type=radio name=filters checked>IP Filters</td>
+      <td colspan=3><input type=radio name=filters onClick="self.location.href='adv_filters_mac.htm';">MAC Filters</td>
+</tr>
+<tr>
+	<td width=20%><input type=radio name=filters onClick="self.location.href='adv_filters_url.htm';">URL Blocking</td>
+	<td colspan=3><input type=radio name=filters onClick="self.location.href='adv_filters_domain.htm';">Domain Blocking</td>
+</tr>
+<tr> 
+      <td colspan=4><br></td>
+</tr>
+<tr> 
+      <td colspan=4><font color=#8babc1 size=2 face=Arial><b>IP Filters</b></font></td>
+</tr>
+<tr> 
+      <td colspan=4 height=35>      
+      <input type=radio name=enable value=1>Enable
+      <input type=radio name=enable value=0 checked>Disable
+      <!--<input type=button value=Clear onClick="doReset()">-->      
+      </td>
+</tr>
+<tr> 
+      <td width=19% height=32 align=right>IP Address</td>
+
+<td colspan=3 height=32>
+<input type=text name=ip1 size=15 maxlength=15> -
+<input type=text name=ip2 size=15 maxlength=15>
+</td>
+
+</tr>
+<tr> 
+      <td width=19% height=35 align=right>Port</td>
+      <td colspan=3 height=35><input type=text name=port1 size=5 maxlength=5>-<input type=text name=port2 size=5 maxlength=5></td>
+</tr>
+<tr> 
+      <td width=19% height=23 align=right>Protocol Type</td>
+      <td colspan=3 height=23><select name=protocol size=1><option value=1>Both</option><option value=2 selected>TCP</option><option value=3>UDP</option></select></td>
+</tr>
+<tr> 
+      <td width=19% height=26 align=right>Schedule</td>
+      <td colspan=3 height=26><input type=radio name=schd value=0 checked>Always</td>
+</tr>
+                  <td width=18%>&nbsp;</td>
+                  <td width=8% height=25><input type=radio name=schd value=1>From</td>
+                  <td colspan=2>time 
+                    <select size=1 name=hour1>
+                      <option value=0>00</option>
+                      <option value=1>01</option>
+                      <option value=2>02</option>
+                      <option value=3>03</option>
+                      <option value=4>04</option>
+                      <option value=5>05</option>
+                      <option value=6>06</option>
+                      <option value=7>07</option>
+                      <option value=8>08</option>
+                      <option value=9>09</option>
+                      <option value=10>10</option>
+                      <option value=11>11</option>
+                    </select>
+                    : 
+                    <select size=1 name=min1>
+                      <option value=0>00</option>
+                      <option value=5>05</option>
+                      <option value=10>10</option>
+                      <option value=15>15</option>
+                      <option value=20>20</option>
+                      <option value=25>25</option>
+                      <option value=30>30</option>
+                      <option value=35>35</option>
+                      <option value=40>40</option>
+                      <option value=45>45</option>
+                      <option value=50>50</option>
+                      <option value=55>55</option>
+                    </select>
+                    <select size=1 name=am1>
+                      <option value=0>AM</option>
+                      <option value=1>PM</option>
+                    </select>
+                    to 
+                    <select size=1 name=hour2>
+                      <option value=0>00</option>
+                      <option value=1>01</option>
+                      <option value=2>02</option>
+                      <option value=3>03</option>
+                      <option value=4>04</option>
+                      <option value=5>05</option>
+                      <option value=6>06</option>
+                      <option value=7>07</option>
+                      <option value=8>08</option>
+                      <option value=9>09</option>
+                      <option value=10>10</option>
+                      <option value=11>11</option>
+                    </select>
+                    : 
+                    <select size=1 name=min2>
+                      <option value=0>00</option>
+                      <option value=5>05</option>
+                      <option value=10>10</option>
+                      <option value=15>15</option>
+                      <option value=20>20</option>
+                      <option value=25>25</option>
+                      <option value=30>30</option>
+                      <option value=35>35</option>
+                      <option value=40>40</option>
+                      <option value=45>45</option>
+                      <option value=50>50</option>
+                      <option value=55>55</option>
+                    </select>
+                    <select size=1 name=am2>
+                      <option value=0>AM</option>
+                      <option value=1>PM</option>
+                    </select>
+                    </td>
+</tr>
+<tr> 
+                  <td width=18% height=25>&nbsp;</td>
+                  <td height=25 width=8%>&nbsp;</td>
+                  <td height=25 colspan=2>day
+                    <select size=1 name=day1>
+						<script language="JavaScript">createSelectTagChild(0,6,0,"week");</script>
+					</select>
+                    to 
+                    <select size=1 name=day2>
+						<script language="JavaScript">createSelectTagChild(0,6,0,"week");</script>
+                    </select>
+                    </td>
+</tr>
+<tr> 
+      <td colspan=4><br></td>
+</tr>
+<tr >
+   	<td colspan=4 align=right>
+	<script>pageButton();</script>
+	</td>
+</tr>
+<tr> 
+      <td colspan=3 align=left><font face=Arial color=#8bacb1 size=2><b>IP Filter List</b></font></td>
+	<td align=right id=sum>
+</tr>
+<tr>
+      <td colspan=4>
+      <table width=100% border=0 id=tabIPF cellpadding=0 cellspacing=0>
+      <tr bgcolor=#B7DCFB> 
+          <td>&nbsp;</td>
+	        <td><font color=#333333>IP Range</font></td>
+          <td><font color=#333333>Protocol</font></td>
+          <td><font color=#333333>Schedule</font></td>
+          <td>&nbsp;</td>
+      </tr>
+      <!--  lists //--><script>generateHTML();</script><!--  Lists //-->
+      </table>
+      </td>
+</tr>
+</table>
+</form>
+<script>pageTail();</script>  
+</BODY></HTML>

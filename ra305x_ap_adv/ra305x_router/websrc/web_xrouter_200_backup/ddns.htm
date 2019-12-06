@@ -1,0 +1,247 @@
+
+
+<HTML>
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+/*DEMO*/
+addCfg("ddnsEnable",381,1);
+addCfg("ddns1",387,'1;oray;;user;pass;;;;3600');
+addCfg("opmode",100,"1");
+var oray_status = -1;
+var oray_type = 1;
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(ddnsEnable, CFG_DDNS_EN);
+CGI_MAP(ddns1, CFG_DDNS_SET+1);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+
+
+REAL*/
+
+var totalCountdownTime = 30;
+var __opmode = 1*getCfg("opmode");
+
+
+function reFresh(TT)
+{
+	if(TT > 0)
+	{
+		//document.all.vCountdown.innerHTML=TT;
+		TT = TT - 1 ;
+		setTimeout("reFresh("+TT+");","1000");
+	}
+	else
+		ddns_refresh();
+}
+
+
+function SelectService(f)
+{
+	var text = '';
+	var text2 = '';
+	var i;
+	var ODL;
+	var dl = getCfg("ddns1");
+	
+	vHost(f);	
+	if ((f.serverName.value=="oray")&&(decomList(dl,9,1,";")=="oray"))
+	{			
+		if (getCfg("ddnsEnable")==1)
+			{
+			;
+			}
+	}
+
+
+	setIdVal("tServiceInfo",text);
+	Panel(f);	
+	resetValue(f);
+}
+
+function init(){
+	var f=document.frmSetup;
+	var dl = getCfg("ddns1");
+			
+	cfg2Form(f);
+	f.serverName.value=decomList(dl,9,1,";");
+	SelectService(f);
+}
+
+
+function Cancel() {
+	init();
+}
+function Apply() {
+	var f=document.frmSetup;
+	//alert("ServerName="+f.serverName.value);
+	if (f.serverName.value!="oray")
+	{
+		if (isBlank(f.hostName.value)) { alert("Host Name cannot be empty!"); return;}
+		//if (!chksc(f.hostName.value,"主機名稱")) return;
+	}
+	if (isBlank(f.userName.value)) { alert("User Name cannot be empty!"); return;}
+	//if (!chksc(f.userName.value,"使用者帳號")) return;
+	if (!chken(f.userName.value,"User Name")) return;
+	if (isBlank(f.passWord.value)) { alert("Password cannot be empty!"); return;}
+	//if (!chksc(f.passWord.value,"使用者密碼")) return;
+	if (!chken(f.passWord.value,"Password")) return;
+	
+	{
+		setCfg("ddns1", "1;"+
+					f.serverName.value+";"+
+					f.hostName.value+";"+
+					f.userName.value+";"+
+					f.passWord.value+";"+
+					";"+";"+";");
+    }                        
+	form2Cfg(f);
+	subForm(f,'do_cmd.htm','DDNS',cPage);
+}
+function Help(){
+	window.open("help_adv.htm#ddns","help");
+}
+function DDNSConfirm(f)
+{
+	if(f.ddnsEnable[1].checked) { alert("DDNS does not enable."); return; }
+	if(f.hostName.value=="") { alert("Host Name cannot be empty!"); return;}
+	addFormElm('CCMD', 4);
+	addFormElm('PING', f.hostName.value);
+	subForm(f,'do_cmd.htm','SYS_CONF',cPage);
+}
+
+function Panel(f)
+{
+	var text="";
+	
+	text += "<table border=0 width=100%><tr>";
+	if (f.serverName.value!="oray")
+	{
+	text += "<td align=right width=50%><input type=button value='Connection Test' onclick=DDNSConfirm(document.frmSetup)></td>";
+	text += "<td align=left  width=50%><input type=button value=Refresh onclick=ddns_refresh();></td>";
+	}
+	else
+	{
+	text += "<td align=center width=100%><input type=button value=Refresh onclick=ddns_refresh();></td>";
+	}
+	text += "</tr></table>";
+	setIdVal("DPanel",text);
+}
+
+function ddns_refresh()
+{
+	self.location='ddns.htm';
+}
+
+function vHost(f)
+{
+	var str="";
+	if (f.serverName.value=="oray")
+	{
+		str += "<input name=hostName size=40 maxlength=60 type=hidden>";
+	}
+	else
+	{
+		str += "<table border=0 width=100% cellspacing=0 cellpadding=0>";
+		str += "<tr>";
+      		str += "<td height=20 align=left width=27%>Host Name</td>";
+      		str += "<td><input name=hostName size=40 maxlength=60></td>";
+		str += "</tr>";
+		str += "</table>"
+	}
+	document.all.vHost.innerHTML=str;	
+}
+
+function resetValue(f)
+{
+	var dl = getCfg("ddns1");
+	if(dl.length > 0){
+		f.hostName.value=decomList(dl,9,2,";");
+		f.userName.value=decomList(dl,9,3,";");
+		f.passWord.value=decomList(dl,9,4,";");
+	}
+}
+</SCRIPT>
+
+<link rel=stylesheet type=text/css href=style.css>
+
+</HEAD>
+
+<BODY leftMargin=0 topMargin=0 onload="init();">
+<script>pageHead();</script>
+
+<form name=frmSetup>
+
+<table width=100% cellpadding=0>
+<tr> 
+      <td colspan=2 height=14><b><font color="#8bacb1" size=2>Dynamic DNS</font></b></td> 
+</tr>
+<tr valign="top">
+      <td colspan=2><div id=tOrayInfo style=position:relative;></div></td>
+</tr>
+<tr> 
+      <td width=27% height=20 align=left>DDNS</td>
+      <td height=20><input type=radio name="ddnsEnable" value=1>Enable<input type=radio name="ddnsEnable" value=0>Disable</td>
+</tr>
+<tr> 
+      <td height=20 align=left>Server Provider</td>
+      <td>
+      <select name="serverName" class=input1 tabindex=2 id="serverName" onChange="SelectService(document.forms[0]);">
+      <option value="dyndns">DynDns.org</option>
+      <option value="changeip">ChangeIP.org</option>
+      <option value="Oray">ddns.oray.com</option>
+      </select>
+      </td>
+</tr>
+
+<tr>
+      	<td colspan=2>
+      	<Div ID="vHost">
+      		<table border=0 width=100% cellspacing=0 cellpadding=0>
+		<tr>
+      			<td height=20 align=left>Host Name</td>
+      			<td><input name=hostName size=40 maxlength=60></td>
+		</tr>		      	
+		</table>
+      	</Div>
+      	</td>
+</tr>
+
+<tr> 
+      <td height=20 align=left>User Name / E-Mail Address</td>
+      <td><input name="userName" size="40" maxlength="16"></td>
+</tr>
+<tr> 
+      <td height=20 align=left>Password</td>
+      <td><input type="password" name="passWord" size="40" maxlength="16"></td>
+</tr>
+</table>
+<div id=tServiceInfo style=position:relative;></div>
+</form>
+
+<form>
+<Div ID="DPanel" style=position:relative;></Div>
+<!--
+<td align=right width=50%><input type=button value=連線測試 onclick=DDNSConfirm(document.frmSetup)></td>
+<td align=left  width=50%><input type=button value=更新 onclick="self.location='ddns.htm'"></td>
+-->
+<table width=100%>
+<tr>
+<tr>
+<td></td>
+<td align=right>
+	<input type="button" value="Apply" onclick="Apply()"    class="btn_nav" />
+	<input type="button" value="Cancel" onclick="Cancel()"  class="btn_nav" />
+	<input type="button" value="Help" onclick="Help()"      class="btn_nav" />
+</td></tr></table></form>
+<script>pageTail();</script>
+</BODY>
+</HTML>

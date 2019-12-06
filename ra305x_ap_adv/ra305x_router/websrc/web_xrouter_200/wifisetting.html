@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script language="JavaScript" src="js/common2.js"></script>
+<script language="javascript" src="js/spec.js"></script>
+<script language="javascript" src="js/utils.js"></script>
+<script language="javascript" src="js/utils_adv.js"></script>
+<script language="javascript" src="js/wireless.js"></script>
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/common2.css">
+<title>WF8500</title>
+<title>System setting</title>
+</head>
+<body>
+<div class="pageHead">
+	<div class="navbar">
+		<ul class="navbar_nav">
+			<li><a href="extender.html">Extender</a></li>
+			<li><a href="ap.html">AP</a></li>
+				<li><a href="wifisetting.html">Wifi Setting</a></li>
+			<li><a href="tools.html">Tools</a></li>
+		</ul>
+	</div>
+</div>
+<div class="pageMain">
+	<div class="pageContent1">
+		<div class="pageContent2"> 
+            <div class="status-title">Change Network Mode and Network Name</div>
+          	
+          <div class="file-box">         
+        	<div class="wifi-basic" id="item1-page">
+            <form name="wireless_basic" method="get" action="sucess.html">
+
+                <div class="basic-item-div">
+                    <span class="wifi-label">Network Name</span>
+                    <input type="text" class="ssid-input" name="ssid"  id="ssid" placeholder="Set your SSID" maxlength="30" autocomplete="off"/>
+                </div>
+                <div class="basic-item-div">
+                    <span class="wifi-label">Channel</span>
+                    <select class="mode-sel" id="sel-channel">
+                    	<option value="0" selected>Auto Select</option>
+                        <option value="1">Channel 1</option>
+                        <option value="2">Channel 2</option>
+                        <option value="3">Channel 3</option>
+                        <option value="4">Channel 4</option>
+                        <option value="5">Channel 5</option>
+                        <option value="6">Channel 6</option>
+                        <option value="7">Channel 7</option>
+                        <option value="8">Channel 8</option>
+                        <option value="9">Channel 9</option>
+                        <option value="10">Channel 10</option>
+                        <option value="11">Channel 11</option>
+                        <option value="12">Channel 12</option>
+                        <option value="13">Channel 13</option>
+                        <option value="14">Channel 14</option>
+                    </select>
+                </div>
+<!--                <div class="basic-item-div">
+                    <span class="wifi-label">Broadcast SSID</span>
+                    <div class="wifi-radio-div">
+                        <input type="radio" class="wifi-radio" name="broadcastssid" value="0" checked="checked"/>Enable 
+                        <input type="radio" class="wifi-radio" name="broadcastssid" value="1" />Disable
+                    </div>
+                </div>-->
+                <div class="wifi-btn-div">
+                	<input type="button" class="wifi-btn" value="APPLY" onClick="Apply_basic();"/>
+                </div>
+                </form>
+            </div>
+            </div>
+           <div class="status-title">Setup wireless security type</div>
+           <div class="file-box"> 
+            <form name="wireless_security" method="post" action="reboot.html">
+              
+          <div class="basic-item-div" id="div-Authentication">
+                    <span class="wifi-label">Select SSID</span>
+                    <select class="mode-sel" id="sel-securitySSID">
+
+                    </select>
+                </div>
+                <div class="basic-item-div" id="div-SecurityMode">
+                    <span class="wifi-label">Security Mode</span>
+                    <select class="mode-sel" id="sel-securityMode" - onChange="securityModeChangeAction();">
+                    	<option value="0" selected>Disable</option>
+                        <option value="1">WPA</option>
+                    </select>
+                </div>
+                <div class="basic-item-div" id="div-Authentication1">
+                    <span class="wifi-label">Authentication</span>
+                    <select class="mode-sel" id="sel-authenticationMode">
+                    	<option value="0" selected>WPA-Personal</option>
+                        <option value="1">WPA-Enterprise</option>
+                        <option value="2">WPA2-Personal</option>
+                        <option value="3">WPA2-Enterprise</option>
+                        <option value="4">WPA/WPA2-Personal(Mixed Mode)</option>
+                        <option value="5">WPA/WPA2-Enterprise(Mixed Mode)</option>
+                    </select>
+                </div>
+                <div class="basic-item-div" id="div-WPAAlgorithms">
+                    <span class="wifi-label">WPA Algorithms</span>
+                    <select class="mode-sel" id="sel-algorithmsMode">
+                    	<option value="0" selected>AES</option>
+                        <option value="1">TKIP</option>
+                    </select>
+                </div>
+                <div class="wifi-btn-div">
+                	<input type="button" class="wifi-btn" value="APPLY" onClick="Apply_security();"/>
+                </div>
+            </form>
+          </div>
+             <div class="status-title">Change Mac addr </div>
+         <div class="file-box"> 
+            <form name="factorySetting" method="post" action="reboot.html">
+            	<INPUT type=hidden name=CMD value=UPDATE_MAC>
+                <INPUT type=hidden name=GO value=factort-setting.html>
+                <INPUT type=hidden name=UMAC value="<% CGI_GET_WLN_MAC_ADDRESS();%>">   
+                         <div class="basic-item-div">
+                    <span class="wifi-label">Update MAC</span>
+                    <input type="text" class="ssid-input" name="text_macAddr"  id="text_macAddr" placeholder="<% CGI_GET_WLN_MAC_ADDRESS();%>" maxlength="17" autocomplete="off"/>
+                </div>
+                 
+                <div class="wifi-btn-div">
+                	<input type="button" class="wifi-btn" value="APPLY" onClick="Apply_updateMac();"/>
+                </div>
+            </form>
+			
+          </div>  
+        </div>
+    </div>
+</div>
+</body>
+<script>
+/*REAL
+<%
+CGI_MAP(SSIDIndexTemp, CFG_WLN_SSIDIndex);
+CGI_MAP(WirelessMode2, CFG_WLN_WirelessMode);
+CGI_MAP(BasicRate2, CFG_WLN_BasicRate);
+CGI_MAP(ssid, CFG_WLN_SSID1);
+CGI_MAP(mssid_1, CFG_WLN_SSID2);
+CGI_MAP(mssid_2, CFG_WLN_SSID3);
+CGI_MAP(mssid_3, CFG_WLN_SSID4);
+CGI_MAP(SSID3, CFG_WLN_WscSSID);
+CGI_MAP(bssid_num, CFG_WLN_BssidNum);
+CGI_MAP(HideSSID2, CFG_WLN_HideSSID);
+CGI_MAP(AutoChannelSelect2, CFG_WLN_AutoChannelSelect);
+CGI_MAP(sz11aChannel, CFG_WLN_Channel);
+CGI_MAP(sz11bChannel, CFG_WLN_Channel);
+CGI_MAP(sz11gChannel, CFG_WLN_Channel);
+CGI_MAP(EncrypType2, CFG_WLN_WdsEncrypType);
+CGI_MAP(n_mode, CFG_WLN_HT_OpMode);
+CGI_MAP(n_bandwidth, CFG_WLN_HT_BW);
+CGI_MAP(EXTCHA2, CFG_WLN_HT_EXTCHA);
+%>
+REAL*/
+
+/*REAL
+<%
+CGI_MAP(SSIDIndexTemp, CFG_WLN_SSIDIndex);
+CGI_MAP(SecurityMode2, CFG_WLN_SecurityMode);
+CGI_MAP(IEEE8021X2, CFG_WLN_IEEE8021X);
+CGI_MAP(AuthMode, CFG_WLN_AuthMode);
+CGI_MAP(EncrypType, CFG_WLN_EncrypType); 
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+
+function securityModeChangeAction(){
+	if(document.getElementById("sel-securityMode").options.selectedIndex == 0){
+		var val = document.getElementById("div-Authentication").getAttribute("class");
+		var val1 = document.getElementById("div-Authentication1").getAttribute("class");
+		
+		document.getElementById("div-Authentication").setAttribute("class",val+" off");
+		document.getElementById("div-Authentication1").setAttribute("class",val1+" off");
+		
+		var val3 = document.getElementById("div-WPAAlgorithms").getAttribute("class");
+		document.getElementById("div-WPAAlgorithms").setAttribute("class",val3+ " off");
+		//var val2 = document.getElementById("div-WPAAlgorithms2").getAttribute("class");
+		//document.getElementById("div-WPAAlgorithms").setAttribute("class",val3+ " off");
+	}else{
+		var val = document.getElementById("div-Authentication").getAttribute("class");
+		val = val.replace(" off","");
+		document.getElementById("div-Authentication").setAttribute("class",val);
+		var val1 = document.getElementById("div-Authentication1").getAttribute("class");
+		val1 = val1.replace(" off","");
+		document.getElementById("div-Authentication1").setAttribute("class",val1);
+		
+		var val3 = document.getElementById("div-WPAAlgorithms").getAttribute("class");
+		val3 = val3.replace(" off","");
+		document.getElementById("div-WPAAlgorithms").setAttribute("class",val3);
+		//var val2 = document.getElementById("div-WPAAlgorithms2").getAttribute("class");
+		//val3 = val3.replace(" off","");
+		//document.getElementById("div-WPAAlgorithms2").setAttribute("class",val3);
+	}
+}
+
+
+
+var channel_index  = "<% CGI_WLN_Channel();%>"; 
+var ssid_num = "<% CGI_WLN_SSID_NUM();%>";
+var ssid_s1 = "<% CGI_CFG_GET(CFG_WLN_SSID1); %>";
+var ssid_s2 = "<% CGI_CFG_GET(CFG_WLN_SSID2); %>";
+var ssid_s3 = "<% CGI_CFG_GET(CFG_WLN_SSID3); %>";
+var ssid_s4 = "<% CGI_CFG_GET(CFG_WLN_SSID4); %>";
+
+var authenticationMode = "<% CGI_CFG_GET(CFG_WLN_AuthMode); %>";
+var encryptionType = "<% CGI_CFG_GET(CFG_WLN_EncrypType); %>";
+
+var authenticationModeArray = authenticationMode.split(";");
+var encryptionTypeArray = encryptionType.split(";");
+
+function page_init(){
+	
+	if(ssid_s1 != null){
+		document.getElementById("ssid").value = ssid_s1;
+	}
+	if(channel_index != null){
+		document.getElementById("sel-channel").selectedIndex = channel_index;
+	}
+	if(ssid_num != null && ssid_num > 0){
+		var sel = document.getElementById("sel-securitySSID");
+		var op = document.createElement("option");
+		op.setAttribute("value",0);
+		op.setAttribute("checked","checked");
+		op.innerHTML = ssid_s1;
+		sel.appendChild(op);
+	}
+	var ssid_index = document.getElementById("sel-securitySSID").selectedIndex;
+	<!-- AuthenticationMode -->
+	var sel_authenticationMode = document.getElementById("sel-authenticationMode");
+	var sel_keyMode = document.getElementById("sel-securityMode");
+	if (authenticationModeArray[ssid_index] == 'WPAPSK'){
+		sel_authenticationMode.options.selectedIndex = 0;
+		sel_keyMode.options.selectedIndex = 1;
+		}
+	else if (authenticationModeArray[ssid_index] == 'WPA'){
+		sel_authenticationMode.options.selectedIndex = 1;
+		sel_keyMode.options.selectedIndex = 1;
+		}
+	else if (authenticationModeArray[ssid_index] == 'WPA2PSK'){
+		sel_authenticationMode.options.selectedIndex = 2;
+		sel_keyMode.options.selectedIndex = 1;
+		}
+	else if (authenticationModeArray[ssid_index] == 'WPA2'){
+		sel_authenticationMode.options.selectedIndex = 3;
+		sel_keyMode.options.selectedIndex = 1;
+		}
+	else if (authenticationModeArray[ssid_index] == 'WPAPSKWPA2PSK'){
+		sel_authenticationMode.options.selectedIndex = 4;
+		sel_keyMode.options.selectedIndex = 1;
+		}
+	else if (authenticationModeArray[ssid_index] == 'WPA1WPA2'){
+		sel_authenticationMode.options.selectedIndex = 5;
+		sel_keyMode.options.selectedIndex = 1;
+		}
+	else
+		{
+		//sel_authenticationMode.options.selectedIndex = 0;
+		sel_keyMode.options.selectedIndex = 0;
+		}
+	<!-- AlgorithmsMode -->
+	var sel_algorithmsMode = document.getElementById("sel-algorithmsMode");
+	if(encryptionTypeArray[ssid_index] == "TKIP"){
+		sel_algorithmsMode.options.selectedIndex = 1;
+		
+	}
+	else
+		{
+		sel_algorithmsMode.options.selectedIndex = 0;
+		
+		}
+	
+	securityModeChangeAction()
+}
+
+function Apply_basic(){
+	var ssid = document.getElementById("ssid").value;
+	if(ssid == null || ssid == ""){
+		alert("Error:SSID can NOT be empty!");
+		return;	
+	}else if(ssid.length > 32){
+		alert("Error:SSID must be shorter than 32 characters!");
+		return;
+	}
+	setCfg("ssid",ssid);
+	var ch_selected_index = document.getElementById("sel-channel").selectedIndex;
+	if(ch_selected_index == 0){/*Auto Ch sel*/
+		setCfg("AutoChannelSelect2","1");
+	}else{
+		setCfg("AutoChannelSelect2","0");
+		setCfg("sz11gChannel",ch_selected_index);
+	}
+
+	var f = document.wireless_basic;
+	form2Cfg(f);
+	subForm(f,'sucess.html','WIRELESS_BASIC',cPage);
+}
+
+function Apply_security(){
+	var ssid_index = document.getElementById("sel-securitySSID").selectedIndex;
+	var securityMode = document.getElementById("sel-securityMode").selectedIndex;
+	if(securityMode == 0){
+		authenticationMode[ssid_index] = "OPEN";
+		setCfg("AuthMode",authenticationMode[0]+";OPEN;OPEN;OPEN");
+		encryptionType[ssid_index] = "NONE";
+		setCfg("EncrypType",encryptionType[0]+";NONE;NONE;NONE");
+	}else{
+		var	authMode = document.getElementById("sel-authenticationMode").selectedIndex;
+		alert(authMode);
+		switch(authMode){
+			case 0: setCfg("AuthMode","WPAPSK"); break;
+			case 1: setCfg("AuthMode","WPA"); break;
+			case 2: setCfg("AuthMode","WPA2PSK"); break;
+			case 3: setCfg("AuthMode","WPA2"); break;
+			case 4: setCfg("AuthMode","WPAPSKWPA2PSK"); break;
+			case 5: setCfg("AuthMode","WPA1WPA2"); break;
+			default: setCfg("AuthMode","WPA2PSK"); break;
+		}
+		var algoMode = document.getElementById("sel-algorithmsMode").selectedIndex;
+		switch(algoMode){
+			case 0: setCfg("EncrypType","AES"); break;
+			case 1: setCfg("EncrypType","TKIP"); break;
+			default: setCfg("EncrypType","TKIP"); break;
+		}
+	}
+	var f = document.wireless_security;
+	form2Cfg(f);
+	subForm(f,'reboot.html','WIRELESS_SECURITY',cPage);
+}
+
+function Apply_updateMac(){
+	/*获取文本框的内容*/
+	var macAddr = document.getElementById("text_macAddr").value;
+		if(macAddr == "" || macAddr == null || macAddr.length <= 0){
+		alert("The MAC0 address can NOT be empty!");
+		return;
+	}
+	
+	/*检验mac地址是否正确的正则表达式*/
+	var macRegExp = /[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}/;
+	if (!macRegExp.test(macAddr))
+	{
+		alert("The MAC address you have entered is using incorrect format.");
+		return;
+	}
+	/*提交给cgi给系统执行命令*/	
+	
+	document.factorySetting.UMAC.value = macAddr;
+	document.factorySetting.submit();
+	
+}
+
+
+	
+
+page_init();
+initItemClickAction();
+</script>
+</html>

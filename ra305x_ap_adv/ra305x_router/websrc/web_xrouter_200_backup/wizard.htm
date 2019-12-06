@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<SCRIPT language="JavaScript" src="js/utils.js"></SCRIPT>
+<SCRIPT language="JavaScript" src="js/spec.js"></SCRIPT>
+<SCRIPT language=JavaScript>
+function gurl(u) {location=u;}
+/*DEMO*/
+var sync=0;
+var tmp=new Date();
+var devdate = parseInt(tmp.getTime()/1000)-tmp.getTimezoneOffset()*60;
+/*END_DEMO*/
+/*REAL
+var sync=<%CGI_CFG_GET(CFG_SYS_NTPTYPE);%>;
+var devdate=<%WEB_printf(req, "%d", ntp_getlocaltime(0));%>;
+REAL*/
+
+function init()
+{
+	if (sync==1)
+	{
+		var curdate = new Date();
+		var computer = parseInt(curdate.getTime()/1000)-curdate.getTimezoneOffset()*60;
+/*DEMO*/
+		var go='wizard.htm';
+/*END_DEMO*/
+/*REAL
+		var go='do_cmd.htm?CMD=NTP&GO=wizard.htm&nowait=1&TIMES=' + computer;
+REAL*/
+		if ((computer - devdate) > 3) gurl(go);
+	}
+}
+</SCRIPT>
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</HEAD>
+
+<BODY leftmargin=0 topmargin=0 onload="init();">
+<script> pageHead();</script>
+
+<table width=100%>
+<tr>
+	<td><font color=#8bacb1 size=2><b>�s�u���F</b></td>
+	</tr>
+<tr>
+	<td height=34 align=center>
+	<input type=button name=wizard value="�s�u���F" onClick=window.open('wz.htm','Wizard','width=450,height=360,resizable=0')>
+	</td>
+</tr>
+<tr>
+	<td height=34 align=right>
+	<input type="button" value="Help" onclick="window.open('help_home.htm','help')"      class="btn" />
+	</td>
+</tr>
+</table>
+
+<script>pageTail();</script>
+
+</BODY>
+</HTML>

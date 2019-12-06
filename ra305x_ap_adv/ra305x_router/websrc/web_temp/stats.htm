@@ -1,0 +1,99 @@
+<HTML> 
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=utf8">
+<TITLE>Ralink Wireless Access Point</TITLE>
+	<link REL=stylesheet TYPE="text/css" HREF="style.css">
+
+<SCRIPT language=JavaScript src=lang.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+var lang="stats"
+function init()
+{
+}
+sData = new Array(
+/*DEMO*/
+0,187,1237,1301 
+/*END_DEMO*/
+/*REAL
+<% CGI_WAN_RXOK(); %>,
+<% CGI_WAN_TXOK(); %>,
+<% CGI_LAN_RXOK(); %>,
+<% CGI_LAN_TXOK(); %>,
+<% CGI_WLN_RXOK(); %>,
+<% CGI_WLN_TXOK(); %>
+REAL*/
+
+);
+function preSubmit(f) 
+{
+	f.action="do_cmd.htm";	
+	f.submit();
+}
+
+	rxWan = sData[0];
+	txWan = sData[1];
+	rxLan = sData[2];
+	txLan = sData[3];
+	rxWlan = sData[4];
+	txWlan = sData[5];
+
+function genHTML()
+{
+	var str = "";
+	
+	str+="<tr><td width=111 height=20><b>WAN</b></td>";
+	str+="<td width=220 height=20> "+rxWan+stats[5]+"</td>";
+    str+="<td width=183 height=20>"+txWan+stats[5]+"</td></tr>";
+
+	str+="<tr><td width=111 height=20><b>LAN</b></td>";
+	str+="<td width=220 height=20>"+rxLan+stats[5]+"</td>";
+    str+="<td width=183 height=20>"+txLan+stats[5]+"</td></tr>";
+
+	str+="<tr><td width=111 height=20><b>WIRELESS</b></td>";
+	str+="<td width=220 height=20>"+rxWlan+stats[5]+"</td>";
+	str+="<td width=183 height=20>"+txWlan+stats[5]+"</td></tr>";
+
+	document.write(str);	
+}
+
+</SCRIPT>
+<link rel=stylesheet type=text/css href=style.css>
+</HEAD>
+
+<BODY leftMargin=0 topMargin=0>
+<script>pageHead();</script>
+          
+<form name=frmSetup method=POST action=do_cmd.htm>
+<INPUT type=hidden name=CMD value=SYS_CONF>
+<INPUT type=hidden name=GO value=stats.htm>
+<input type=hidden name=CCMD value=5> 
+<input type=hidden name=nowait value=1> 
+<table width=522 border=0 cellpadding=0 height=112 cellspacing=0>
+<tr> 
+      <td height=10 colspan=3><b><font color=#8bacb1 size=2><span id=_0>Traffic Statistics</span></font></b></td>
+</tr>
+<tr> 
+      <td colspan=2 height=35 valign=top align=left> 
+      <input id=_1 type=button value=Refresh name=refreshüü onClick="window.location.href='stats.htm'">
+      <input id=_2 type=button name=reset value=Reset  onClick="preSubmit(document.frmSetup);">      
+      </td>
+      <td height=60 valign=top align=right><br> 
+      <a href=help_status.htm#stats target=help><SCRIPT language=JavaScript>document.write("<img src=\""+langdir[_LM_]+"help_p.jpg\" border=0>")</SCRIPT></a><br><br>
+      </td>
+</tr>
+<tr bgcolor=#b7dcfb> 
+      <td width=111 height=2><font size=2 color=#333333></font></td>
+      <td id=_3 width=220 height=2>Receive</td>
+      <td id=_4 width=183 height=2>Transmit</td>
+</tr>
+
+<script language="JavaScript">genHTML();</script>
+</table>
+</form>
+<script>pageTail();</script>
+<script>chglang();</script>
+</BODY>
+</HTML>

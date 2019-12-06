@@ -1,0 +1,155 @@
+<html>
+
+<head>
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="-1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link href="css/style.css" rel="stylesheet" rev="stylesheet" type="text/css" />
+    <title>Ralink Wireless Access Point</title>
+    <script language=JavaScript src=js/utils.js></script>
+    <script language=JavaScript src=js/spec.js></script>
+    <script language=JavaScript src=js/utils_adv.js></script>
+    <script language="JavaScript">
+    /*DEMO*/
+    addCfg("opmode", 100, "3");
+    /*END_DEMO*/
+    /*REAL
+    <%
+    CGI_MAP(opmode, CFG_SYS_OPMODE);
+    %>
+    REAL*/
+    var __opmode = 1 * getCfg("opmode");
+
+    var my_xml;
+
+    // you have to load language object for displaying words in each html page and load html object for the redirect or return page
+
+    var err_msg = ["Error", "Saving Error", "Out of Range", "Ping Result: Timeout", "Only administrators can change settings", "Invalid File"];
+    var ok_msg = ["Success", "Save Settings", "Ping Results: Alive", "Reboot", "E-mail has been sent", "Upgrade is complete", "Upgrade is complete", "Connecting"];
+
+    var rc = 0;
+    var go;
+    var nowait = '0';
+    var msg = '';
+    var cmd;
+
+    function $(obj) {
+        return document.getElementById(obj);
+    }
+
+    function CountsTime() {
+        $("bar").style.width = parseInt($("bar").style.width) + 1 + "%";
+        if ($("bar").style.width == "100%") {
+            window.clearInterval(barWidth);
+            // window.history.go(-1);
+            self.location=document.referrer;
+        }
+    }
+    var barWidth = window.setInterval("CountsTime()", 250);
+    window.onload = function() {
+        barWidth;
+    }
+
+    function gurl(u) {
+        if (u == '') u = 'wz.htm';
+        location = u;
+    }
+
+    /*REAL
+        var cmd='<%char *cmd = CGI_QUERY("CMD");%>';
+        var nowait='<%char * nowait=CGI_QUERY("nowait");%>';
+        if (cmd=='SYS_UPG')  msg = "Update..";
+    REAL*/
+    </SCRIPT>
+    <style type="text/css">
+    .graph {
+        margin-top: 20px;
+        width: 85%;
+        height: 34px;
+        border: 1px solid #eee;
+        border-radius: 17px;
+    }
+    
+    .graph strong {
+        display: inline-block;
+        height: 34px;
+        background: #0298e5;
+        border-radius: 17px;
+    }
+    </style>
+</HEAD>
+
+<body>
+    <script>
+    pageHead();
+    </script>
+    <!--REAL
+<%
+#ifdef CONFIG_ZWEB
+if (cmd && strcmp(cmd, "SYS_UPG") == 0)
+{
+    extern int lock_web_file(char *filename);
+}
+#endif
+%>
+<% if (!nowait) { %>
+REAL-->
+    <div id="MSG"><p>
+        <script>
+        document.write(msg);
+        </script>
+    </p>
+    </div>
+    <div class="graph">
+        <strong id="bar" style="width:1%;"></strong>
+    </div>
+    <!--REAL
+<%}%>
+REAL-->
+    <script>
+    /*REAL
+
+        var go='<%CGI_QUERY("GO");%>';
+    <%
+    #ifdef CONFIG_ZWEB
+    if (cmd && strcmp(cmd, "SYS_UPG") == 0)
+    {
+        extern int unlock_web_file(char *filename);
+    }
+    #endif
+    %>
+    REAL*/
+    var lang = "<% CGI_CFG_GET(CFG_SYS_Language); %>";
+    if (nowait == 1 && rc >= 0) {
+        gurl(go);
+    }
+
+    if (rc >= 0) {
+        if (rc < ok_msg.length) msg = ok_msg[rc];
+        else msg = "Success";
+    } else {
+        var i = -1 - rc;
+        if (i < err_msg.length) msg = err_msg[i];
+        else msg = "Error";
+    }
+    switch (rc) {
+        default: btn = '<a href=javascript:history.go(-1)>123</a>';
+        btn = '<input type="button" value="Reboot" onclick="history.go(-1)" class="btn_nav" />';
+        break;
+    }
+    /*DEMO*/
+    btn = '<a href=javascript:history.go(-1)>Back</a>'
+        /*END_DEMO*/
+    if (nowait != 1) {
+        if(lang == 1)
+            document.getElementById("MSG").innerHTML = "正在配置参数，请稍等..";
+        else    
+            document.getElementById("MSG").innerHTML = "Configuring parameters, please wait..";
+    }
+    </script>
+    <script>
+    pageTail();
+    </script>
+</body>
+
+</html>

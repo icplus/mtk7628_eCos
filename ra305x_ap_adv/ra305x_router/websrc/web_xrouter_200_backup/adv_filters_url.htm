@@ -1,0 +1,202 @@
+<HTML>
+<HEAD>
+<TITLE>Ralink Wireless Access Point</TITLE>
+<META HTTP-EQUIV=Content-Type CONTENT="no-cache">
+<META HTTP-EQUIV=Content-Type CONTENT="text/html; charset=big5">
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+</HEAD>
+
+<script language="JavaScript">
+/*DEMO*/
+addCfg("lanip",10,"192.168.2.1");
+addCfg("check",70,0);
+addCfg("UF1",90,"1;192.168.2.50-192.168.2.100;urlString0");
+addCfg("UF2",91,"0;192.168.2.51-192.168.2.101;urlString1");
+addCfg("UF3",92,"1;192.168.2.52-192.168.2.102;urlString2");
+addCfg("UF4",93,"0;192.168.2.53-192.168.2.103;urlString3");
+addCfg("UF5",94,"1;192.168.2.54-192.168.2.104;urlString4");
+addCfg("UF6",95,"");
+addCfg("UF7",96,"");
+addCfg("UF8",97,"");
+addCfg("UF9",98,"");
+addCfg("UF10",99,"");
+addCfg("opmode",100,"1");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(lanip, CFG_LAN_IP);
+CGI_MAP(check, CFG_FW_FLT_URL_EN);
+CGI_MAP_ARRAY(UF, CFG_FW_FLT_URL+1, 32);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+var max=32;
+var count=0;
+var URLList=new Array();
+var __opmode = 1*getCfg("opmode");
+
+function initURL()
+{
+   var f = document.frmURL; 
+   f.enable[0].checked =(getCfg("check")=="1");
+   f.enable[1].checked =(getCfg("check")=="0");
+   
+   for(j=1;j<=max;j++)
+   {
+   	if(getCfg("UF"+j))
+  	{
+	 	count++;
+		URLList[j]=getCfg("UF"+j);
+   	}
+   }
+   f.kwSelect.length=count;
+   f.kwSelect.selectedIndex=-1;
+   for (var j=1; j <= count;j++)
+   {
+       s = URLList[j].split(";");
+       f.kwSelect[j-1].value=j;
+       f.kwSelect[j-1].text=s[2];
+   }
+   document.getElementById('sum').innerHTML=count+'/'+max+" (Lots/Total Lots)";
+}
+
+function Cancel()
+{
+   var f = document.frmURL; 
+   f.reset();
+   f.enable[0].checked =(getCfg("check")=="1");
+   f.enable[1].checked =(getCfg("check")=="0");
+   f.kwSelect.selectedIndex=-1;
+}
+function Help(){
+	window.open("help_adv.htm#urlf","help");
+}
+function preSubmit()
+{
+    var f = document.frmURL;
+    for(j=1;j<=max;j++){
+	if (URLList[j]) m=URLList[j];
+	else m="";
+	setCfg("UF"+j,m);
+    }
+    form2Cfg(f);
+    subForm(f,'do_cmd.htm','WAN',cPage);
+}
+
+function Apply()
+{
+    var f = document.frmURL;
+    var num;
+    
+	if (f.kwSelect.selectedIndex==-1)
+		num=(URLList.length !=0)?URLList.length:1;
+	else
+		num = f.kwSelect.selectedIndex+1;
+
+    if (!isBlank(f.keyword.value)) 
+    {
+    	 if (num>max)
+         {
+            alert("There can be at most "+max+" information in URL blocking list. \n\nPlease delete unnecessary data."); 
+            return;
+         }
+         if(!chksc(f.keyword.value,"keywords")) return;
+    }
+    else
+    {
+       tmpValue=(f.enable[0].checked? "1":"0");       
+       if (tmpValue==getCfg("check"))
+       {
+         alert("Keywords must be completed.");
+         return;
+       }
+    }
+    if(f.keyword.value!="")
+    {
+    	for (i=1;i<URLList.length;i++)
+    	{
+    	 	s = URLList[i].split(";");
+    	 	if(s[2] == f.keyword.value)
+       		{
+          		alert("This keyword already exists.");
+          		return;
+       		}
+    	}
+    }
+    setCfg("check",Number(f.enable[0].checked));
+    if(f.keyword.value!="")
+    	URLList[num]="1;0;"+f.keyword.value;
+    preSubmit();
+}
+
+function dispurl()
+{
+    var f = document.forms[0];
+	var index = f.kwSelect.selectedIndex;
+
+	f.kwSelect.focus();
+	f.keyword.value=f.kwSelect.options[index].text;
+}
+
+function doDelete(num)
+{
+    var f = document.frmURL;
+    if (num==0) return;
+    rmEntry(URLList, num);
+    preSubmit();
+}
+</script>
+<link rel=stylesheet type=text/css href=style.css>
+<BODY BGCOLOR=#FFFFFF leftmargin=0 topmargin=0 onload="initURL()">
+<TABLE WIDTH=765 BORDER=0 CELLSPACING=0 CELLPADDING=0 ALIGN=center HEIGHT=100%>
+<script>pageHead();</script>     
+<form name=frmURL>
+<table width=100% border=0 cellspacing=0 cellpadding=0>
+<tr> 
+      <td colspan=5 height=20><font color=#8babc1 size=2 face=Arial><b>Filters</b></font></td>
+</tr>
+<tr valign="top"> 
+      <td colspan=5 height=30>Filters are used to allow or deny LAN users from accessing the Internet.</td>
+</tr>
+<tr> 
+      <td width=23%><input type=radio name=filters onClick="self.location.href='adv_filters_ip.htm';">IP Filters</td>
+      <td colspan=3><input type=radio name=filters onClick="self.location.href='adv_filters_mac.htm';">MAC Filters</td>
+</tr>
+<tr> 
+      <td width=23%><input type=radio name=filters checked>URL Blocking</td>
+      <td colspan=3><input type=radio name=filters onClick="self.location.href='adv_filters_domain.htm';">Domain Blocking</td>
+</tr>
+<tr> 
+      <td colspan=5><br></td>
+</tr>
+<tr> 
+     <td colspan=5><font color=#8babc1 size=2 face=Arial><b>URL Blocking</b></font></td>
+</tr>
+<tr valign="top"> 
+     <td colspan=5 height="30">Block those URLs which contain keywords listed below.</td>
+</tr>
+<tr> 
+     <td colspan=2><input type=radio value=1 name=enable>Enable<input type=radio value=0 name=enable>Disable</td>
+      <td id=sum></td>
+</tr>
+<tr> 
+     <td colspan=5><br></td>
+</tr>
+<tr> 
+     <td colspan=5 align=left><input type=text name=keyword size=38 maxlength=39></td>
+</tr>
+<tr> 
+     <td colspan=2 align=right><select name=kwSelect size=8 onChange="dispurl();"></select></td>
+     <td colspan=3 valign=top><input type=button name=del value=Delete onclick="doDelete(this.form.kwSelect.selectedIndex+1)"></td>
+</tr>
+<tr> 
+     <td colspan=5 align=right>
+     <script>pageButton();</script>
+     </td>
+</tr>
+</table>
+</form>
+<script>pageTail();</script>  
+</BODY></HTML>

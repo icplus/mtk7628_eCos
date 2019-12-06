@@ -1,0 +1,163 @@
+<html>
+<head>
+<title>Ralink Wireless Access Point</title>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=big5">
+<link REL=stylesheet TYPE="text/css" HREF="style.css">
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+/*DEMO*/
+addCfg("opmode",101,"1");
+addCfg("WANT",100,"4");
+addCfg("PTUN", 50, "pptp_user");
+addCfg("PTMTU", 51, "1400");
+addCfg("PTIDL", 52, "60");
+addCfg("PTIP", 53, "10.10.10.221");
+addCfg("PTMSK", 54, "255.255.255.0");
+addCfg("PTSVR", 55, "10.10.10.227");
+addCfg("PTID", 56, "pptp_id");
+addCfg("PTCM", 57, "1" );
+addCfg("PTPW", 58, "******");
+addCfg("PTWANIF", 59, 1);
+addCfg("PTGW",65,"10.10.10.254");
+addCfg("PTWANIF",66,0);
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+CGI_MAP(WANT, CFG_WAN_IP_MODE);
+CGI_MAP(PTUN, CFG_PTP_USER);
+CGI_MAP(PTMTU, CFG_PTP_MTU);
+CGI_MAP(PTIDL, CFG_PTP_IDLET );
+CGI_MAP(PTIP, CFG_PTP_IP );
+CGI_MAP(PTMSK, CFG_PTP_MSK );
+CGI_MAP(PTSVR, CFG_PTP_SVR );
+CGI_MAP(PTID, CFG_PTP_ID);
+CGI_MAP(PTCM, CFG_PTP_AUTO);
+CGI_MAP(PTWANIF, CFG_PTP_WANIF);
+CGI_MAP(PTGW,CFG_PTP_GW);
+CGI_MAP(PTWANIF, CFG_PTP_WANIF);
+%>
+addCfg("PTPW", <%CGI_CFG_ID(CFG_PTP_PASS);%> , "******" );
+REAL*/
+addCfg("mode",0,"4");
+
+var __opmode = 1*getCfg("opmode");
+
+function Apply() {
+	var f=document.PTP;
+	if (f.PTWANIF[1].checked)
+	{
+		if (!verifyIP2(f.PTIP,"IP 位址")) return ;
+		if (!ipMskChk(f.PTMSK,"子網路遮罩")) return ;
+		if (!verifyIP0(f.PTGW,"閘道器位址")) return ;
+	}
+	if (!verifyIP2(f.PTSVR,"伺服器 IP 位址/名稱")) return ;
+	if (!rangeCheck(f.PTMTU,546,1460,"MTU")) return ;
+	if (!rangeCheck(f.PTIDL,60,3600,"閒置時間")) return ; 
+	if (!chkStrLen(f.PTUN,0,255,"使用者帳號")) return ;
+	if (!chkStrLen(f.PTPW,0,255,"使用者密碼")) return ;
+	if (!chkPwdUpdate(f.PTPW,f._ps2,f._changed)) return;
+
+	setCfg("WANT",4);
+	form2Cfg(f);
+	subForm(f,'do_cmd.htm','LAN',cPage);
+}
+
+function init() {
+	cfg2Form(document.PTP);
+	clickPTP();
+}
+
+function Cancel()
+{
+	init();
+}
+function Help()
+{
+	window.open("help_home.htm#pptp","help");
+}
+
+function clickPTP()
+{
+	var f = document.PTP; 
+	var b = ((f.PTWANIF[0].checked)? true : false);
+	f.PTIP.disabled = b;
+	f.PTMSK.disabled = b;
+	f.PTGW.disabled = b;  
+}
+
+</SCRIPT>
+
+</head>
+
+<body leftmargin=0 topmargin=0 Onload=init()>
+<script>pageHead();</script>
+<FORM name=PTP>
+<script>pageWanSel(Number(getCfg("opmode")));</script>
+<br><br>
+
+<table width=100%>
+<tr>
+	<td colspan=2 height=30><font face=Arial size=2 color=#8bacb1><b>PPTP 用戶端</b></td>
+</tr>
+<tr>
+	<td width=34%>&nbsp;</td>
+	<td width=66%> 
+	<input type=radio value=0 name=PTWANIF onClick=clickPTP()>動態的 IP
+	<input type=radio value=1 name=PTWANIF onClick=clickPTP()>固定的 IP
+	</td>
+</tr>
+<tr>
+	<td>IP 位址</td>
+	<td><input type=text name=PTIP size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td>子網路遮罩</td>
+	<td><input type=text name=PTMSK size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td>閘道器</td>
+	<td><input type=text name=PTGW size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td>伺服器 IP 位址/名稱</td>
+	<td><input type=text name=PTSVR size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td>PPTP 使用者帳號</td>
+	<td><input type=text name=PTUN size=32 maxlength=63></td>
+</tr>
+<tr>
+	<td>PPTP 使用者密碼</td>
+	<td><input type=password name=PTPW size=32 maxlength=31 value=****** onkeypress=chkPwd1Chr(this,_ps2,_changed)></td>
+		<input type=hidden name=_changed value=0>
+</tr>
+<tr>
+	<td>確定密碼</td>
+	<td><input type=password name=_ps2 size=32 maxlength=31 value=****** onkeypress=chkPwd1Chr(PTPW,this,_changed)></td>
+</tr>
+<tr>
+	<td>最大閒置時間</td>
+	<td><input type=text name=PTIDL maxlength=4 size=4>秒</td>
+</tr>
+<tr>
+	<td>MTU</td>
+	<td><input type=text name=PTMTU maxlength=4 size=5></td>
+</tr>
+<tr>
+	<td>連線方式</td>
+	<td>
+	<input type=radio name=PTCM value=0>自動連線
+	<input type=radio name=PTCM value=2>手動連線
+	<input type=radio name=PTCM value=1>有流量時連線
+	</td>
+</tr>
+</table>
+</form>
+
+<script>pageButton();</script>
+<script>pageTail();</script>
+</BODY>
+</HTML>

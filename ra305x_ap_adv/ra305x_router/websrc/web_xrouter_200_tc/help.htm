@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+<TITLE>Ralink Wireless Access Point</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=big5">
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">
+
+/*DEMO*/
+addCfg("opmode",100,"3");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+var __opmode = 1*getCfg("opmode");
+
+function init(t)
+{
+}
+
+</SCRIPT>
+<link rel=stylesheet type=text/css href=style.css>
+</HEAD>
+
+<BODY leftMargin=0 topMargin=0 MARGINHEIGHT=0 MARGINWIDTH=0 onload="init(document.frmSetup);">
+<script>pageHead();</script>
+
+
+  
+<TABLE WIDTH=75% BORDER=0 CELLSPACING=0 CELLPADDING=0>
+<TR><TD><FONT SIZE=4><B>首頁</B></FONT></TD></TR>
+<TR><TD>
+<UL>
+<LI><A TARGET=help HREF=help_home.htm#wiz>連線精靈</A></LI>
+<LI><A TARGET=help HREF=help_home.htm#wan>WAN 設定</A></LI>
+<LI><A TARGET=help HREF=help_home.htm#lan>LAN 設定</A></LI>
+<LI><A TARGET=help HREF=help_home.htm#dhcp>DHCP 伺服器</A></LI>
+<LI><A TARGET=help HREF=help_home.htm#wlan>WLAN 設定</A></LI>
+</UL>
+</TD></TR>
+<TR><TD><FONT SIZE=4><B>進階設定</B></FONT></TD></TR>
+<TR><TD>
+<UL>
+<LI><A TARGET=help HREF=help_adv.htm#smap>虛擬伺服器</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#spap>特殊應用程式</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#pf>過濾器</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#frwl>防火牆</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#ddns>DDNS</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#dmzh>DMZ</A></LI>
+
+<LI><A TARGET=help HREF=help_adv.htm#wifibs>Wi-Fi Basic Setup</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#wifias>Wi-Fi Advanced Setup</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#wifibas>Wi-Fi Block Ack Setup</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#wifiss>Wi-Fi Security Setup</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#wpscs>WPS Configuration Setup</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#wpsdc>WPS Device Configure</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#wpsrc>WPS Reset Configuration</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#apc>AP-Client Configuration Setup</A></LI>
+</UL>
+</TD></TR>
+<TR><TD><FONT SIZE=4><B>系統工具</B></FONT></TD></TR>
+<TR><TD>
+<UL>
+<LI><A TARGET=help HREF=help_tools.htm#adm>管理者系統工具 </A></LI>
+<LI><A TARGET=help HREF=help_tools.htm#sntp>時間設定</A></LI>
+<LI><A TARGET=help HREF=help_tools.htm#system>系統設定 </A></LI>
+<LI><A TARGET=help HREF=help_tools.htm#fwug>韌體更新</A></LI>
+<LI><A TARGET=help HREF=help_tools.htm#misc>其他設定</A></LI>
+</UL>
+</TD></TR>
+<TR><TD><FONT SIZE=4><B>系統狀態</B></FONT></TD></TR>
+<TR><TD>
+<UL>
+<LI><A TARGET=help HREF=help_status.htm#status>系統資訊</A></LI>
+<LI><A TARGET=help HREF=help_status.htm#syslog>系統記錄</A></LI>
+<LI><A TARGET=help HREF=help_status.htm#stats>流量統計</A></LI>
+</UL>
+</TD></TR>
+<TR><TD><B><A TARGET=help HREF=help_faq.htm><FONT COLOR=#0 SIZE=4>FAQs</A></B></TD></TR>
+</TABLE>
+
+<script>pageTail();</script>
+</BODY>
+</HTML>

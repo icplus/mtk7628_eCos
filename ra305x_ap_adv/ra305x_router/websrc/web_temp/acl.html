@@ -1,0 +1,339 @@
+<!-- Copyright 2004, Ralink Technology Corporation All Rights Reserved. -->
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=utf8">
+<link href="css.css" rel="stylesheet" type="text/css">
+<title>Ralink Wireless Access Control List</title>
+<SCRIPT language=JavaScript src=wireless.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language="JavaScript" type="text/javascript">  
+
+/*REAL
+<%
+CGI_MAP(SSIDIndexTemp, CFG_WLN_SSIDIndex);
+CGI_MAP(AccessControlList0Temp, CFG_WLN_AccessControlList0);
+CGI_MAP(AccessControlList1Temp, CFG_WLN_AccessControlList1);
+CGI_MAP(AccessControlList2Temp, CFG_WLN_AccessControlList2);
+CGI_MAP(AccessControlList3Temp, CFG_WLN_AccessControlList3);
+CGI_MAP(AccessPolicy0Temp, CFG_WLN_AccessPolicy0);
+CGI_MAP(AccessPolicy1Temp, CFG_WLN_AccessPolicy1);
+CGI_MAP(AccessPolicy2Temp, CFG_WLN_AccessPolicy2);
+CGI_MAP(AccessPolicy3Temp, CFG_WLN_AccessPolicy3);
+%>
+REAL*/
+
+var	acl_mac_list1  = "<% CGI_CFG_GET(CFG_WLN_AccessControlList0); %>";
+var	acl_mac_list2  = "<% CGI_CFG_GET(CFG_WLN_AccessControlList1); %>";
+var	acl_mac_list3  = "<% CGI_CFG_GET(CFG_WLN_AccessControlList2); %>";
+var	acl_mac_list4  = "<% CGI_CFG_GET(CFG_WLN_AccessControlList3); %>";
+
+var SSIDIndex;
+var ACLMode;
+	
+function CheckMAC(no)
+{
+	var	val, i, idx;
+
+	val = eval("document.acl.acl_mac"+no).value;
+
+	for(i = 0; i < 5; i++)
+	{
+		if(isNaN(parseInt(val.charAt(3*i), 16)))
+		{
+			alert('The MAC address of No. '+no+' is worng format or using incorrect characters.');
+		    eval("document.acl.acl_mac"+no).focus();
+		    eval("document.acl.acl_mac"+no).select();
+			return false;
+		}	
+		else if(isNaN(parseInt(val.charAt(3*i+1), 16)))
+		{
+			alert('The MAC address of No. '+no+' is worng format or using incorrect characters.');
+		    eval("document.acl.acl_mac"+no).focus();
+		    eval("document.acl.acl_mac"+no).select();
+		    return false;
+		}    
+		else if (val.charAt(3*i+2) != ':')
+		{
+			alert('The MAC address of No. '+no+' is worng format or using incorrect characters.');
+			eval("document.acl.acl_mac"+no).focus();
+			eval("document.acl.acl_mac"+no).select();
+			return false;     	
+		}    
+	}
+
+	if(isNaN(parseInt(val.charAt(15), 16)))
+	{
+		alert('The MAC address of No. '+no+' is worng format or using incorrect characters.');
+		eval("document.acl.acl_mac"+no).focus();
+		eval("document.acl.acl_mac"+no).select();
+		return false;
+	}
+	else if(isNaN(parseInt(val.charAt(16), 16)))
+	{
+		alert('The MAC address of No. '+no+' is worng format or using incorrect characters.');
+		eval("document.acl.acl_mac"+no).focus();
+		eval("document.acl.acl_mac"+no).select();
+		return false;
+	}
+
+	return true;
+}
+
+function CheckValue()
+{
+	var i, acl_entry_count;
+	var all_acl_mac;
+	var acl_temp_mac, acl_temp_mac_to_upper;
+	var current_ap_mac = "<% CGI_GET_WLN_CURRENT_MAC_ADDRESS();%>";
+
+	for (i = 1; i <= 14; i++)
+	{
+		if ((eval("document.acl.acl_mac"+i).value != "00:00:00:00:00:00") && 
+			(eval("document.acl.acl_mac"+i).value != ''))
+		{
+			if (CheckMAC(i) == false)
+				return false;
+
+			acl_temp_mac = eval("document.acl.acl_mac"+i).value;
+			acl_temp_mac_to_upper = acl_temp_mac.toUpperCase();
+			if (current_ap_mac == acl_temp_mac_to_upper)
+			{
+				alert('The MAC address of No. '+i+' are current AP MAC address.');
+				eval("document.acl.acl_mac"+i).focus();
+				eval("document.acl.acl_mac"+i).select();
+				return false;
+			}
+
+		}
+	}
+  
+	all_acl_mac = '';
+	acl_entry_count = 0;
+
+	if ((document.acl.acl_mac1.value != "00:00:00:00:00:00") && 
+			(document.acl.acl_mac1.value != ''))
+	{
+		all_acl_mac = all_acl_mac + document.acl.acl_mac1.value;
+		all_acl_mac += ";";
+		acl_entry_count++;
+	}
+ 
+	for (i = 2; i <= 14; i++)
+	{
+		if (eval("document.acl.acl_mac"+i).value == "00:00:00:00:00:00" || 
+			(eval("document.acl.acl_mac"+i).value == ''))
+		{
+			eval("document.acl.acl_mac"+i).disabled = true;
+		}
+		else
+		{
+			all_acl_mac = all_acl_mac + eval("document.acl.acl_mac"+i).value;
+			all_acl_mac += ";";
+			acl_entry_count++;
+			eval("document.acl.acl_mac"+i).disabled = true;
+		}
+	}
+
+	document.acl.acl_mac1.maxLength = 18*acl_entry_count;
+	document.acl.acl_mac1.value = all_acl_mac;
+/*
+	acl_mac_list1='';
+	for (i = 1; i <= 16; i++)
+	{
+		if ((eval("document.acl.acl_mac"+i).value != '00:00:00:00:00:00') && 
+			(eval("document.acl.acl_mac"+i).value != ''))
+		{
+			acl_mac_list1= acl_mac_list1 + eval("document.acl.acl_mac"+i).value;
+			acl_mac_list1 = acl_mac_list1 + ';';
+		}
+	}
+	document.acl.AccessControlList0Temp.value = acl_mac_list1;
+	document.acl.AccessControlList1Temp.value = acl_mac_list1;
+	document.acl.AccessControlList2Temp.value = acl_mac_list1;
+	document.acl.AccessControlList3Temp.value = acl_mac_list1;
+*/
+	document.acl.AccessControlList0Temp.value = all_acl_mac;
+	document.acl.AccessControlList1Temp.value = all_acl_mac;
+	document.acl.AccessControlList2Temp.value = all_acl_mac;
+	document.acl.AccessControlList3Temp.value = all_acl_mac;
+
+	document.acl.AccessPolicy0Temp.value = ACLMode;
+	document.acl.AccessPolicy1Temp.value = ACLMode;
+	document.acl.AccessPolicy2Temp.value = ACLMode;
+	document.acl.AccessPolicy3Temp.value = ACLMode;
+
+	document.acl.SSIDIndexTemp.value = SSIDIndex;
+	
+	var f=document.acl;
+	
+	form2Cfg(f);
+
+	subForm(f,'do_cmd.htm','ACL',cPage);
+
+	return true;
+
+}
+
+function GetACLMacList()
+{	
+	if (opener.document.wireless_security.multi_ssid_index.options.selectedIndex == 0)
+	{
+		SSIDIndex = 0;	
+	}
+	else if (opener.document.wireless_security.multi_ssid_index.options.selectedIndex == 1)
+	{
+		SSIDIndex = 1;		
+	}
+	else if (opener.document.wireless_security.multi_ssid_index.options.selectedIndex == 2)
+	{
+		SSIDIndex = 2;		
+	}
+	else if (opener.document.wireless_security.multi_ssid_index.options.selectedIndex == 3)
+	{
+		SSIDIndex = 3;	
+	}
+
+	if (opener.document.wireless_security.acl_mode[0].checked == true)
+		ACLMode = 0;
+	else if (opener.document.wireless_security.acl_mode[1].checked == true)
+		ACLMode = 1;
+	else if (opener.document.wireless_security.acl_mode[2].checked == true)
+		ACLMode = 2;
+	
+	//opener.close();
+}
+
+function initValue()
+{
+	GetACLMacList();
+	var i;
+	var aclArray;
+
+	if (SSIDIndex == 0)
+		aclArray = acl_mac_list1.split(";");
+	else if (SSIDIndex == 1)
+		aclArray = acl_mac_list2.split(";");
+	else if (SSIDIndex == 2)
+		aclArray = acl_mac_list3.split(";");
+	else if (SSIDIndex == 3)
+		aclArray = acl_mac_list4.split(";");
+
+	for (i = 1; i <= 14; i++)
+	{
+		if ((aclArray[i-1] == null) || (aclArray[i-1] == ''))
+			eval("document.acl.acl_mac"+i).value = "00:00:00:00:00:00";
+		else
+			eval("document.acl.acl_mac"+i).value = aclArray[i-1];
+	}
+}
+
+</script>
+</head>
+
+<body onLoad="initValue()">
+<form method=get name=acl action=acl.html onSubmit="return CheckValue()">
+  <table align="center" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+    <tr> 
+      <td align="center" bgcolor="#B7DCFB"colspan="5"><font color="#333333"><b>Access Control List</b></font></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#FFFFFF"colspan="5"><b>MAC Address must be entered with colon (:) as follows <br>
+          Example: 00:11:56:CC:01:C3</b></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#E8F8FF" nowrap>&nbsp;</td>
+      <td align="center" bgcolor="#E8F8FF" nowrap>MAC Address</td>
+      <td align="center" bgcolor="#E8F8FF" nowrap>&nbsp;</td>
+      <td align="center" bgcolor="#E8F8FF" nowrap>&nbsp;</td>
+      <td align="center" bgcolor="#E8F8FF" nowrap>MAC Address</td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 1:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac1 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+      <td align="center" bgcolor="#E8F8FF" nowrap>&nbsp;</td>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 8:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac8 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 2:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac2 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+      <td align="center" bgcolor="#E8F8FF" nowrap>&nbsp;</td>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 9:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac9 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 3:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac3 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+      <td align="center" bgcolor="#E8F8FF" nowrap>&nbsp;</td>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 10:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac10 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 4:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac4 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+      <td align="center" bgcolor="#E8F8FF" nowrap>&nbsp;</td>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 11:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac11 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 5:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac5 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+      <td align="center" bgcolor="#E8F8FF" nowrap>&nbsp;</td>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 12:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac12 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 6:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac6 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+      <td align="center" bgcolor="#E8F8FF" nowrap>&nbsp;</td>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 13:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac13 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 7:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac7 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+      <td align="center" bgcolor="#E8F8FF" nowrap>&nbsp;</td>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 14:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac14 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+    </tr>
+<!--
+    <tr>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 8:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac8 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+      <td align="center" bgcolor="#E8F8FF" nowrap>&nbsp;</td>
+      <td align="center" bgcolor="#E8F8FF" nowrap><b>MAC 16:</b></td>
+      <td align="center" bgcolor="#FFFFFF" nowrap><input type=text name=acl_mac16 size=15 maxlength=17 value="" style="font-size: 9pt;"></td>
+    </tr>
+-->
+  </table>
+  <input type="hidden" name="AccessControlList0Temp">
+  <input type="hidden" name="AccessControlList1Temp">
+  <input type="hidden" name="AccessControlList2Temp">
+  <input type="hidden" name="AccessControlList3Temp">
+  <input type="hidden" name="AccessPolicy0Temp">
+  <input type="hidden" name="AccessPolicy1Temp">
+  <input type="hidden" name="AccessPolicy2Temp">
+  <input type="hidden" name="AccessPolicy3Temp">
+  <input type="hidden" name="SSIDIndexTemp">
+  <table align="center" width = "540" border = "0" cellpadding = "2" cellspacing = "1">
+    <tr>
+      <td height="10"></td>
+    </tr>  
+    <tr align="center">
+      <td>
+        <input type=submit style="{width:120px;}" value="Apply">&nbsp;&nbsp;
+        <input type="button" name="Refresh" value="Refresh" style="{width:120px;}" onClick="window.location.reload()">
+<!--
+        <input type=reset  style="{width:120px;}" value="Cancel" onClick="window.location.reload()">
+-->
+        <input type="button" name="Close" value="Close" style="{width:120px;}" onClick="window.close()">
+      </td>
+    </tr>
+  </table>
+</form>
+</body>
+</html>

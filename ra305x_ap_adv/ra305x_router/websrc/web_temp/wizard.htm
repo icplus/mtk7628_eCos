@@ -1,0 +1,61 @@
+<HTML>
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=utf8">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+function gurl(u) {location=u;}
+/*DEMO*/
+var sync=0;
+var tmp=new Date();
+var devdate = parseInt(tmp.getTime()/1000)-tmp.getTimezoneOffset()*60;
+/*END_DEMO*/
+/*REAL
+var sync=<%CGI_CFG_GET(CFG_SYS_NTPTYPE);%>;
+var devdate=<%WEB_printf(req, "%d", ntp_getlocaltime(0));%>;
+REAL*/
+
+function init()
+{
+	if (sync==1)
+	{
+		var curdate = new Date();
+		var computer = parseInt(curdate.getTime()/1000)-curdate.getTimezoneOffset()*60;
+/*DEMO*/
+		var go='wizard.htm';
+/*END_DEMO*/
+/*REAL
+		var go='do_cmd.htm?CMD=NTP&GO=wizard.htm&nowait=1&TIMES=' + computer;
+REAL*/
+		if ((computer - devdate) > 3) gurl(go);
+	}
+}
+</SCRIPT>
+<link rel=stylesheet type=text/css href=style.css>
+</HEAD>
+
+<BODY leftmargin=0 topmargin=0 onload="init();">
+<script> pageHead();</script>
+
+<table width=100%>
+<tr>
+	<td><font color=#8bacb1 size=2><b>連線精靈</b></td>
+	</tr>
+<tr>
+	<td height=34 align=center>
+	<input type=button name=wizard value="連線精靈" onClick=window.open('wz.htm','Wizard','width=450,height=360,resizable=0')>
+	</td>
+</tr>
+<tr>
+	<td height=34 align=right>
+	<a href=help_home.htm target=help><img src=images/help_p.jpg border=0></a>
+	</td>
+</tr>
+</table>
+
+<script>pageTail();</script>
+
+</BODY>
+</HTML>

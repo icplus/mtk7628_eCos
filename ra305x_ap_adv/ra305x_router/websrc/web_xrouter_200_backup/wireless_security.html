@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Ralink Wireless Access Point</title>
+<SCRIPT language="JavaScript" src="js/wireless.js"></SCRIPT>
+<SCRIPT language="JavaScript" src="js/utils.js"></SCRIPT>
+<SCRIPT language="JavaScript" src="js/spec.js"></SCRIPT>
+<SCRIPT language="JavaScript" src="js/utils_adv.js"></SCRIPT>
+
+</head>
+
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<BODY leftmargin=0 topmargin=0 onload=initValue()>
+
+<TABLE WIDTH=100%>
+  <script>pageHead();</script>
+
+<input type="hidden" name="ssid_index_num">
+
+<form method=get name=wireless_security action=wireless_security.html onSubmit="return Apply()">
+
+	<table width=100% cellspacing=2 cellpadding=0>
+		<tr> 
+			  <td colspan=2><font face=Arial color=#8bacb1 size=2><b>Wi-Fi Security Setup</b></font></td>
+		</tr>
+	</table>
+	
+  <table width = "540" border = "0" cellpadding = "2" cellspacing = "1">
+    <tr align="center">
+      <td><b>Select SSID</b></td>
+      <td>
+        <select name="multi_ssid_index" size="1" style="{font-family:arial; width:240px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="ssid_index_switch(this.value)">
+          <script>ssidOptionList()</script>
+        </select>
+      </td>
+    </tr>
+  </table>
+  <input type="hidden" name="AuthMode">
+  <input type="hidden" name="EncrypType">
+  <input type="hidden" name="RekeyMethod2">
+  <input type="hidden" name="SecurityMode2">
+  <input type="hidden" name="IEEE8021X2">
+  <input type="hidden" name="IEEE8021XWEP">
+  <input type="hidden" name="WscAuthType2">
+  <input type="hidden" name="WscConfigured2">
+  <input type="hidden" name="WscEncrypType2">
+  <input type="hidden" name="WscNewKey2">
+  <input type="hidden" name="KeyEntryMethod2">
+  <input type="hidden" name="WepKeyLength2">
+  <input type="hidden" name="WepDefaultKey2">
+  <input type="hidden" name="WepKey12">
+  <input type="hidden" name="WepKey22">
+  <input type="hidden" name="WepKey32">
+  <input type="hidden" name="WepKey42">
+  <input type="hidden" name="PreAuth2">
+  <input type="hidden" name="AccessPolicy2"> 
+  <input type="hidden" name="WPAPSK1Temp">
+  <input type="hidden" name="WPAPSK2Temp">
+  <input type="hidden" name="WPAPSK3Temp">
+  <input type="hidden" name="WPAPSK4Temp">
+  <input type="hidden" name="SSIDIndexTemp">
+  <input type="hidden" name="Key1Str1Temp">
+  <input type="hidden" name="Key1Str2Temp">
+  <input type="hidden" name="Key1Str3Temp">
+  <input type="hidden" name="Key1Str4Temp">
+  <input type="hidden" name="Key2Str1Temp">
+  <input type="hidden" name="Key2Str2Temp">
+  <input type="hidden" name="Key2Str3Temp">
+  <input type="hidden" name="Key2Str4Temp">
+  <input type="hidden" name="Key3Str1Temp">
+  <input type="hidden" name="Key3Str2Temp">
+  <input type="hidden" name="Key3Str3Temp">
+  <input type="hidden" name="Key3Str4Temp">
+  <input type="hidden" name="Key4Str1Temp">
+  <input type="hidden" name="Key4Str2Temp">
+  <input type="hidden" name="Key4Str3Temp">
+  <input type="hidden" name="Key4Str4Temp">
+  <input type="hidden" name="Key1TypeTemp">
+  <input type="hidden" name="Key2TypeTemp">
+  <input type="hidden" name="Key3TypeTemp">
+  <input type="hidden" name="Key4TypeTemp">
+  <input type="hidden" name="AccessPolicy0Temp">
+  <input type="hidden" name="AccessPolicy1Temp">
+  <input type="hidden" name="AccessPolicy2Temp">
+  <input type="hidden" name="AccessPolicy3Temp">
+  <input type="hidden" name="RADIUS_ServerTemp">
+  <input type="hidden" name="RADIUS_PortTemp">
+  <input type="hidden" name="RADIUS_Key1Temp">
+  <input type="hidden" name="RADIUS_Key2Temp">
+  <input type="hidden" name="RADIUS_Key3Temp">
+  <input type="hidden" name="RADIUS_Key4Temp">
+  <br>
+  <hr width="540" align="left">
+  <br>
+  <table width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+    <tr> 
+      <td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b>Security Policy</b></font></td>
+    </tr>
+    <tr id="div_security_bridge_mode" name="div_security_bridge_mode"> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Security Mode</td>
+      <td bgcolor="#FFFFFF">
+        <select name="s_mode_bridge"  id="s_mode_bridge" size="1" style="{font-family:arial; width:180px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="securityMode()">
+          <option value=0 selected>Disable</option>
+          <option value=1>WEP</option>
+          <option value=2>802.1X</option>
+          <option value=3>WPA</option>
+        </select>
+      </td>
+    </tr>
+    <tr id="div_security_router_mode" name="div_security_router_mode"> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Security Mode</td>
+      <td bgcolor="#FFFFFF">
+        <select name="s_mode_router" id="s_mode_router" size="1" style="{font-family:arial; width:180px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="securityMode()">
+          <option value=0 selected>Disable</option>
+          <option value=1>WEP</option>
+          <option value=2>802.1X</option>
+          <option value=3>WPA</option>
+          <option value=4>WAPI</option>
+        </select>
+      </td>
+    </tr>
+    <br>
+  </table>
+
+  <table id="div_iee8021x" name="div_iee8021x" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+    <tr> 
+      <td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b>802.1X</b></font></td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>WEP</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+        <input type=radio name=ieee8021x_wep_enable value="1" checked>Enable &nbsp;
+        <input type=radio name=ieee8021x_wep_enable value="0">Disable
+      </b></font></td>
+    </tr>
+    <br>
+  </table>
+
+  <table id="div_wep" name="div_wep" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+    <tr> 
+      <td bgcolor="#B7DCFB" colspan="3"><font color="#333333"><b>Wire Equivalence Protection (WEP)</b></font></td>
+    </tr>
+    <tr> 
+      <td width="45%" colspan="2" bgcolor="#E8F8FF" nowrap>Authentication Type</td>
+      <td bgcolor="#FFFFFF">
+        <select name="wep_auth_type" size="1" style="{font-family:arial; width:120px; color:#003366; font-weight: bold; font-size: 9pt;}">
+          <option value=0 selected>Open System</option>
+          <option value=1>Shared Key</option>
+        </select>
+      </td>
+    </tr>
+    <tr> 
+      <td width="45%" colspan="2" bgcolor="#E8F8FF" nowrap>WEP Key Length</td>
+      <td bgcolor="#FFFFFF">
+        <select name="wep_key_length" size="1" style="{font-family:arial; width:240px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="onChangeWepKeyLength()">
+          <option value=0 selected>64 bit (10 hex digits/ 5 ascii keys)</option>
+          <option value=1>128 bit (26 hex digits/13 ascii keys)</option>
+        </select>
+      </td>
+    </tr>
+    <tr> 
+      <td width="45%" colspan="2" bgcolor="#E8F8FF" nowrap>WEP Key Entry Method</td>
+      <td bgcolor="#FFFFFF">
+        <select name="wep_key_entry_method" size="1" style="{font-family:arial; width:120px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="onChangeWepKeyLength()">
+          <option value=0 selected>Hexadecimal</option>
+          <option value=1>Ascii Text</option>
+        </select>
+      </td>
+    </tr>
+    <tr> 
+      <td width="25%" rowspan="4" bgcolor="#E8F8FF" nowrap>WEP Keys</td>
+      <td width="20%" bgcolor="#E8F8FF" align="center" nowrap>WEP Key 1 :</td>
+      <td bgcolor="#FFFFFF"><input type=text name=wep_key_1 maxlength=26 value=""></td>
+    </tr>
+    <tr> 
+      <td width="20%" bgcolor="#E8F8FF" align="center" nowrap>WEP Key 2 : </td>
+      <td bgcolor="#FFFFFF"><input type=text name=wep_key_2 maxlength=26 value=""></td>
+    </tr>
+    <tr> 
+      <td width="20%" bgcolor="#E8F8FF" align="center" nowrap>WEP Key 3 : </td>
+      <td bgcolor="#FFFFFF"><input type=text name=wep_key_3 maxlength=26 value=""></td>
+    </tr>
+    <tr> 
+      <td width="20%" bgcolor="#E8F8FF" align="center" nowrap>WEP Key 4 : </td>
+      <td bgcolor="#FFFFFF"><input type=text name=wep_key_4 maxlength=26 value=""></td>
+    </tr>
+    <tr> 
+      <td width="45%" colspan="2" bgcolor="#E8F8FF" nowrap>Default Key</td>
+      <td bgcolor="#FFFFFF">
+        <select name="wep_default_key" size="1" style="{font-family:arial; width:120px; color:#003366; font-weight: bold; font-size: 9pt;}">
+          <option value=1 selected>Key 1</option>
+          <option value=2>Key 2</option>
+          <option value=3>Key 3</option>
+          <option value=4>Key 4</option>
+        </select>
+      </td>
+    </tr>
+    <br>
+  </table>
+
+  <table id="div_wpa" name="div_wpa" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+    <tr> 
+      <td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b>WPA</b></font></td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Authentication Mode</td>
+      <td bgcolor="#FFFFFF">
+        <select name="wpa_mode" size="1" style="{font-family:arial; width:210px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange ="wpa_mode_switch()">
+          <option value=0 selected>WPA-Personal</option>
+          <option value=1>WPA-Enterprise</option>
+          <option value=2>WPA2-Personal</option>
+          <option value=3>WPA2-Enterprise</option>
+          <option value=4>WPA/WPA2-Personal(Mixed Mode)</option>
+          <option value=5>WPA/WPA2-Enterprise(Mixed Mode)</option>
+        </select>
+      </td>
+    </tr>
+    <tr id="div_wpa_algorithms" name="div_wpa_algorithms" style="visibility:visible;display:;"> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>WPA Algorithms</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio name=cipher value="2" onClick="Wpa_EncryType_onClick()" checked>TKIP &nbsp;
+				<input type=radio name=cipher value="3" onClick="Wpa_EncryType_onClick()">AES &nbsp;
+      </b></font></td>
+    </tr>
+    <tr id="div_wpa2_algorithms" name="div_wpa2_algorithms" style="visibility:visible;display:;"> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>WPA Algorithms</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio name=wpa2_cipher value="2" onClick="Wpa2_EncryType_onClick()" checked>TKIP &nbsp;
+				<input type=radio name=wpa2_cipher value="3" onClick="Wpa2_EncryType_onClick()">AES &nbsp;
+				<input type=radio name=wpa2_cipher value="4" onClick="Wpa2_EncryType_onClick()">TKIP + AES
+      </b></font></td>
+    </tr>
+    <tr id="div_wpa2_preauth" name="div_wpa2_preauth" style="visibility:visible;display:;"> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Pre-Authentication</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+        <input type=radio name=pre_auth value="0" onClick="onClickPreAuth()" checked>Disabled &nbsp;
+        <input type=radio name=pre_auth value="1" onClick="onClickPreAuth()">Enabled
+      </b></font></td>
+    </tr>
+    <tr id="div_wpa2_pmkcacheperiod" name="div_wpa2_pmkcacheperiod" style="visibility:visible;display:;"> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>PMK Cache Period</td>
+      <td bgcolor="#FFFFFF">
+        <input type=text name=pmk_cache_period size=4 maxlength=4 value=""> minutes
+      </td>
+    </tr>
+    <tr id="wpa_passphrase" name="wpa_passphrase" style="visibility:visible;display:;">
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Pass Phrase</td>
+      <td bgcolor="#FFFFFF">
+        <input type=text name=passphrase size=28 maxlength=64 value="">
+      </td>
+    </tr>
+    <tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Key Renewal Method</td>
+			<td bgcolor="#FFFFFF">
+				<select name="rekey_method" size="1" style="{font-family:arial; width:100px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange ="wpa_mode_switch()">
+					<option value=0 selected>Disable</option>
+					<option value=1>Time</option>
+					<option value=2>Packet</option>
+				</select>
+			</td>
+		</tr>
+		<tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Key Renewal Interval</td>
+      <td bgcolor="#FFFFFF">
+				<input type=text name=renew_interval size=4 maxlength=4 value="">
+      </td>
+    </tr>
+    <br>
+  </table>
+
+	<table id="div_wapi" name="div_wapi" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+		<tr> 
+			<td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b>Wireless Authentication and Privacy Infrastructure</b></font></td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Authentication Method</td>
+			<td bgcolor="#FFFFFF">
+				<select name="wapi_method" size="1" style="{font-family:arial; width:210px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange ="onChangeWapiAuthMethod()">
+					<option value=0 selected>WAPI-PresharedKey</option>
+					<option value=1>WAPI-Certificate</option>
+				</select>
+			</td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Encryption Algorithms</td>
+			<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio name=wapi_alg value="0" checked> SMS4
+			 </b></font></td>
+		</tr>
+		<tr id="div_wapi_key_type" name="div_wapi_key_type" style="visibility:visible;display:;"> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>WAPI Key Type</td>
+			<td bgcolor="#FFFFFF">
+				<select name="wapi_key_type" size="1" style="{font-family:arial; width:120px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="onChangeWapiKeyType()">
+					<option value=0 selected>Hexadecimal</option>
+					<option value=1>Ascii Text</option>
+				</select>
+			</td>
+		</tr>
+		<tr id="div_wapi_key" name="div_wapi_key" style="visibility:visible;display:;">
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Pass Phrase Key</td>
+			<td bgcolor="#FFFFFF">
+				<input type=text name=wapi_key size=28 maxlength=64 value="">
+			</td>
+		</tr>
+		<br>
+	</table>
+
+  <table id="div_radius_server" name="div_radius_server" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+    <tr> 
+      <td bgcolor="#B7DCFB" colspan="3"><font color="#333333"><b>RADIUS</b></font></td>
+    </tr>
+    <tr> 
+      <td width="20%" bgcolor="#E8F8FF" rowspan="2"nowrap>RADIUS Server</td>
+      <td bgcolor="#E8F8FF" colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IP Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Port&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Shared Secret&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Session&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Idle<br>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Time Out&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Time Out
+      </td>
+    </tr>
+    <tr>
+      <td bgcolor="#FFFFFF">&nbsp;
+        <input type=text name=radius_server size=9 maxlength=15 value="">&nbsp;&nbsp;
+        <input type=text name=radius_port size=3 maxlength=4 value="">&nbsp;&nbsp;
+        <input type=text name=radius_secret size=13 maxlength=64 value="">&nbsp;&nbsp;
+        <input type=text name=session_timeout size=5 maxlength=4 value="">&nbsp;&nbsp;
+        <input type=text name=idle_timeout size=5 maxlength=4 value="">
+      </td>
+    </tr>
+    <br>
+  </table>
+
+  <br>
+  <hr width="540" align="left">
+  <br>
+  <table width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+    <tr> 
+      <td bgcolor="#B7DCFB"colspan="2"><font color="#333333"><b>Wireless Network Access</b></font></td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>MAC Access Control</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+        <input type=radio name=acl_mode value="0" checked>Disabled &nbsp;
+        <input type=radio name=acl_mode value="1">Allow &nbsp;
+        <input type=radio name=acl_mode value="2">Deny
+      </b></font></td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Access List</td>
+      <td bgcolor="#FFFFFF">
+        <input type=button name="access_list" style="{font-family:arial; width:180px; color:#003366; font-weight: bold; font-size: 9pt;}" value="Add MAC address" onClick="open_access_list_window()">
+      </td>
+    </tr>  
+  </table>
+  <br>
+  
+</form>
+
+<script>pageButton();</script>
+<script>pageTail();</script> 
+
+</body>
+</html>

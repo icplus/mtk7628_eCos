@@ -1,0 +1,163 @@
+<html>
+<head>
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="-1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="css.css" rel="stylesheet" type="text/css">
+<link href="style.css" rel="stylesheet" rev="stylesheet" type="text/css" />
+<title>Ralink Wireless Access Point</title>
+		<script language=JavaScript src=utils.js></script>
+		<script language=JavaScript src=spec.js></script>
+		<script language=JavaScript src=utils_adv.js></script>
+
+		<script language="JavaScript">
+
+
+/*DEMO*/
+addCfg("opmode",100,"3");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+var __opmode = 1*getCfg("opmode");
+
+		var my_xml;
+
+		// you have to load language object for displaying words in each html page and load html object for the redirect or return page
+
+var err_msg = ["錯誤","儲存錯誤","超出範圍", "Ping結果: 時間到","只有管理員才能改變設定","無效的檔案"];
+var ok_msg=["成功", "儲存設定",	 "Ping結果: 存活! ", "重新啟動","電子郵件已送出","更新完成","更新完成","連線中" ];
+
+var rc=0;
+var go;
+var nowait='0';
+var msg='';
+var cmd;
+
+function gurl(u) { if (u=='') u = 'wz.htm'; location=u; }
+
+/*REAL
+	var cmd='<%char *cmd = CGI_QUERY("CMD");%>';
+	var nowait='<%char * nowait=CGI_QUERY("nowait");%>';
+	if (cmd=='SYS_UPG')  msg = "更新中..";
+REAL*/
+
+</SCRIPT>
+</HEAD>
+
+<BODY leftmargin=0 topmargin=0 >
+<script>pageHead();</script>
+<!--REAL
+<%
+#ifdef CONFIG_ZWEB
+if (strcmp(cmd, "SYS_UPG") == 0)
+{
+    extern int lock_web_file(char *filename);
+    
+    lock_web_file("images/bd.gif");
+    lock_web_file("images/bdr.gif");
+    lock_web_file("images/br.gif");
+    lock_web_file("images/srst.jpg");
+    lock_web_file("images/title.jpg");
+}
+#endif
+%>
+<% if (!nowait) { %>
+REAL-->
+<table cellspacing=0 cellpadding=0 >
+<tr bgcolor=#C6CACD>
+<td>
+	<table width=100% border=0   height=140>
+	<tr>
+		<td>
+		</td>
+	</tr>
+	<tr>
+		<td align=center>
+		<font size=2>
+		<div id=MSG><script>document.write(msg);</script></div>
+		</font>
+		</td>
+	</tr>
+	<tr>
+		<td align=center>
+		<div id=BTN></div>
+		</td>
+	</tr>
+	</table>
+</td>
+<td align=right width=25 background=images/br.gif></td>
+</tr>
+
+<tr VALIGN=top HEIGHT=12>
+	<td><img HEIGHT=12 width=550 src=images/bd.gif></td>
+	<td><img src=images/bdr.gif></td>
+</tr>
+</table>
+<!--REAL
+<%}%>
+REAL-->
+
+<script>
+
+/*REAL
+
+	var go='<%CGI_QUERY("GO");%>';
+<%
+#ifdef CONFIG_ZWEB
+if (strcmp(cmd, "SYS_UPG") == 0 && rc != 5)
+{
+   	extern int unlock_web_file(char *filename);
+   
+	unlock_web_file("images/bd.gif");
+	unlock_web_file("images/bdr.gif");
+	unlock_web_file("images/br.gif");
+	unlock_web_file("images/srst.jpg");
+	unlock_web_file("images/title.jpg");
+}
+#endif
+%>
+REAL*/
+
+if (nowait==1 && rc>=0) { gurl(go); }
+
+if (rc>=0) { 
+	if (rc<ok_msg.length) msg=ok_msg[rc];
+	else msg="成功";
+}
+else
+{
+	var i=-1-rc;
+	if (i<err_msg.length) msg=err_msg[i];
+	else msg="錯誤";
+}
+
+switch (rc)
+{
+	case 5: 
+		btn='<a href=javascript:gurl("do_cmd.htm?CMD=SYS_CONF&CCMD=0&nowait=1")><img src=images/srst.jpg border=0></a>';
+		break;
+
+	default:
+		btn='<a href=javascript:gurl(go)><img src=images/scont.gif width=70 height=35 border=0></a>';
+		break;
+
+}
+/*DEMO*/
+	btn='<a href=javascript:history.go(-1)><img src=images/scont.gif width=70 height=35 border=0></a>'
+/*END_DEMO*/
+
+if (nowait!=1)
+{
+document.getElementById("MSG").innerHTML = msg;
+document.getElementById("BTN").innerHTML = btn;
+}
+
+</script>
+
+<script>pageTail();</script>
+
+</body>
+</html>

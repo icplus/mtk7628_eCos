@@ -1,0 +1,602 @@
+<HTML>
+<HEAD>
+<TITLE>Ralink Wireless Access Point</TITLE>
+<META HTTP-EQUIV=Content-Type CONTENT="no-cache">
+<META HTTP-EQUIV=Content-Type CONTENT="text/html; charset=big5">
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+</HEAD>
+
+<script language="JavaScript">
+/*DEMO*/
+addCfg("pingAllow",23,1);
+addCfg("lanip",10,"192.168.0.1");
+addCfg("lanmsk",11,"255.255.255.0");
+addCfg("FW1",90,"0;21322321321213213213232132132;0;0;;;2;10.1.1.1-10.1.1.5;;;1;7200-33600;1");
+addCfg("FW2",91,"0;test2;0;0;192.168.1.100-192.168.1.200;;2;10.1.1.1-10.1.1.5;80-100;udp;0;;");
+addCfg("FW3",92,"0;test3;0;0;;;2;10.1.1.2-10.1.1.3;;;1;7200-33600;1");; 
+addCfg("FW4",93,"");
+addCfg("VS1",1,"1;Virtual Server FTP;21;tcp;0.0.0.0;21;1;3600-46833;99");
+addCfg("VS2",2,"1;Virtual Server HTTP;80;tcp;0.0.0.0;80;1;54133-67890;67");
+addCfg("VS3",3,"1;Virtual Server HTTPS;443;tcp;0.0.0.0;443;0;0;0");
+addCfg("opmode",100,"1");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(pingAllow, CFG_FW_PING_DIS_WAN);
+CGI_MAP(lanip, CFG_LAN_IP);
+CGI_MAP(lanmsk, CFG_LAN_MSK);
+CGI_MAP_ARRAY(FW, CFG_FW_FLT_PKT+1, 32);
+CGI_MAP_ARRAY(VS, CFG_NAT_VTS+1, 32);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+var fwmax=32;
+var vsmax=32;
+var fwcount=0;
+var vscount=0;
+var VSList=new Array();
+var FWList=new Array();
+var filterAction=new Array("<font color=red>拒絕</font>","<font color=blue>允許</font>");
+var inf=new Array("*","LAN","WAN");
+var SelRowBC;
+var chgRow=0;
+var SelRow = -1; 
+var prot=["","tcp","udp","icmp"];
+var lanip=getCfg("lanip");
+var lanmsk=getCfg("lanmsk");
+var __opmode = 1*getCfg("opmode");
+
+function generateHTML()
+{
+	fwcount=0;
+	vscount=0;
+	for (var j=1;j<=fwmax;j++)
+	{
+		if(getCfg("FW"+j)){
+			fwcount++;
+			FWList[j]=getCfg("FW"+j);
+		}
+	}
+	for(j=1;j<=vsmax;j++){
+		if(getCfg("VS"+j)){
+		vscount++;
+		VSList[j]=getCfg("VS"+j);
+		}
+	}
+	showrule();
+}
+
+function showrule()
+{
+	var str=new String("");
+	str='<table border=0 width=100% id="tabRule" cellpadding="0" cellspacing="0">';
+    str+='<tr bgcolor="#B7DCFB">';
+    str+='<td>&nbsp;</td>';
+    str+='<td><font color="#333333">功能</td>';
+	str+='<td><font color="#333333">名稱</td>';
+	str+='<td><font color="#333333">來源</td>';
+	str+='<td><font color="#333333">目的</td>';
+	str+='<td><font color="#333333">協定</td>';
+    str+='<td>&nbsp;</td>';
+    str+='</tr>';
+	for (var j=1;j<=fwcount;j++)
+	{
+   		var s = FWList[j].split(";");	
+       	str+="<tr>";
+       	str+="<td><input type=\"checkbox\" name=\"en\" "+(s[0]=="1"? "checked":"")+" disabled></td>";
+       	str+="<td><b>"+filterAction[parseInt(s[2])]+"</b></td>";
+       	str+="<td>"+s[1]+"</td>";
+       	str+="<td>&nbsp;"+inf[s[3]]+", ";
+       	v=s[4].split("-");
+       	str+=(v[0]==""? "&nbsp;*":(v[1]?v[0]+"<br>&nbsp;&nbsp;-"+v[1]:v[0]))+"</td>";
+       	str+="<td>"+inf[s[6]]+", ";
+       	v=s[7].split("-");
+       	str+=(v[0]==""? "&nbsp;*":(v[1]?v[0]+"<br>&nbsp;&nbsp;-"+v[1]:v[0]))+"</td>";
+       	str+="<td>"+ProtToStr(s[9])+", ";
+       	v=s[8].split("-");
+       	if (s[8]=="")
+        	str+="*</td>";
+       	else if (v[0]=="0" && v[1]=="0")
+        	str+="*</td>";        
+        else
+        	str+=v[0]+(v[1]?"-"+v[1]:"")+"</td>";
+	   	str+="<td>";
+	   	str+="<a href=\"javascript:editRow("+j+");SelectRow('tabRule',"+(j)+");\"><IMG alt=編輯 border=0 height=17 src=\"./images/edit.gif\" width=15></a>";
+	   	str+="<a href=\"javascript:doDelete("+j+");\"><IMG alt=刪除 border=0 height=18  src=\"./images/delet.gif\" width=15></a>"
+	   	str+="<a href=\"javascript:chgPri("+j+",-1);\"><img src=\"./images/up.gif\" width=\"15\" height=\"17\" border=\"0\" alt=\"往上\"></a>";
+       	str+="<a href=\"javascript:chgPri("+j+",1);\"><img src=\"./images/down.gif\" width=\"15\" height=\"17\" border=\"0\" alt=\"往下\"></a>";
+	   	str+="</td>";
+	   	str+="</tr>";
+   }
+   for(j=1;j<=vscount;j++){
+   		var s = VSList[j].split(";");	
+      	if (s[0]=="0")
+        	continue
+      	str+="<tr>";
+      	str+="<td><input type=\"checkbox\" checked disabled></td>";
+      	str+="<td><b><font color=blue>允許</b></font></td>";
+      	str+="<td>"+s[1]+"</td>";
+      	str+="<td>*,*</td>";
+      	str+="<td>LAN,"+s[4]+"</td>";
+      	str+="<td>"+ProtToStr(s[3])+","+s[2]+"</td>";
+      	str+="<td></td>";
+      	str+="</tr>";
+   }
+str+='<tr>';
+str+='<td><input type="checkbox" name="e2"  checked disabled></td>';
+str+='<td width=30><b><font color=blue>允許</b></td>';
+str+='<td>Default</td>';
+str+='<td>LAN,*</td>';
+str+='<td>*,*</td>';
+str+='<td>IP (0),*</td>';
+str+='<td></td>';
+str+='</tr>';
+str+='<tr>';
+str+='<td><input type="checkbox" name="e1"  checked disabled></td>';
+str+='<td width=30><b><font color=red>拒絕</b></td>';
+str+='<td>Default</td>';
+str+='<td>*,*</td>';
+str+='<td>LAN,*</td>';
+str+='<td>IP (0),*</td>';
+str+='<td></td>';
+str+='</tr>';
+str+='</table>';
+	document.getElementById("fw_sec").innerHTML = str;
+	document.getElementById('sum').innerHTML=fwcount+'/'+fwmax+" (筆數/總筆數)";
+}
+
+function editRow(r)
+{
+   var f = document.frmRule;
+   var s = FWList[r].split(";");
+   f.editRow.value = r;
+   
+   f.enable[0].checked=(s[0]=="1");
+   f.enable[1].checked=(s[0]=="0");
+   f.action[0].checked=(s[2]=="1");
+   f.action[1].checked=(s[2]=="0");
+   f.name.value=s[1];
+   f.srcIface.selectedIndex=s[3];
+   v=s[4].split("-");
+   f.srcIP1.value=(v[0]==""? "*":v[0]);
+   f.srcIP2.value=(v[0]==""?"":(v[1]?v[1]:""));
+   f.dstIface.selectedIndex=s[6];
+   v=s[7].split("-");
+   f.dstIP1.value=(v[0]==""? "*":v[0]);
+   f.dstIP2.value=(v[0]==""?"":(v[1]?v[1]:""));
+   v=s[8].split("-");
+   if (s[8]=="")
+   {
+      f.port1.value="*";
+      f.port2.value="";
+   }
+   else if (v[0]=="0" && v[1]=="0")
+   {
+      f.port1.value="";
+      f.port2.value="";
+   }
+   else if (v[0] && (v[0]==v[1]))
+   {
+      f.port1.value=v[0];
+      f.port2.value="";
+   }
+   else
+   {
+      f.port1.value=(v[0]?v[0]:"");
+      f.port2.value=(v[1]?v[1]:"");
+   }
+   
+   f.proto.selectedIndex=ProtToIdx(prot, s[9]);
+   disICMP();
+   
+   setSchedule(f,s[10],s[11],s[12]);
+   f.enable[0].focus();
+}
+
+
+function chgPri(row,off)
+{
+	editRow(row);
+	var f = document.frmRule;
+	
+	SelectRow("tabRule",row);
+	if (off==-1 && row+off < 1)
+    { 
+	   return;
+	}
+	if (off==1 && row+off > fwcount) 
+	{
+	    return;
+	}
+	SelRow = row;
+	swapRow(row, row+off);
+	showrule();
+	SelectRow("tabRule",row+off);
+}
+
+function swapRow(row1, row2)
+{
+	var m=FWList[row1];
+	FWList[row1]=FWList[row2];
+	FWList[row2]=m;
+}
+
+function Cancel()
+{
+    var f = document.frmRule;
+	SelectRow("tabRule",-1)
+	f.reset();
+	generateHTML();
+}
+function Help(){
+	window.open("help_adv.htm#frwl","help");
+}
+function doDelete(index)
+{
+	if (confirm("您確定要刪除此項目?")==false) return;
+    var f = document.frmRule;
+    rmEntry(FWList, index);
+    preSubmit();
+}
+
+function preSubmit()
+{
+    var f = document.frmRule;
+    for(j=1;j<=fwmax;j++){
+	if (FWList[j]) m=FWList[j];
+	else m="";
+	setCfg("FW"+j,m);
+    }
+    form2Cfg(f);
+    subForm(f,'do_cmd.htm','WAN',cPage);
+}
+
+function Apply()
+{
+    if (!checkParameter()) return;
+    var f = document.frmRule;
+    var num,btime,etime;
+    
+    if (SelRow==parseInt(f.editRow.value))
+    {
+        num=parseInt(f.editRow.value);
+        if (f.editRow.value == "-1") num=fwcount+1;       
+    }
+    else
+    {
+        num=SelRow;
+    }
+    if (num>fwmax)
+    {
+       alert("防火牆最多可建立"+fwmax+"筆資料。\n\n請刪除不用的資料。"); 
+       return;
+    }
+    str=Number(f.enable[0].checked)+";"+
+        f.name.value+";"+
+        Number(f.action[0].checked)+";"+
+        f.srcIface.selectedIndex+";"+
+		ipRange(f.srcIP1.value,f.srcIP2.value)+";"+
+        ";"+
+        f.dstIface.selectedIndex+";"+
+		ipRange(f.dstIP1.value,f.dstIP2.value)+";"+
+		portRange(f.port1.value,f.port2.value)+";"+
+        IdxToProt(prot, f.proto.selectedIndex)+";"+
+        Number(f.schd[1].checked)+";"+
+        Schedule2str(f);
+    	FWList[num]=str; 
+    preSubmit(); 
+}
+
+function checkParameter()
+{
+    var f = document.frmRule;
+    
+    var n=f.name.value; 
+    if (isBlank(n)) { alert("無效的名稱"); return false;}
+    if(!chksc(n,"名稱")) return false;
+
+	var srcip1=f.srcIP1.value;
+	var srcip2=f.srcIP2.value;
+	var dstip1=f.dstIP1.value;
+	var dstip2=f.dstIP2.value;
+	if (!chkIpRange(srcip1,srcip2,"來源IP ",'*')) return false;
+	if (f.srcIface.selectedIndex==1)
+	{
+		if (srcip1.length>1) if (!isSameClass(evalIP(srcip1),lanip,lanmsk)) { alert("輸入的來源開始IP必須是LAN IP"); return false; }
+		if (srcip2.length>1) if (!isSameClass(evalIP(srcip2),lanip,lanmsk)) { alert("輸入的來源結束IP必須是LAN IP"); return false; }
+	}
+	if (!chkIpRange(dstip1,dstip2,"目的IP ",'*')) return false;
+	if (f.dstIface.selectedIndex==1)
+	{
+		if (dstip1.length>1) if (!isSameClass(evalIP(dstip1),lanip,lanmsk)) { alert("輸入的目的開始IP必須是LAN IP"); return false; }
+		if (dstip2.length>1) if (!isSameClass(evalIP(dstip2),lanip,lanmsk)) { alert("輸入的目的結束IP必須是LAN IP"); return false; }
+	}
+	if (f.srcIface.selectedIndex==1 && f.dstIface.selectedIndex==1)
+	{
+		alert("LAN to LAN 是無效的設定");
+		return false;
+	}
+	if (f.srcIface.selectedIndex==2 && f.dstIface.selectedIndex==2)
+	{
+		alert("WAN to WAN 是無效的設定");
+		return false;
+	}
+    if (f.proto.selectedIndex!=3 && f.proto.selectedIndex!=0)
+    {
+		if (!chkPortRange(f.port1.value,f.port2.value,'','*')) return false;
+    }
+    if(f.schd[1].checked){
+    	st=(f.hour1.selectedIndex+12*f.am1.selectedIndex)*3600+(f.min1.selectedIndex)*5*60;
+    	et=(f.hour2.selectedIndex+12*f.am2.selectedIndex)*3600+(f.min2.selectedIndex)*5*60;
+    	if(et<st || (f.day1.selectedIndex==(f.day2.selectedIndex+1))){ alert("無效的排程範圍"); return false;} 
+    }
+    return true;
+}
+
+function disICMP()
+{
+   var f = document.frmRule;
+   if((f.proto.selectedIndex==3)|| (f.proto.selectedIndex==0))
+   {
+      f.port1.disabled=true;
+      f.port2.disabled=true;
+   }
+   else
+   {
+      f.port1.disabled=false;
+      f.port2.disabled=false;
+   }
+}
+
+
+
+function wan_ping_set()
+	{	
+	f=document.ping;	
+	form2Cfg(f);	
+	subForm(f,'do_cmd.htm','WAN',cPage);
+	}
+
+function init()
+{
+	f=document.ping;	
+	cfg2Form(f);
+}
+
+
+</SCRIPT>
+<link rel=stylesheet type=text/css href=style.css>
+<BODY BGCOLOR=#FFFFFF leftmargin=0 topmargin=0 onload=init()>
+<TABLE WIDTH=765 BORDER=0 CELLSPACING=0 CELLPADDING=0 ALIGN=center HEIGHT=100%>
+<script>pageHead();</script> 
+
+<form  name=ping id=tools_ping_frm>
+<table width="100%" border="0" cellpadding="0">
+<INPUT type=hidden name=CMD value=SYS_CONF>
+<INPUT type=hidden name=CCMD value="100">
+ <tr> 
+      <td colspan=2 height=20><b><font color=#8bacb1 face=Arial size=2>Block WAN Ping</font></b></td>
+   </tr>
+<tr>
+ <td height=20><br></td>
+</tr> 
+</tr>
+
+<tr> 
+      <td colspan=4 height=20>Discard PING from WAN side
+      	<input type=radio value="1" name=pingAllow>Enable
+      	<input type=radio value="0" name=pingAllow >Disable</td>
+</tr>
+		<tr align="center">
+
+		<td></td><td></td><td></td><td></td>
+			<td >
+				<input type=button style="{width:60px;}" value="Apply" onClick="wan_ping_set()">&nbsp;&nbsp;
+				</td>
+				 <td >
+				<input type=button  style="{width:60px;}" value="Cancel" onClick="init()">
+				
+			</td>
+		</tr>
+</table>
+</form>
+
+
+
+<form name=frmRule>
+<input type="hidden" name="editRow" value="-1">
+              <table width="100%" border="0" cellpadding="0">
+                <tr> 
+                  <td colspan="6"><font color="#8bacb1" face="Arial" size="2"><b>防火牆</b></td>
+                </tr>
+                <tr> 
+                  <td width="14%">&nbsp; </td>
+                  <td colspan="5"> <input type="radio" name="enable" value="1">啟動<input type="radio" name="enable" value="0" checked>關閉</td>
+                </tr>
+                <tr> 
+                  <td width="14%"> 
+                    <div align="left">名稱</div>
+                  </td>
+                  <td colspan="5">  
+                    <input type="text" name="name" size="20" maxlength="31">
+                    <input type="reset" value="清除" onClick="Cancel()" name="clear">
+                    </td>
+                </tr>
+                <tr> 
+                  <td width="14%"> 
+                    <div align="left">功能</div>
+                  </td>
+                  <td colspan="5"> 
+                    <input type="radio" value="1" name="action">允許
+                    <input type="radio" name="action" value="2" checked>拒絕</td>
+                </tr>
+                <tr> 
+                  <td width="14%"> 
+                    <div align="left"></div>
+                  </td>
+                  <td width="12%">使用介面</td>                  
+		  <td width=38%>IP 位址</td>
+
+                  <td width="12%">協定</td>
+                  <td width="29%">埠範圍</td>
+                </tr>
+                <tr> 
+                  <td width="14%"> 
+                    <div align="left">來源</div>
+                  </td>
+                  <td width="12%"> 
+                    <select size="1" name="srcIface">
+                      <option value="0" selected>*</option>
+                      <option value="1">LAN</option>
+                      <option value="2">WAN</option>
+                    </select>
+                    </td>
+                  <td width="38%" nowrap> 
+                    <input type="text" name="srcIP1" size="12" value="" maxlength="15"> -
+                    <input type="text" name="srcIP2" size="12" value="" maxlength="15">
+                    </td>                 
+          
+                </tr>
+                <tr> 
+                  <td width="14%"> 
+                    <div align="left">目的</div>
+                  </td>
+                  <td width="12%"> 
+                    <select size="1" name="dstIface">
+                      <option value="0" selected>*</option>
+                      <option value="1">LAN</option>
+                      <option value="2">WAN</option>
+                    </select>
+                    </td>
+                  <td width="38%"> 
+                    <input type="text" name="dstIP1" size="12" maxlength="15" value=""> - 
+                    <input type="text" name="dstIP2" size="12" maxlength="15" value="">
+                    </td>
+   
+                  <td width="12%"> 
+                    <select size="1" name="proto" onChange="disICMP()">
+                      <option value="1">*</option>
+                      <option value="2" selected>TCP</option>
+                      <option value="3">UDP</option>
+                      <option value="4">ICMP</option>
+                    </select>
+                    </td>
+                  <td width="29%"><input type="text" name="port1" size="2" maxlength="5">-<input type="text" name="port2" size="2" maxlength="5"></td>
+                </tr>
+                <tr> 
+                  <td width="14%"> 
+                    <div align="left">排程</div>
+                  </td>
+                  <td colspan="5"> 
+                    <input type="radio" name="schd" value="0" checked>任何時間</td>
+                </tr>
+                
+                <tr> 
+                  <td width="14%">&nbsp;</td>
+                  <td width="12%"> 
+                    <input type="radio" name="schd" value="1">
+                    從</td>
+                  <td colspan="4">每個 
+                    <select size=1 name=hour1>
+                      <option value=0>00</option>
+                      <option value=1>01</option>
+                      <option value=2>02</option>
+                      <option value=3>03</option>
+                      <option value=4>04</option>
+                      <option value=5>05</option>
+                      <option value=6>06</option>
+                      <option value=7>07</option>
+                      <option value=8>08</option>
+                      <option value=9>09</option>
+                      <option value=10>10</option>
+                      <option value=11>11</option>
+                    </select>
+                    : 
+                    <select size=1 name=min1>
+                      <option value="0">00</option>
+                      <option value="5">05</option>
+                      <option value="10">10</option>
+                      <option value="15">15</option>
+                      <option value="20">20</option>
+                      <option value="25">25</option>
+                      <option value="30">30</option>
+                      <option value="35">35</option>
+                      <option value="40">40</option>
+                      <option value="45">45</option>
+                      <option value="50">50</option>
+                      <option value="55">55</option>
+                    </select>
+                    <select size=1 name=am1>
+                      <option value=0>AM</option>
+                      <option value=1>PM</option>
+                    </select>
+                    到 
+                    <select size=1 name=hour2>
+                      <option value=0>00</option>
+                      <option value=1>01</option>
+                      <option value=2>02</option>
+                      <option value=3>03</option>
+                      <option value=4>04</option>
+                      <option value=5>05</option>
+                      <option value=6>06</option>
+                      <option value=7>07</option>
+                      <option value=8>08</option>
+                      <option value=9>09</option>
+                      <option value=10>10</option>
+                      <option value=11>11</option>
+                    </select>
+                    : 
+                    <select size=1 name=min2>
+                      <option value="0">00</option>
+                      <option value="5">05</option>
+                      <option value="10">10</option>
+                      <option value="15">15</option>
+                      <option value="20">20</option>
+                      <option value="25">25</option>
+                      <option value="30">30</option>
+                      <option value="35">35</option>
+                      <option value="40">40</option>
+                      <option value="45">45</option>
+                      <option value="50">50</option>
+                      <option value="55">55</option>
+                    </select>
+                    <select size=1 name=am2>
+                      <option value=0>AM</option>
+                      <option value=1>PM</option>
+                    </select>
+                    </td>
+                </tr>
+                <tr> 
+                  <td colspan="2">&nbsp;</td>
+                  <td height=25 colspan=2>日期
+                    <select size=1 name=day1>
+										<script language="JavaScript">createSelectTagChild(0,6,0,"week");</script>
+										</select>
+                    到 
+                    <select size=1 name=day2>
+										<script language="JavaScript">createSelectTagChild(0,6,0,"week");</script>
+                    </select>
+                    </td>
+                </tr>
+                <tr >
+   		  <td colspan=6 align=right>
+			<script>pageButton();</script>
+		  </td>
+		</tr>
+                <tr> 
+                  <td colspan=4 valign="bottom"><font face="Arial" size="2" color="#8babc1"><b>防火牆列表</b></td>
+				<td id=sum align=right></td>
+                </tr>
+                <tr> 
+                <td colspan=6>
+                   <div id="fw_sec" style="position:relative;visibility:visible;">
+                  <!-- Firewall Rules List //--><script>generateHTML();</script><!-- Firewall Rules List //-->
+                </td>
+                </tr>
+              </table>
+            </form>
+          
+<script>pageTail();</script>  
+</BODY></HTML>

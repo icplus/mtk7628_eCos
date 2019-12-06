@@ -1,0 +1,96 @@
+<HTML>
+<HEAD>
+<TITLE>Ralink Wireless Access Point</TITLE>
+<META HTTP-EQUIV=Content-Type CONTENT="no-cache">
+<META HTTP-EQUIV=Content-Type CONTENT="text/html; charset=big5">
+</style>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+</HEAD>
+<script language="JavaScript">
+/*DEMO*/
+addCfg("LANIP", 0,"192.168.0.1");
+addCfg("dmzEnable", 1, "0");
+addCfg("DMZ1", 2, "");
+addCfg("opmode",100,"1");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(LANIP, CFG_LAN_IP);
+CGI_MAP(dmzEnable, CFG_NAT_DMZ_EN);
+CGI_MAP_ARRAY(DMZ, CFG_NAT_DMZ_HOST+1, 6);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/  
+var netip=getCfg("LANIP").replace(/\.\d{1,3}$/,".");
+var __opmode = 1*getCfg("opmode");
+
+function Apply()
+{
+	var f=document.frmSetup; 
+	var ip4=Number(f.dmzIP4.value);
+	if (f.dmzEnable[0].checked||f.dmzIP4.value.length)
+	{
+		if (!rangeCheck(f.dmzIP4,1,254,"IP 位址")) return ;
+		if (ip4==getCfg("LANIP").match(/\d{1,3}$/)) { alert("The IP address you entered is the IP address of the system."); return }
+		var m=('1;0;'+netip+ip4);
+		setCfg("DMZ1",m);
+	}
+	else
+	if (f.dmzEnable[1].checked&&f.dmzIP4.value.length==0)
+		setCfg("DMZ1","");
+	form2Cfg(f);
+	subForm(f,'do_cmd.htm','NAT',cPage);
+}
+
+function init()
+{
+	var f=document.frmSetup; 
+	cfg2Form(f);
+	var lan123=document.getElementById("lan123");
+	lan123.innerHTML=netip;
+	var m=getCfg("DMZ1");
+	if(m){
+		var s=m.split(";");
+		var v=s[2].split(".");
+		f.dmzIP4.value=f.dmzIP4.defaultValue=v[3];
+	}
+}
+
+function Cancel()
+{
+	document.frmSetup.reset();
+}
+function Help(){
+	window.open("help_adv.htm#dmzh","help");
+}
+</script>
+<link rel=stylesheet type=text/css href=style.css>
+<BODY leftmargin=0 topmargin=0 onload=init()>
+
+<TABLE WIDTH=100%>
+  <script>pageHead();</script>
+
+<form name=frmSetup>
+<table width=100% cellspacing=2 cellpadding=0>
+<tr> 
+      <td colspan=2><font face=Arial color=#8bacb1 size=2><b>DMZ</b></font></td>
+</tr>
+<tr> 
+      <td width=18%></td>
+      <td ><input type=radio name=dmzEnable value=1 checked>Enable<input type=radio name=dmzEnable value=0 checked>Disable</td>
+</tr>
+<tr> 
+      <td>IP Address</td>
+      <td>
+      <span id=lan123></span>&nbsp;&nbsp;
+      <input name=dmzIP4 size=3 maxlength=3>
+      
+      </td>
+</tr>
+</table>
+</form>
+
+<script>pageButton();</script>
+<script>pageTail();</script>         
+</BODY></HTML>

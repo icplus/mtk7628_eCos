@@ -1,0 +1,17 @@
+2001-11-19  Andrew Lunn  <andrew.lunn@ascom.ch>
+
+	* Update to openssl version 0.9.6b. Make the patented algorithms
+	not compiled by default. If you want them you must explisity turn
+	them on and arrange for a license yourself. 
+	
+2001-05-28  Andrew Lunn  <andrew.lunn@ascom.ch>
+
+	* First port to eCos of the OpenSSL library and test programs.
+	This is version 0.9.1c. The origional can be found at
+	www.openssl.org, which also contains more documentation etc,
+	All but one test works. testssl fails because it tries to open
+	a file that does not exist. 
+	
+	See doc/Licence for licensing conditions. These seems compatible
+	with the eCos licence ideas, but im no lawyer. There are also
+	some issues with patents. see doc/README.PATENTS. 

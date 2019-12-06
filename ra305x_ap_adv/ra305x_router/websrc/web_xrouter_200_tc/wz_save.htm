@@ -1,0 +1,50 @@
+<!--REAL
+<% int rc=CGI_do_cmd(req); %>
+REAL-->
+<HTML>
+<HEAD> 
+<title>Ralink Wireless Access Point</title>    
+<META http-equiv=Content-Type content="text/html; charset=big5">                 
+<SCRIPT LANGUAGE="JavaScript">
+
+/*DEMO*/
+	var rc=0;
+/*END_DEMO*/
+/*REAL
+	var rc=<%WEB_printf(req, "%d",rc);%>;
+REAL*/
+
+var msg="重新啟動!";
+
+if (rc < 0) 
+{
+   if(rc == -5)
+   	msg="只有管理員才能改變設定";
+   else
+   	msg="錯誤!";
+}   
+
+</SCRIPT>
+
+<link rel=stylesheet type=text/css href=style.css>
+</HEAD>   
+<BODY>
+
+<BODY bgcolor=#CCCCCC topmargin=0 leftmargin=0>
+<img src=images/title.jpg>
+<table width=100%>
+<tr>
+	<td height=160 align=center valign=middle><script>document.write(msg);</script></td>
+</tr>
+<tr>
+	<td align=center><a href="wz_fw.htm"><img src=images/scont.gif border=0></a></td>
+</tr>
+</table>
+</form>
+</html>
+<!--REAL
+<%
+	if (rc>=0)
+		mon_snd_cmd(MON_CMD_REBOOT);
+%>
+REAL-->

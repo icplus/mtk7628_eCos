@@ -1,0 +1,36 @@
+<!--REAL
+<%
+   CGI_HTTP_LOGOUT()   ;  
+%>
+REAL-->
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<SCRIPT language=JavaScript>
+function preLogin() {
+   location="info.htm" ;
+}
+function exit()
+{
+    top.window.close();
+}
+</SCRIPT>
+</HEAD>
+
+<BODY leftmargin=0 topmargin=0 width=280 onLoad=exit()>
+	<TABLE cellspacing=0 cellpadding=0 border=2 bordercolor=#FFFFFF>
+	<tr>
+		<td><img src=images/logout.gif></td>
+	</tr>
+  	<TR>
+    		<TD height=60 valign=middle align=center  bordercolor=#639ECE>
+		<br>
+        	已經登出系統。
+		<br><br>
+		<INPUT type=button value="登入"  onclick=preLogin()><br>&nbsp;
+    	</TD>
+  	</TR>
+	</TABLE>
+</BODY>
+</HTML>

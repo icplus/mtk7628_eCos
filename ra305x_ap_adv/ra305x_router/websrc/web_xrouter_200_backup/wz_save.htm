@@ -1,0 +1,53 @@
+<!--REAL
+<% int rc=CGI_do_cmd(req); %>
+REAL-->
+<!DOCTYPE html>
+<html>
+<head> 
+<title>Ralink Wireless Access Point</title>    
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">                 
+<SCRIPT LANGUAGE="JavaScript">
+
+/*DEMO*/
+	var rc=0;
+/*END_DEMO*/
+/*REAL
+	var rc=<%WEB_printf(req, "%d",rc);%>;
+REAL*/
+
+var msg="Restart!";
+
+if (rc < 0) 
+{
+   if(rc == -5)
+   	msg="Only administrators can change settings";
+   else
+   	msg="Error!";
+}   
+
+</SCRIPT>
+
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</HEAD>   
+<BODY>
+
+<BODY bgcolor=#CCCCCC topmargin=0 leftmargin=0>
+<img src=images/title.jpg>
+<table width=100%>
+<tr>
+	<td height=160 align=center valign=middle><script>document.write(msg);</script></td>
+</tr>
+<tr>
+	<td align=center>
+		<input type="button" value="Continue" onclick="window.open('wz_fw.htm','_self')" class="btn" />
+	</td>
+</tr>
+</table>
+</form>
+</html>
+<!--REAL
+<%
+	if (rc>=0)
+		mon_snd_cmd(MON_CMD_REBOOT);
+%>
+REAL-->

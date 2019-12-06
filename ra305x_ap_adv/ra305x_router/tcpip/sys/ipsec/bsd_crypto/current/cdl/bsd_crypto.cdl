@@ -1,0 +1,66 @@
+# ====================================================================
+#
+#      bsd_crypto.cdl
+#
+#      FreeBSD crypto functions
+#
+# ====================================================================
+#####ECOSPDCOPYRIGHTBEGIN####
+#
+# Copyright (C) 2003 Andrew Lunn
+# All Rights Reserved.
+#
+# Permission is granted to use, copy, modify and redistribute this
+# file.
+#
+#####ECOSPDCOPYRIGHTEND####
+# ====================================================================
+######DESCRIPTIONBEGIN####
+#
+# Author(s):      Andrew Lunn
+# Original data:  Andrew Lunn
+# Contributors:
+# Date:           2003-11-08
+#
+#####DESCRIPTIONEND####
+#
+# ====================================================================
+
+cdl_package CYGPKG_NET_IPSEC_BSD_CRYPTO {
+    display       "FreeBSD CRYPTO functions needed by IPSEC"
+    parent        CYGPKG_NET_IPSEC
+    include_dir   crypto
+
+    implements    CYGINT_NET_IPSEC_BSD_CRYPTO
+    compile \
+        md5.c \
+        sha1.c \
+        sha2/sha2.c \
+        cast128/cast128.c \
+        twofish/twofish2.c \
+        rijndael/rijndael-alg-fst.c \
+        rijndael/rijndael-api-fst.c
+
+    cdl_option CYGPKG_NET_IPSEC_BSD_CRYPTO_CFLAGS_ADD {
+        display "Additional compiler flags"
+        flavor  data
+        no_define
+        default_value { "-D_KERNEL -D_ECOS" }
+        description   "
+            This option modifies the set of compiler flags for
+            building the networking package.
+            These flags are used in addition
+            to the set of global flags."
+    }
+
+    cdl_option CYGPKG_NET_IPSEC_BSD_CRYPTO_CFLAGS_REMOVE {
+        display "Suppressed compiler flags"
+        flavor  data
+        no_define
+        default_value { "" }
+        description   "
+            This option modifies the set of compiler flags for
+            building the networking package. These flags are removed from
+            the set of global flags if present."
+    }
+}

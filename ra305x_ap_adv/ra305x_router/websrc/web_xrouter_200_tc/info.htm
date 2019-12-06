@@ -1,0 +1,245 @@
+<HTML>
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+var typeStr=["" , "固定 IP","動態 IP","PPPoE","PPTP","L2TP"];
+var statStr=["斷線","連線","連線中"];
+
+/*DEMO*/
+conStat=2;
+wanIP="0.0.0.0";
+subMask="255.255.0.0";
+gateWay="0.0.0.0";
+dns1="0.0.0.0";
+dns2="0.0.0.0";
+dname="domain.com";
+conntime="530";
+conType=2;
+pppoeMode = "0";
+ipAddr="192.168.0.1";
+gateSubMsk="255.255.255.0";
+dhcpServer=0;
+firewall=0;
+NAT=1;
+run_code_ver="v1.00(C)";
+firmareDate=dateStrC(1103895780+28800);
+lan_mac="00:AA:00:12:34:56";
+wan_mac="00:AA:00:12:34:57";
+uptime=100;
+curtime=5;
+addCfg("opmode",100,"3");
+/*END_DEMO*/
+
+/*REAL
+conStat=<%CGI_WAN_STAT();%>;
+wanIP="<%CGI_WAN_IP() ;%>" ;
+subMask="<% CGI_WAN_MSK(); %>" ;
+gateWay="<% CGI_WAN_GW(); %>" ;
+dns1="<% CGI_DNS1(); %>" ;
+dns2="<% CGI_DNS2(); %>" ;
+dname="<% CGI_DOMAIN(); %>" ;
+conntime="<% CGI_WAN_CONN_TIME(); %>" ;
+conType="<% CGI_CFG_GET(CFG_WAN_IP_MODE);%>" ;
+pppoeMode="<% CGI_CFG_GET(CFG_POE_SIPE);%>";
+ipAddr="<% CGI_CFG_GET(CFG_LAN_IP); %>" ;
+gateSubMsk="<% CGI_CFG_GET(CFG_LAN_MSK); %>";
+dhcpServer="<% CGI_CFG_GET(CFG_LAN_DHCPD_EN); %>";
+firewall="<% CGI_CFG_GET(CFG_FW_EN); %>";
+NAT="<% CGI_CFG_GET(CFG_NAT_EN); %>";
+run_code_ver="v<%CGI_CUST_VER_STR();%>";
+firmareDate=dateStrC(<%CGI_FMW_BUILD_SEC();%>);
+lan_mac="<% CGI_LAN_MAC();%>";
+wan_mac="<% CGI_WAN_MAC(); %>";
+uptime="<% CGI_UPTIME(); %>";
+curtime="<% CGI_TIME(); %>";
+REAL*/
+
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+
+var __opmode = 1*getCfg("opmode");
+var statusStr='';
+if(conStat < statStr.length)
+	statusStr = statStr[conStat];
+
+function preSubmit(idx) {
+	var f=document.frmSetup;
+	/*DEMO*/
+	alert("Call "+idx+"th"+" function")
+	/*END_DEMO*/
+
+	/*REAL
+	f.action.value=idx
+	f.submit() ;
+	REAL*/
+}
+function init()
+{
+	if (conStat!=1) {
+		if (__opmode == 3)
+			setTimeout('location="info.htm"',600000);
+		else
+			setTimeout('location="info.htm"',5000);
+	}
+}
+
+
+function formatStr(num,len)
+{
+	var nbits = new String(num);
+	var rst = "";
+
+	a = len - (nbits.length)
+
+	if ( a > 0)
+	{
+	 for (i=0;i<a;i++)
+		rst += "0";
+	 rst += num;
+	}
+	else
+	 rst = num;
+
+	return rst
+}
+
+function parseTime(t)
+{
+	var str=new String("");
+	var tmp=parseInt(t);
+	var sec=0,min=0,hr=0,day=0;
+	sec=t % 60;  //sec
+	min=parseInt(t/60) % 60; //min
+	hr=parseInt(t/(60*60)) % 24; //hr
+	day=parseInt(t/(60*60*24)); //day
+
+	str=(day >0? day+" 天,  ":"0 天,  ")+(hr >0? formatStr(hr,2)+":":"00:")+(min >0? formatStr(min,2)+":":"00:")+(sec >0? formatStr(sec,2)+"":"00");
+	return str;
+}
+
+function genHTML()
+{
+	if (dhcpServer == 1)
+	  enableStr = "啟動";
+	else
+	  enableStr = "關閉";
+
+	var modeStr = typeStr[conType];
+	switch(Number(conType))
+	{
+		case 1:
+			statusStr = "";
+			break;
+		case 2:
+			statusStr+="<input type=button onClick=preSubmit(1); value=\"DHCP 釋放\"> <input type=button onClick=preSubmit(2); value=\"DHCP 更新\">";
+			break;
+		case 3:
+			if (pppoeMode == "1") modeStr = "固定的 "+modeStr;
+			statusStr+="<input type=button onClick=preSubmit(3); value=連線> <input type=button onClick=preSubmit(4); value=斷線>";
+			break;
+		case 4:
+			statusStr+="<input type=button onClick=preSubmit(5); value=連線> <input type=button onClick=preSubmit(6); value=斷線>";
+			break;
+		case 5:
+			statusStr+="<input type=button onClick=preSubmit(7); value=連線> <input type=button onClick=preSubmit(8); value=斷線>";
+			break;
+		default:
+			modeStr = "";
+			statusStr = "";
+			break;
+	}
+
+	var str = "";
+	str+="<tr><td colspan=2 align=center>";
+	str+="<b>軔體版本:"+run_code_ver+", &nbsp;"+firmareDate+"</b>";
+	str+="</td></tr>";
+
+	// LAN
+	str+="<tr bgcolor=#CCCCCC><td colspan=2 align=left>LAN 端</td></tr>";
+	str+="<tr><td width=22% height=25 align=right><b>MAC 位址</b></td>";
+	str+="<td>"+lan_mac+"</td></tr>";
+	str+="<tr><td height=25 align=right><b>IP 位址</b></td>";
+	str+="<td>"+ipAddr+"</td></tr>";
+	str+="<tr><td height=25 align=right><b>子網路遮罩</b></td>";
+	str+="<td>"+gateSubMsk+"</td></tr>";
+	if (__opmode != 3) {
+		str+="<tr><td height=25 align=right><b>DHCP 伺服器</b></td>";
+		str+="<td>"+enableStr+"</td></tr>";
+		str+="<tr><td height=25>&nbsp;</td><td>&nbsp;</td></tr>";
+	}
+
+	// WAN
+	if (__opmode != 3) {
+		str+="<tr><td colspan=2 bgcolor=#CCCCCC>WAN 端</td></tr>";
+		str+="<tr><td height=25 align=right><b>MAC 位址</b></td>";
+		str+="	<td>"+wan_mac+"</td></tr>";
+		str+="<tr><td height=25 align=right><b>連線狀態</b></td>";
+		str+="	<td>"+modeStr+" "+statusStr+"</td></tr>";
+		str+="<tr><td height=25 align=right><b>IP 位址</b></td>";
+		str+="	<td>"+wanIP+"</td></tr>";
+		str+="<tr><td height=25 align=right><b>子網路遮罩</b></td>";
+		str+="	<td>"+subMask+"</td></tr>";
+		str+="<tr><td height=25 align=right><b>閘道器</b></td>";
+		if(Number(conType)==3) 
+			str+="	<td>"+wanIP+"</td></tr>";
+		else
+			str+="	<td>"+gateWay+"</td></tr>";
+		str+="<tr><td height=25 align=right><b>DNS 伺服器</b></td>";
+		str+="	<td>"+dns1+"    "+dns2+"</td></tr>";
+		str+="<tr><td height=25>&nbsp;</td><td align=right></td></tr>";
+	}
+
+	str+="<tr><td height=25>&nbsp;</td><td align=right><a href=help_status.htm#status target=help><img src=images/help_p.jpg border=0></a></td></tr>";
+
+	document.write(str);
+}
+
+function sysUpTime()
+{
+	var str =new String("");
+
+	var tmp_upTime = uptime;
+	str+="裝置啟動時間:"+parseTime(tmp_upTime);
+	document.write(str);
+}
+
+</SCRIPT>
+<link rel=stylesheet type=text/css href=style.css>
+
+
+</HEAD>
+
+<BODY leftMargin=0 topMargin=0 onload=init()>
+<script>pageHead();</script>
+
+<form name=frmSetup method=POST action=do_cmd.htm>
+<INPUT type=hidden name=CMD value=WAN_CON>
+<INPUT type=hidden name=GO value=info.htm>
+<INPUT type=hidden name=action>
+
+<table width=100% border=0 cellspacing=2 cellpadding=0>
+<tr>
+	<td colspan=2>
+	<table width=100% border=0 cellspacing=0 cellpadding=0>
+	<tr>
+	  <td height=15><font face="Arial" color=#8bacb1 size=2><b>系統訊息</b></font></td>
+	  <td height=15 align=right><script language="javascript">sysUpTime();</script></td>
+	</tr>
+	</table>
+	</td>
+</tr>
+<script language="JavaScript">genHTML();</script>
+</table>
+</form>
+<script>pageTail(' ');</script>
+</BODY>
+</HTML>

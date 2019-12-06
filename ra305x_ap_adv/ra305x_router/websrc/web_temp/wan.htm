@@ -1,0 +1,24 @@
+<html>
+<head>
+<title>Ralink Wireless Access Point</title>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf8">
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+/*DEMO*/
+addCfg("WANT",100,"2");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(WANT, CFG_WAN_IP_MODE);
+%>
+REAL*/
+
+</SCRIPT>
+
+</head>
+  
+<body onload=wanChgPage(Number(getCfg("WANT")))>
+</BODY>
+</HTML>

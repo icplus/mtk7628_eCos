@@ -1,0 +1,747 @@
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=utf8">
+<link href="css.css" rel="stylesheet" type="text/css">
+<title>Ralink Wireless Access Point</title>
+<SCRIPT language=JavaScript src=lang.js></SCRIPT>
+<SCRIPT language=JavaScript src=wireless.js></SCRIPT>
+<SCRIPT language=JavaScript src=wireless.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language="JavaScript" type="text/javascript">
+
+/*DEMO*/
+addCfg("SYSPS", 106, "******" );
+addCfg("host",0,"Ralink Wireless Access Point");
+addCfg("TZ",3,"45");
+addCfg("WANT",100,"2");
+/*END_DEMO*/
+/*REAL
+addCfg("SYSPS", <%CGI_CFG_ID(CFG_SYS_ADMPASS);%>,"******");
+<%
+CGI_MAP(host, CFG_SYS_NAME);
+CGI_MAP(TZ, CFG_SYS_TZONE);
+CGI_MAP(WANT, CFG_WAN_IP_MODE);
+%>
+REAL*/
+
+//////////// DHCP ( cable )
+/*DEMO*/
+addCfg("WMAC",31,"00:11:22:33:44:55");
+addCfg("clnEn",32,"0");
+var cln_MAC = "00:12:34:56:78:90" ;
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(WMAC, CFG_WAN_DHCP_MAC);
+CGI_MAP(clnEn, CFG_WAN_DHCP_MAC_EN);
+%>
+var cln_MAC = <%CGI_GET_CLN_MAC();%> ;
+REAL*/
+var lang="wizard"
+function initDHC(){
+	var f=document.DHC;
+	cfg2Form(f);
+	if (f.clnEn.value=='1')	setCln(f,getCfg("WMAC")); else clrCln(f);
+}
+
+function chkDHC() {
+	var f=document.DHC;
+	if (!verifyMAC(f.WMAC,"MAC Address",1)) return ;
+	form2Cfg(f);
+	switchPage('C2','D');
+}
+
+///////////// FIXED IP 
+/*DEMO*/
+addCfg("WANIP",31,"0.0.0.0");
+addCfg("WANMSK",32,"255.255.255.0");
+addCfg("WANGW",33,"0.0.0.0");
+addCfg("DSFIX",0x33,"1");
+addCfg("DS1",0x34,"");
+addCfg("DS2",0x35,'');
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(WANIP, CFG_WAN_IP);
+CGI_MAP(WANMSK, CFG_WAN_MSK);
+CGI_MAP(WANGW, CFG_WAN_GW);
+
+CGI_MAP(DSFIX, CFG_DNS_FIX);
+CGI_MAP(DS1, CFG_DNS_SVR+1);
+CGI_MAP(DS2, CFG_DNS_SVR+2);
+%>
+REAL*/
+
+function initSIP(){
+	cfg2Form(document.SIP);
+}
+
+function chkSIP() {
+	var f=document.SIP;
+	if (!verifyIP2(f.WANIP,Alerts[2])) return ;
+	if (!ipMskChk(f.WANMSK,Alerts[3])) return ;
+	if (!verifyIP2(f.WANGW,Alerts[4])) return ;
+
+	if (!verifyIP2(f.DS1,Alerts[5])) return ;
+	if (!verifyIP0(f.DS2,Alerts[6])) return ;
+
+	setCfg("DSFIX",1);
+
+	form2Cfg(f);
+	switchPage('C1','D');
+}
+
+//////////// PPPOE
+
+/*DEMO*/
+addCfg("PUN", 50, "");
+addCfg("PSN", 51, "");
+addCfg("PMTU", 52, "1400");
+addCfg("PIDL", 53, "60");
+addCfg("PPW", 54, "******" );
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(PUN, CFG_POE_USER);
+CGI_MAP(PSN, CFG_POE_SVC);
+CGI_MAP(PMTU, CFG_POE_MTU);
+CGI_MAP(PIDL, CFG_POE_IDLET );
+%>
+addCfg("PPW",<%CGI_CFG_ID(CFG_POE_PASS);%>,"******");
+REAL*/
+
+function initPOE() {
+	cfg2Form(document.POE);
+}
+
+function chkPOE() {
+	var f=document.POE;
+	if (!chkStrLen(f.PUN,0,255,"User Name")) return ;
+	if (!chkStrLen(f.PPW,0,255,"User Password")) return ;
+	if (!chkPwdUpdate(f.PPW,f._ps2,f._changed)) return ;
+	if (isBlank(f.PUN.value)) { alert(Alerts[0]+Alerts[6]); return ;}
+	form2Cfg(f);
+	switchPage('C3','D');
+} 
+
+/*REAL<% #ifdef CONFIG_PPTP%>REAL*/
+////////// PPTP 
+/*DEMO*/
+addCfg("PTUN", 50, "");
+addCfg("PTMTU", 51, "1400");
+addCfg("PTIDL", 52, "60");
+addCfg("PTIP", 53, "0.0.0.0");
+addCfg("PTMSK", 54, "255.255.255.0");
+addCfg("PTSVR", 55, "0.0.0.0");
+addCfg("PTID", 56, "");
+addCfg("PTCM", 57, "1" );
+addCfg("PTPW", 58, "******");
+addCfg("PTWANIF", 59, 1);
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(PTUN, CFG_PTP_USER);
+CGI_MAP(PTMTU, CFG_PTP_MTU);
+CGI_MAP(PTIDL, CFG_PTP_IDLET );
+CGI_MAP(PTIP, CFG_PTP_IP );
+CGI_MAP(PTMSK, CFG_PTP_MSK );
+CGI_MAP(PTSVR, CFG_PTP_SVR );
+CGI_MAP(PTID, CFG_PTP_ID);
+CGI_MAP(PTCM, CFG_PTP_AUTO);
+CGI_MAP(PTWANIF, CFG_PTP_WANIF);
+%>
+addCfg("PTPW", <%CGI_CFG_ID(CFG_PTP_PASS);%> , "******" );
+REAL*/
+
+function initPTP(){
+	cfg2Form(document.PTP);
+}
+
+function chkPTP() {
+	var f=document.PTP;
+	if (!verifyIP2(f.PTSVR,"Server IP Address")) return ;
+	if (!verifyIP2(f.PTIP,"IP Address")) return ;
+	if (!ipMskChk(f.PTMSK,"Subnet Mask")) return ; 
+	if (!chkStrLen(f.PTUN,0,255,"User Name")) return ;
+	if (!chkStrLen(f.PTPW,0,255,"User Password")) return ;
+	if (!chkPwdUpdate(f.PTPW,f._ps2,f._changed)) return;
+	setCfg("PTWANIF", 1);
+
+	form2Cfg(f);
+	switchPage('C4','D');
+}
+/*REAL<% #endif //CONFIG_PPTP%>REAL*/ 
+
+/*REAL<% #ifdef CONFIG_L2TP%>REAL*/
+////////// L2TP 
+/*DEMO*/
+addCfg("LTUN", 50, "");
+addCfg("LTMTU", 51, "1400");
+addCfg("LTIDL", 52, "60");
+addCfg("LTIP", 53, "0.0.0.0");
+addCfg("LTMSK", 54, "255.255.255.0");
+addCfg("LTSVR", 55, "0.0.0.0");
+addCfg("LTCM", 57, "1" );
+addCfg("LTPW", 58, "******");
+addCfg("LTWANIF", 59, 1);
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(LTUN, CFG_L2T_USER);
+CGI_MAP(LTMTU, CFG_L2T_MTU);
+CGI_MAP(LTIDL, CFG_L2T_IDLET );
+CGI_MAP(LTIP, CFG_L2T_IP );
+CGI_MAP(LTMSK, CFG_L2T_MSK );
+CGI_MAP(LTSVR, CFG_L2T_SVR );
+CGI_MAP(LTCM, CFG_L2T_AUTO);
+CGI_MAP(LTWANIF, CFG_L2T_WANIF);
+%>
+addCfg("LTPW", <%CGI_CFG_ID(CFG_L2T_PASS);%> , "******" );
+REAL*/
+
+function initL2T(){
+	cfg2Form(document.L2T);
+}
+
+function chkL2T() {
+	var f=document.L2T;
+	if (!verifyIP2(f.LTSVR,"Server IP Address")) return ;
+	if (!verifyIP2(f.LTIP,"IP Address")) return ;
+	if (!ipMskChk(f.LTMSK,"Subnet Mask")) return ;
+	if (!chkStrLen(f.LTUN,0,255,"User Name")) return ;
+	if (!chkStrLen(f.LTPW,0,255,"User Password")) return ;
+	if (!chkPwdUpdate(f.LTPW,f._ps2,f._changed)) return;
+	setCfg("LTWANIF", 1);
+
+	form2Cfg(f);
+	switchPage('C5','D');
+} 
+/*REAL<% #endif //CONFIG_L2TP%>REAL*/
+
+function initTz() {
+	cfg2Form(document.TZN);
+}
+
+function chkTz() {
+	var f=document.TZN;
+	form2Cfg(f);
+	switchPage('T','B');
+}
+
+function initAdm() {
+	cfg2Form(document.ADM);
+}
+
+function chkAdm() {
+	var f=document.ADM;
+	if (!chkStrLen(f.SYSPS,0,12,"Password")) return ;
+	if (!chkPwdUpdate(f.SYSPS,f.SYSPS2,f.SYSPSC)) return ;
+	form2Cfg(f);
+	switchPage('A','T');
+}
+
+function init() {
+	cfg2Form(document.Mode);
+	initAdm();
+	initTz();
+	initDHC();
+	initSIP();
+	initPOE();
+/*REAL<% #ifdef CONFIG_PPTP%>REAL*/
+	initPTP();
+/*REAL<% #endif //CONFIG_PPTP%>REAL*/
+/*REAL<% #ifdef CONFIG_L2TP%>REAL*/
+	initL2T();
+/*REAL<% #endif //CONFIG_L2TP%>REAL*/
+}
+
+function setWanMode() {
+	var f=document.Mode;
+	form2Cfg(f);
+	var m=getCfg("WANT");
+	switchPage('B',"C"+m);
+}
+
+function Exit()
+{
+	if (confirm("Are you sure you want to exit?")) self.close(); 
+}
+
+function Apply()
+{
+	var f=document.frmDone;
+	subForm(f,'wz_save.htm','LAN+WAN','info.htm');
+}
+</SCRIPT>
+</HEAD>
+
+<link rel=stylesheet type=text/css href=style.css>
+<BODY leftmargin=0 topmargin=0 onload=init()>
+
+<script>pageHead();</script> 
+<div id="0" style="position:absolute; visibility:visible; width: 520px; height: 300px;">
+<form>
+  <table width=100%>
+    <!--
+	<tr> 
+		<td width=30% height=30></td>
+		<td>˙艼 1. 砞﹚眤穝盞絏</td>
+	</tr>
+	<tr> 
+		<td height=30></td>
+		<td>˙艼 2. 匡拒眤跋</td>
+	</tr>
+-->
+    <tr>
+      <td width="44%" height=255><img src="images/wireless_ralink.jpg" alt="" width="212" height="249"></td>
+      <td width="56%" height="255" valign="top"><p>&nbsp;</p>
+        <p><span id=_0>Welcome to the Network Setup Wizard.</span></p>
+        <p><span id=_1>The Network Setup will guide the four quick steps to networking. Please click Next.</span></p>
+        <p>&nbsp;</p>
+        <p><span id=_2> Step 1. Set up an Internet connection </span></p>
+        <p><span id=_3> Step 2. Restart</span> </p>
+        <p><span id=_4> Step 3. Firmware update</span> </p></td>
+    </tr>
+  </table>
+  <table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+	<button type=button onclick=javascript:switchPage('0','B')><SCRIPT language=JavaScript>document.write(Button_txt[0])</SCRIPT></button>	
+	</td>
+</tr>
+</table>
+
+  </form>
+</div>
+
+<!-- step A admin settings -->
+<div id="A" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<form name=ADM>
+<tr>
+	<td colspan=3 height=20 align=center><font size=3 color=#0000CC><b>Set up a password</b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=10%></td><td>You can change the <b>system administrator</span></b> password. Click <b>Next</b> to continue.</td>
+	<td width=10%></td>
+</tr>
+</table>
+
+<form name=ADM>
+<table width=100%>
+
+<input type=hidden name=SYSPSC value=0>
+<tr>
+	<td height=40 align=right width=30%>New Password</td>
+	<td><input type=password size=20 maxlength=12 name=SYSPS  value=****** onKeyPress=chkPwd1Chr(this,this.form.SYSPS2,this.form.SYSPSC);></td>
+</tr>
+<tr>
+	<td height=20 align=right>Confirm New Password</td>
+	<td><input type=password size=20 maxlength=12 name=SYSPS2 value=****** onKeyPress=chkPwd1Chr(this.form.SYSPS,this,this.form.SYSPSC);></td>
+</tr>
+</table>
+
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+		<button type=button onclick=javascript:chkAdm()><SCRIPT language=JavaScript>document.write(Button_txt[0])</SCRIPT></button>
+		<button type=button onclick=javascript:switchPage('A','0')><SCRIPT language=JavaScript>document.write(Button_txt[2])</SCRIPT></button>
+	</td>
+</tr>
+</table>
+</form>
+</div>
+
+
+<div id="T" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 height=20 align=center><font size=3 color=#0000CC><b>Select Time Zone</b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=15%></td><td>Please select a time zone for your area. Click <b>Next</b> to continue.<br>&nbsp;</td>
+	<td width=15%></td>
+</tr>
+</table>
+
+<table width=100%>
+	<FORM name=TZN>
+	<tr>
+	<td><select name=TZ style="font-size:12"><script>genTimeOpt();</script>
+		</select>	</td>
+	</tr>
+</table>
+
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>\
+		<button type=button onclick=javascript:switchPage('T','A')><SCRIPT language=JavaScript>document.write(Button_txt[1])</SCRIPT></button>
+		<button type=button onclick=javascript:chkTz()><SCRIPT language=JavaScript>document.write(Button_txt[0])</SCRIPT></button>
+		<button type=button onclick=javascript:switchPage('T','0')><SCRIPT language=JavaScript>document.write(Button_txt[2])</SCRIPT></button>
+	</td>
+</tr>
+</table>
+
+  </FORM>
+</div>
+
+<!-- step B connect type -->
+<div id="B" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 height=20 align=center><font size=3 color=#0000CC><b><span id=_5>Select WAN Type</span></b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=8%></td><td><span id=_6>Select the connection method to connect to your ISP. Click <b>Next</b> to continue.</span><br>&nbsp;</td>
+	<td width=8%></td>
+</tr>
+</table>
+
+<table width=100%>
+<form name=Mode>
+	<tr>
+	  <td height=40 valign=top width=25%><input name=WANT type=radio value=2><span id=_7>Dynamic IP Address</span></td>
+	  <td valign=top><b><span id=_8>Obtain an IP address from your ISP.</span></b></td>
+	</tr>
+
+	<tr>
+	  <td height=40 valign=top><input name=WANT type=radio value=1><span id=_9>Static IP Address</span></td>
+	  <td valign=top><b><span id=_10>Set static IP information provided to you by your ISP.</span></b></td>
+	</tr>
+
+	<tr>
+	  <td height=40 valign=top><input name=WANT type=radio value=3><span id=_11>PPPoE</span></td>
+	  <td valign=top><b><span id=_12>Choose this option if your ISP uses PPPoE.</span></b></td>
+	</tr>
+
+<!--REAL
+<% #ifdef CONFIG_PPTP%>
+REAL-->
+	<!--tr>
+	  <td ><input name=WANT type=radio value=4>PPTP</td>
+	  <td ><b>PPTP</b></td>
+	</tr-->
+<!--REAL
+<% #endif //CONFIG_PPTP%>
+REAL-->
+<!--REAL
+<% #ifdef CONFIG_L2TP%>
+REAL-->
+	<!--tr>
+	  <td ><input name=WANT type=radio value=5>L2TP</td>
+	  <td ><b>L2TP</b></td>
+	</tr-->
+<!--REAL
+<% #endif //CONFIG_L2TP%>
+REAL-->
+</table>
+
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+		<button type=button onclick=javascript:switchPage('B','0')><SCRIPT language=JavaScript>document.write(Button_txt[1])</SCRIPT></button>
+		<button type=button onclick=javascript:setWanMode()><SCRIPT language=JavaScript>document.write(Button_txt[0])</SCRIPT></button>
+		<button type=button onclick=javascript:switchPage('B','0')><SCRIPT language=JavaScript>document.write(Button_txt[2])</SCRIPT></button>
+	</td>
+</tr>
+</table>
+
+  </FORM>
+</div>
+
+<!-- step C1 -->
+<div id="C1" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 height=20 align=center><font size=3 color=#0000CC><b><span id=_21>Set static IP address</span></b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=8%></td><td><span id=_22>Set static IP information provided to you by your ISP. Click <b>Next</b> to continue.</span><br>&nbsp;</td>
+	<td width=8%></td>
+</tr>
+</table>
+
+<table width=100%>
+<FORM name=SIP>
+<tr>
+	<td width=50% align=right><span id=_23>WAN IP Address</span></td> 
+	<td><input name=WANIP size=15 maxlength=15></td>
+</tr>
+<tr>
+	<td align=right><span id=_24>WAN Subnet Mask</span></td>
+	<td><input name=WANMSK size=15 maxlength=15></td>
+</tr>
+<tr>
+	<td align=right><span id=_25>WAN Gateway</span></td>
+	<td><input name=WANGW size=15 maxlength=15></td>
+</tr>
+<tr>
+	<td align=right><span id=_26>Primary DNS Address</span></td>
+	<td><input name=DS1 size=15 maxlength=15></td>
+</tr>
+<tr>
+	<td align=right><span id=_27>Secondary DNS Address</span></td>
+	<td ><input name=DS2 size=15 maxlength=15><span id=_45>(Optional)</span></td>
+</tr>
+</table>
+
+<table width=100%>
+<tr>
+	<td height=15 valign=middle align=right>
+		<button type=button onclick=javascript:switchPage('C1','B'))><SCRIPT language=JavaScript>document.write(Button_txt[1])</SCRIPT></button>
+		<button type=button onclick=javascript:chkSIP()><SCRIPT language=JavaScript>document.write(Button_txt[0])</SCRIPT></button>
+		<button type=button onclick=javascript:switchPage('C1','0')><SCRIPT language=JavaScript>document.write(Button_txt[2])</SCRIPT></button>
+	</td>
+</tr>
+</table>
+
+  </FORM>
+</div>
+
+<!--step C2 dhcp -->
+<div id="C2" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 align=center><font size=3 color=#0000CC><b><span id=_13>Set dynamic IP address</span></b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=8%></td><td><span id=_14>Please enter a particular host name or host-specific MAC addresses.Use the button to copy the MAC address of the Ethernet Card and replace the WAN MAC address with the MAC address of the router. Click <b>Next</b> to continue.</span><br>&nbsp;</td> 
+	<td width=8%></td>
+</tr>
+</table>
+
+<table width=100%>
+	<FORM name=DHC>
+<tr>
+	<td align=right width=25%><span id=_15>Host Name</span></td>
+	<td><input name=host size=40 maxlength=39><span id=_16>(Optional)</span></td>
+</tr>
+<tr>
+	<td align=right><span id=_17>MAC Address</span></td>
+	<td> 
+	<input type=hidden name=clnEn>
+	<input name=WMAC size=1 maxlength=2> -
+	<input name=WMAC size=1 maxlength=2> -
+	<input name=WMAC size=1 maxlength=2> -
+	<input name=WMAC size=1 maxlength=2> - 
+	<input name=WMAC size=1 maxlength=2> -
+	<input name=WMAC size=1 maxlength=2><span id=_18>(Optional)</span><br>
+	<input type=button name=cln	onClick=clnMac(this.form)>	</td>
+</tr>
+</table>
+
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+		<button type=button onclick=javascript:switchPage('C2','B')><SCRIPT language=JavaScript>document.write(Button_txt[1])</SCRIPT></button>
+		<button type=button onclick=javascript:chkDHC()><SCRIPT language=JavaScript>document.write(Button_txt[0])</SCRIPT></button>
+		<button type=button onclick=javascript:switchPage('C2','B')><SCRIPT language=JavaScript>document.write(Button_txt[2])</SCRIPT></button>
+	</td>
+</tr>
+</table>
+
+  </FORM>
+</div>
+
+<!-- step C3 pppoe -->
+<div id="C3" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 align=center><font size=3 color=#0000CC><b><span id=_30>PPPoE Settings</span></b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=8%></td><td><span id=_31>The service name is optional, but if your ISP requires this information, please enter the appropriate value. Click <b>Next</b> to continue.</span><br>&nbsp;</td>
+	<td width=8%></td>
+</tr>
+</table>
+
+<table width=100%>
+<FORM name=POE>
+	<tr>
+		  <td width=40% align=right><span id=_32>User Account</span></td>
+		  <td><input name=PUN size=25 value></td>
+	</tr>
+	<tr>
+		<td align=right><span id=_33>User Password</span></td>
+		<td>
+			<input type=password name=PPW size=25 value=****** onKeyPress=chkPwd1Chr(PPW,_ps2,_changed);>
+			<input type=hidden name=_changed value=0>		</td>
+	</tr>
+	<tr>
+		<td align=right><span id=_34>Confirm Password</span></td>
+		<td><input type=password name=_ps2 size=25 value=****** onKeyPress=chkPwd1Chr(PPW,this,_changed);></td>
+	</tr>
+	<tr>
+		<td align=right><span id=_35>Service Name</span></td>
+		<td><input name=PSN size=25 maxlength=60><span id=_36>(Optional)</span></td>
+	</tr>
+</table>
+
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+		<button type=button onclick=javascript:switchPage('C3','B')><SCRIPT language=JavaScript>document.write(Button_txt[1])</SCRIPT></button>
+		<button type=button onclick=javascript:chkPOE()><SCRIPT language=JavaScript>document.write(Button_txt[0])</SCRIPT></button>
+		<button type=button onclick=javascript:switchPage('C3','0')><SCRIPT language=JavaScript>document.write(Button_txt[2])</SCRIPT></button>
+	</td>
+</tr>
+</FORM>
+</table>
+</div>
+
+<!--REAL<% #ifdef CONFIG_PPTP%>REAL-->
+<!-- step C4 pptp -->
+<div id="C4" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 height=20 align=center><font size=3 color=#0000CC><b>PPTP</b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=8%></td><td><span id=_46>Please enter the settings for PPTP. Click </span><b><span id=_47>Next</span></b><span id=_48> to continue.</span><br>&nbsp;</td> 
+	<td width=8%></td>
+</tr>
+</table>
+
+<table width=100%>
+	<FORM name=PTP>
+		<tr>
+		  <td width=40% align=right><span id=_49>IP Address</span></td>
+		  <td><input name=PTIP size=15 maxlength=15></td>
+		</tr>
+		<tr>
+		  <td align=right><span id=_50>Subnet Mask</span></td>
+		  <td><input name=PTMSK size=15 maxlength=15></td>
+		</tr>
+		<tr>
+		  <td align=right><span id=_51>Server IP address</span></td>  
+		  <td><input name=PTSVR size=15 maxlength=15></td>
+		</tr>
+		<tr>
+		  <td align=right><span id=_52>User Account</span></td>
+		  <td><input name=PTUN size=25 value></td>
+		</tr>
+		<tr>
+		  <td align=right><span id=_53>User Password</span></td>  
+		  <td>
+			<input type=password name=PTPW size=25 value=****** onkeypress=chkPwd1Chr(this,_ps2,_changed)>
+			<input type=hidden name=_changed value=0>		  </td>
+		</tr>
+		<tr>
+		  <td align=right><span id=_54>Confirm Password</span></td>  
+		  <td><input type=password name=_ps2 size=25 value=****** onkeypress=chkPwd1Chr(PTPW,this,_changed)></td>
+		</tr>
+</table>
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+		<button type=button onclick=javascript:switchPage('C4','B')><SCRIPT language=JavaScript>document.write(Button_txt[1])</SCRIPT></button>
+		<button type=button onclick=javascript:chkPTP()><SCRIPT language=JavaScript>document.write(Button_txt[0])</SCRIPT></button>
+		<button type=button onclick=javascript:switchPage('C4','0')><SCRIPT language=JavaScript>document.write(Button_txt[2])</SCRIPT></button>
+	</td>
+</tr>
+</FORM>
+</table>
+</div>
+
+<!--REAL<% #endif //CONFIG_PPTP%>REAL-->
+  
+<!--REAL<% #ifdef CONFIG_L2TP%>REAL-->
+<!-- step C5 l2tp -->
+<div id="C5" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 height=20 align=center><font size=3 color=#0000CC><b>L2TP</b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=8%></td><td colspan=2><span id=_55>Please enter the settings for L2TP. Click</span> <b><span id=_56>Next</span></b><span id=_57> to continue.</span><br>&nbsp;</td> 
+	<td width=8%></td>
+</tr>
+</table>
+
+<table width=100%>
+	<FORM name=L2T>
+	<tr>
+	  <td width=40% align=right><span id=_58>IP Address</span></td>
+	  <td><input name=LTIP size=15 maxlength=15></td>
+	</tr>
+	<tr>
+	  <td align=right><span id=_59>Subnet Mask</span></td>
+	  <td><input name=LTMSK size=15 maxlength=15></td>
+	</tr>
+	<tr>
+	  <td align=right><span id=_60>Server IP address</span></td>
+	  <td><input name=LTSVR size=15 maxlength=15></td>
+	</tr>
+	<tr>
+	  <td align=right><span id=_61>User Account</span></td>
+	  <td><input name=LTUN size=25 value></td>
+	</tr>
+	<tr>
+	  <td align=right><span id=_62>User Password</span></td>  
+	  <td><input type=password name=LTPW size=25 value=****** onkeypress=chkPwd1Chr(this,_ps2,_changed)>
+			<input type=hidden name=_changed value=0>	  </td>
+	</tr>
+	<tr>
+	  <td align=right><span id=_63>Confirm Password</span></td>  
+	  <td><input type=password name=_ps2 size=25 value=****** onkeypress=chkPwd1Chr(LTPW,this,_changed)></td>
+	</tr>
+</table>
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+		<button type=button onclick=javascript:switchPage('C5','B')><SCRIPT language=JavaScript>document.write(Button_txt[1])</SCRIPT></button>
+		<button type=button onclick=javascript:chkL2T()><SCRIPT language=JavaScript>document.write(Button_txt[0])</SCRIPT></button>
+		<button type=button onclick=javascript:switchPage('C5','0')><SCRIPT language=JavaScript>document.write(Button_txt[2])</SCRIPT></button>
+	</td>
+</tr>
+</FORM>
+</table>
+</div>
+
+<!--REAL<% #endif //CONFIG_L2TP%>REAL-->
+<div id="D" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 height=20 align=center><font size=3 color=#0000CC><b><span id=_37>Finish</span></b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=8%></td><td colspan=2><span id=_38>Click </span><b><span id=_39>Back</span></b> <span id=_40>to back to previous steps to change the settings after the completion of the Connection Wizard. Click </span><b><span id=_41>Restart</span></b>
+	<span id=_42>to save the current settings and restartRalink Wireless Access Point.</span><br>&nbsp;</td>
+	<td width=8%></td>
+</tr>
+</table>
+
+<table width=100%>
+	<FORM name=frmDone>
+		<tr>
+		  <td height=40 colspan=2>&nbsp;</td>
+		</tr>
+</table>
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+		<button type=button onclick=javascript:switchPage('D',lastPage)><SCRIPT language=JavaScript>document.write(Button_txt[1])</SCRIPT></button>
+		<button type=button onclick=javascript:Apply()><SCRIPT language=JavaScript>document.write(Button_txt[4])</SCRIPT></button>
+		<button type=button onclick=javascript:switchPage('D','0')><SCRIPT language=JavaScript>document.write(Button_txt[2])</SCRIPT></button>
+	</td>
+</tr>
+</FORM>
+</table>
+</div>
+<script>pageTail();</script>
+<script>chglang();</script>
+</BODY>
+</HTML>

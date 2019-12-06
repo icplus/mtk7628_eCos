@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Factory Setting</title>
+<style type="text/css">
+table, th, td
+{
+  border: 1px solid blue;
+  text-align:center;
+  font-family:微软雅黑;
+}
+th
+{
+  height:60px;
+}
+#tb_title{
+	font-size:25px;
+}
+
+</style>
+<script language="javascript" type="text/javascript">
+function Apply(){
+	/*获取文本框的内容*/
+	var macAddr = document.getElementById("text_macAddr").value;
+	if(macAddr == "" || macAddr == null || macAddr.length <= 0){
+		alert("The MAC address can NOT be empty!");
+		return;
+	}
+	/*检验mac地址是否正确的正则表达式*/
+	var macRegExp = /[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}/;
+	if (!macRegExp.test(macAddr))
+	{
+		alert("The MAC address you have entered is using incorrect format.");
+		return;
+	}
+	/*提交给cgi给系统执行命令*/
+	document.factorySetting.UMAC.value = macAddr;
+	document.factorySetting.submit();
+	
+}
+</script>
+</head>
+
+<body>
+<form name="factorySetting" method=POST>
+<INPUT type=hidden name=CMD value=UPDATE_MAC>
+<INPUT type=hidden name=GO value=factort-setting.html>
+<INPUT type=hidden name=UMAC value="00:00:00:00:00:00">
+</form>
+
+<table width="400px">
+<tbody>
+<tr id="tb_title">
+<td colspan="2" >Factory Setting</td>
+</tr>
+<tr>
+<td>MAC</td>
+<td><input type="text" id="text_macAddr" value="<% CGI_WLN_APCLIENT_BSSID();%>"/></td>
+</tr>
+<tr>
+<td colspan="2"><input type="button" id="btn_submit" value="submit" onclick="Apply()"/></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

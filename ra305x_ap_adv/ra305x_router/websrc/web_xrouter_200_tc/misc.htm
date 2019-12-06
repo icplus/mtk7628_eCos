@@ -1,0 +1,146 @@
+<HTML> 
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<TITLE>Ralink Wireless Access Point</TITLE>
+	<link REL=stylesheet TYPE="text/css" HREF="style.css">
+
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+/*DEMO*/
+addCfg("upnp",371,1);
+addCfg("pptp",33,0);
+addCfg("l2tp",34,0);
+addCfg("ipsec",35,0);
+addCfg("nftp",36,0);
+addCfg("opmode",100,"3");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(upnp, CFG_UPP_EN);
+CGI_MAP(pptp, CFG_NAT_ALG_PPTP);
+CGI_MAP(l2tp, CFG_NAT_ALG_L2TP);
+CGI_MAP(ipsec, CFG_NAT_ALG_IPSEC);
+CGI_MAP(nftp, CFG_NAT_ALG_FTP_NSP);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+
+var __opmode = 1*getCfg("opmode");
+
+function init()
+{
+	f=document.frmSetup;
+	cfg2Form(f);
+}
+
+function rebootConfirm(f){
+	if( !confirm('您確定要重新啟動嗎?') )	
+		return;
+	
+	addFormElm('CCMD', 0);
+	subForm(f,'do_cmd.htm','SYS_CONF',cPage);
+}
+function Apply()
+{
+	f=document.frmSetup;
+	if (!rangeCheck(f.nftp,0,65535,"非標準FTP連接埠")) return ;
+
+	form2Cfg(f);
+	subForm(f,'do_cmd.htm','LAN',cPage);
+}
+function Cancel()
+{
+	init();
+}
+function Help(){
+	window.open("help_tools.htm#misc","help");
+}
+</SCRIPT>
+<link rel=stylesheet type=text/css href=style.css>
+</HEAD>
+
+<BODY leftMargin=0 topMargin=0 onload=init()>
+<script>pageHead();</script>
+<table width=100% border=0 cellpadding=0 height=345>
+<form method=POST name=frmSetup id=tools_misc_form>
+<INPUT type=hidden name=CMD value=SYS_CONF>
+<INPUT type=hidden name=CCMD value="100">
+<tr> 
+      <td colspan=2 height=14><font color=#8bacb1 size=2 face=Arial><b>偵測測試</b></font></td>
+</tr>
+<tr> 
+      <td width=27% height=20>主機名稱或者 IP 位址</td>
+      <td><font size=2><input type=text name=pingIp id=pingIp size=30 maxlength=63><input type=button value=偵測 onClick=doPing(document.frmSetup)></td>	  
+</tr>
+<script language="Javascript">//pingReturn(domain)</script>
+<tr> 
+      <td height=20><br></td>
+</tr>
+<tr> 
+      <td colspan=2 height=9><font size=2 face=Arial color=#8bacb1><b>重新啟動裝置</b></font></td>
+</tr>
+<tr> 
+      <td height=20><input type="button" value=重新啟動 onclick="rebootConfirm(document.frmSetup)"></td>
+      <td></td>
+</tr>
+<tr> 
+      <td height=20><br></td>
+</tr>
+<tr> 
+      <td colspan=2 height=20><b><font color=#8bacb1 face=Arial size=2>忽略來自 WAN 端的 PING</font></b></td>
+</tr>
+<tr> 
+      <td colspan=2 height=20>忽略來自 WAN 端的 PING <input type=radio value="1" name=pingAllow>啟動<input type=radio value="0" name=pingAllow checked>關閉</td>
+</tr>
+<tr> 
+      <td height=20><br></td>
+</tr>
+
+<tr> 
+      <td colspan=2 height=20><font size=2><b><font face="Arial" color="#8bacb1">UPnP 設定</font></b></td>
+</tr>
+<tr> 
+      <td height=20 align=right></td>
+      <td><input type=radio name=upnp value=1 checked>啟動<input type=radio name=upnp value=0>關閉</td>
+</tr>
+<tr> 
+      <td height=20><br></td>
+</tr>
+<tr> 
+      <td colspan=2 height=9><b><font color=#8bacb1 face=Arial size=2>VPN Pass-Through</font></b></td>
+</tr>
+<tr> 
+      <td height=20>PPTP</font></td>
+      <td><input type=radio name=pptp value=1 checked>啟動<input type=radio name=pptp value=0>關閉</td>
+</tr>
+<tr> 
+      <td height=20>L2TP</font></td>
+      <td><input type=radio name=l2tp value=1 checked>啟動<input type=radio name=l2tp value=0>關閉</td>
+</tr>
+<tr> 
+      <td height=20>IPSec</font></td>
+      <td><input type=radio name=ipsec value=1 checked>啟動<input type=radio name=ipsec value=0>關閉</td>
+</tr>
+<tr> 
+      <td height=20><br></td>
+</tr>
+<tr> 
+      <td colspan=2 height=9><b><font color=#8bacb1 face=Arial size=2>使用非標準的 FTP 連接埠</font></b></td>
+</tr>
+<tr valign="top"> 
+      <td colspan=2 height=30>設定此項目存取使用非標準的 FTP 連接埠。</td>
+</tr>
+<tr> 
+      <td height=20>連接埠: </font><input type=text name=nftp id=nftp size=2 maxlength=5></td>
+</tr>
+<tr> 
+      <td height=20><br></td>
+</tr>
+</form>
+</table>
+<script>pageButton();</script>
+<script>pageTail();</script>
+</BODY>
+</HTML>

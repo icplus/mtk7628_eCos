@@ -1,0 +1,179 @@
+<!-- Copyright 2004, Ralink Technology Corporation All Rights Reserved. -->
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<link href="css.css" rel="stylesheet" type="text/css">
+<title>Ralink Wireless Access Point Network List</title>
+<script language="JavaScript" type="text/javascript">
+var PrRow=null;
+var PrColorSelection;
+var ColorSelection='skyblue';
+var SSID="";
+
+function SelectRow(Obj, vSSID){
+	if (PrRow != null){
+		PrRow.style.backgroundColor = PrColorSelection;
+	}
+	PrRow = Obj;
+	PrColorSelection=Obj.style.backgroundColor;
+	Obj.style.backgroundColor=ColorSelection;
+	SSID = vSSID;
+}
+
+function SetSSID(){
+	if (SSID!="") {
+		opener.document.wireless_basic.wds_list.value = SSID;
+	}
+	window.close();
+}
+
+function wclose(){
+	window.close();
+ }
+
+var site_survey = '<!--#include ssi=triggerSiteSurvey()-->';
+var site_survey_num = '<!--#include ssi=getNetworkListNum()-->';
+var site_survey_ssid = '<!--#include ssi=getNetworkListSSID()-->';
+var site_survey_mac = '<!--#include ssi=getNetworkListMAC()-->';
+var site_survey_auth = '<!--#include ssi=getNetworkListAuth()-->';
+var site_survey_channel = '<!--#include ssi=getNetworkListChannel()-->';
+var site_survey_wmode = '<!--#include ssi=getNetworkListWirelessMode()-->';
+var site_survey_rssi = '<!--#include ssi=getNetworkListRssi()-->';
+var ssidArray = site_survey_ssid.split(";");
+var macArray = site_survey_mac.split(";");
+var authArray = site_survey_auth.split(";");
+var channelArray = site_survey_channel.split(";");
+var wmodeArray = site_survey_wmode.split(";");
+var rssiArray = site_survey_rssi.split(";");
+
+function generate_network_list_table() {
+
+   var i;
+   var str;
+   
+   site_survey_num = 1*site_survey_num;
+   
+   str = '';
+   
+   for(i = 0; i < site_survey_num; i++) {
+      str = str + '<tr vAlign=top style="Font-SIZE: 10pt; BACKGROUND: #ffffff" onClick = \"SelectNetworkRow(this,' +  i + ')\">';
+      str = str + '<td width=\"224\">' + ssidArray[i] + '</td>';
+      str = str + '<td width=\"130\">' + macArray[i] + '</td>';
+      str = str + '<td width=\"90\">' + authArray[i] + '</td>';
+      if (channelArray[i] == "1")
+         str = str + '<td width=\"145\">2412MHz (Channel 1)</td>';
+      else if (channelArray[i] == "2")
+         str = str + '<td width=\"145\">2417MHz (Channel 2)</td>';
+      else if (channelArray[i] == "3")
+         str = str + '<td width=\"145\">2422MHz (Channel 3)</td>';
+      else if (channelArray[i] == "4")
+         str = str + '<td width=\"145\">2427MHz (Channel 4)</td>';
+      else if (channelArray[i] == "5")
+         str = str + '<td width=\"145\">2432MHz (Channel 5)</td>';
+      else if (channelArray[i] == "6")
+         str = str + '<td width=\"145\">2437MHz (Channel 6)</td>';
+      else if (channelArray[i] == "7")
+         str = str + '<td width=\"145\">2442MHz (Channel 7)</td>';
+      else if (channelArray[i] == "8")
+         str = str + '<td width=\"145\">2447MHz (Channel 8)</td>';
+      else if (channelArray[i] == "9")
+         str = str + '<td width=\"145\">2452MHz (Channel 9)</td>';
+      else if (channelArray[i] == "10")
+         str = str + '<td width=\"145\">2457MHz (Channel 10)</td>';     
+      else if (channelArray[i] == "11")
+         str = str + '<td width=\"145\">2462MHz (Channel 11)</td>';         
+      else if (channelArray[i] == "12")
+         str = str + '<td width=\"145\">2467MHz (Channel 12)</td>';         
+      else if (channelArray[i] == "13")
+         str = str + '<td width=\"145\">2472MHz (Channel 13)</td>';         
+      else if (channelArray[i] == "14")
+         str = str + '<td width=\"145\">2477MHz (Channel 14)</td>';         
+      //str = str + '<td width=\"100\">IEEE 802.' + wmodeArray[i] + '</td>';
+      //str = str + '<td width=\"80\">' + rssiArray[i] + '</td>';
+      str = str + '</tr>';
+   }
+   document.write(str);
+}
+
+function SelectNetworkRow(Obj, vMAC) {
+	if (PrRow != null){
+		PrRow.style.backgroundColor = PrColorSelection;
+	}
+	PrRow = Obj;
+	PrColorSelection=Obj.style.backgroundColor;
+	Obj.style.backgroundColor=ColorSelection;
+	SSID = macArray[vMAC];
+}
+</script>
+</head>
+
+<form name="listSSID">
+<table cellSpacing = 1 cellPadding = 1 width = "90%" border = 0 >
+<tr>
+  <td height="10"></td>
+</tr>
+<tr>
+  <td><center><h3>Network List Table</h3></center></td>
+</tr>
+<tr>
+  <td height="5"></td>
+</tr>
+</table>
+
+<table cellSpacing=1 cellPadding=1 width="98%" border=0>
+<tr>
+  <td>
+  <script language="javascript">
+    document.write("<font size = 2 color = #333333>Choose Network Name ( SSID ), and click [ Choose ].</font>");
+  </script>
+  <noscript>
+    <font size = 2 color = #333333>Choose Network Name ( SSID ).</font>
+  </noscript>
+  </td>
+  <td colspan="4" align="right"  vAlign=top style="FonT-SIZE: 10pt; BACKGROUND: #ffffff">  
+    <input type=button name="Search" style="{font-family:arial; width:100px; color:#003366; font-weight: bold; font-size: 9pt;}" value="Search" onClick="window.location.reload()">
+    <script language="javascript">
+      document.write("<input type=button name=\"Select\" style=\"{font-family:arial; width:100px; color:#003366; font-weight: bold; font-size: 9pt;}\" value=\"Select\" OnClick=\"SetSSID();\">");    
+    </script>
+    <input type=button name="Cancel" style="{font-family:arial; width:100px; color:#003366; font-weight: bold; font-size: 9pt;}" value="Cancel" onClick="wclose()">
+  </td>  
+</tr>
+<tr>
+ <td height="10"></td>
+</tr>
+</table>
+
+<table cellSpacing=1 cellPadding=1 width="98%" bgColor=gray border=0>
+<tr vAlign=top style="FonT-SIZE: 10pt; BACKGROUND: #E8F8FF">
+  <td width="224">Network Name ( SSID )</td>
+  <td width="130">MAC Address</td>
+  <td width="90">Encryption</td>
+  <td width="145">Frequency (Channel)</td>
+<!--  
+  <td width="100">802.11</td>
+  <td width="80">Signal Level</td>
+-->
+</tr>
+   <script>
+      generate_network_list_table();
+   </script>
+</table>
+
+<table cellSpacing=1 cellPadding=1 width="98%" border=0>
+<tr>
+ <td height="10"></td>
+</tr>
+<tr>
+ <td colspan="4" align="right"  vAlign=top style="FonT-SIZE: 10pt; BACKGROUND: #ffffff">
+    <input type=button name="Search" style="{font-family:arial; width:100px; color:#003366; font-weight: bold; font-size: 9pt;}" value="Search" onClick="window.location.reload()">
+    <script language="javascript">
+      document.write("<input type=button name=\"Select\" style=\"{font-family:arial; width:100px; color:#003366; font-weight: bold; font-size: 9pt;}\" value=\"Select\" OnClick=\"SetSSID();\">");    
+    </script>
+    <input type=button name="Cancel" style="{font-family:arial; width:100px; color:#003366; font-weight: bold; font-size: 9pt;}" value="Cancel" onClick="wclose()">
+ </td>  
+</tr>
+</table>
+</form>
+</html>

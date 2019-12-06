@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Set sucess,Restart to take effect.</title>
+
+</head>
+
+<body>
+<form name="reboot" method=POST>
+<INPUT type=hidden name=CMD value=SYS_CONF>
+<INPUT type=hidden name=GO value=index.html>
+<INPUT type=hidden name=CCMD value="0">
+<p>系统正在重启,请稍等...</p>
+</form>
+<script type="text/javascript" language="javascript">
+function reboot(f){
+	f.action="count.html";
+   	//f.encoding="multipart/form-data" ;
+   	f.CCMD.value = 0;
+    f.submit();
+}
+reboot(document.reboot);
+</script>
+</body>
+</html>

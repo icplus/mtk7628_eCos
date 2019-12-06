@@ -1,0 +1,233 @@
+<!-- Copyright 2004, Ralink Technology Corporation All Rights Reserved. -->
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=utf8">
+<link href="css.css" rel="stylesheet" type="text/css">
+<title>Ralink Wireless Access Point</title>
+<SCRIPT language=JavaScript src=lang.js></SCRIPT>
+<SCRIPT language=JavaScript src=wireless.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language="JavaScript" type="text/javascript"> 
+var lang="wlanst";
+var wsc_config_state = "<% CGI_GET_WLN_WSC_CONFIG_STATE();%>";
+var up_secs = "<% CGI_UPTIME(); %>";
+var ssid_num = "<% CGI_CFG_GET(CFG_WLN_BssidNum); %>";
+function initValue()
+{
+	wsc_config_state = 1*wsc_config_state;
+}
+
+function open_associate_table() 
+{
+	window.open("associate_table.html","associate_table","toolbar=no, location=yes, scrollbars=yes, resizable=no, width=800, height=600")
+}
+
+function SystemUpTime() {
+
+   var upStr='';
+   var upTime = up_secs;
+	
+   if (upTime >= (60*60*24)) {
+      upStr = Math.floor(upTime / (60*60*24)) + ' days ';
+      upTime = upTime % (60*60*24);
+   }
+	
+   if (upTime >= (60*60)) {
+      upStr = upStr + Math.floor(upTime / (60*60)) + ' hours ';
+      upTime = upTime % (60*60);
+   }
+
+   if (upTime >= (60)) {
+      upStr = upStr + Math.floor(upTime / (60)) + ' mins ';
+      upTime = upTime % (60);
+   }
+
+   upStr = upStr + Math.floor(upTime) + ' secs';
+   upTime = upTime ;
+   document.write(upStr);
+}
+
+function getMultipleSSID() {
+
+   var str, ssidArray;
+   mssidArray = new Array(4);   
+   
+   var ssid_num = 1*ssid_num;
+
+	 mssidArray[0] = "<% CGI_GET_WLN_MAIN_SSID_FOR_OVERVIEW();%>";
+	 mssidArray[1] = "<% CGI_GET_WLN_MULTI_SSID1_FOR_OVERVIEW();%>";
+	 mssidArray[2] = "<% CGI_GET_WLN_MULTI_SSID2_FOR_OVERVIEW();%>";
+	 mssidArray[3] = "<% CGI_GET_WLN_MULTI_SSID3_FOR_OVERVIEW();%>";
+   
+   str = '';
+   for(i = 0; i < ssid_num; i++) {
+      if ( i == 0) {
+          str = str + '<tr>';
+          str = str + '<td bgcolor="#E8F8FF" nowrap>Network Name (SSID)</td>';
+          str = str + '<td bgcolor="#FFFFFF">';
+          str = str + mssidArray[i];
+          str = str + '</td>';
+          str = str + '</tr>';
+      }
+      else {
+          str = str + '<tr>';
+          str = str + '<td bgcolor="#E8F8FF" nowrap>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Multiple SSID' + i + '</td>';
+          str = str + '<td bgcolor="#FFFFFF">';
+          str = str + mssidArray[i];
+          str = str + '</td>';
+          str = str + '</tr>';
+      }
+   }
+   document.write(str);
+}
+
+function getSecurityMode()
+{
+   var str, securityArray;
+
+   var security_str = "<% CGI_CFG_GET(CFG_WLN_SecurityMode); %>";
+   
+   securityArray = security_str.split(";");
+   
+   ssid_num = 1*ssid_num;
+   
+   str = '';
+	for(i = 0; i < ssid_num; i++)
+	{
+		if ( i == 0)
+		{
+          str = str + '<tr>';
+          str = str + '<td width="45%" bgcolor="#E8F8FF" nowrap>Security Mode</td>';
+          str = str + '<td bgcolor="#FFFFFF">';
+          if (securityArray[i] == '0')
+             str = str + 'Disable';
+          else if (securityArray[i] == '1')
+             str = str + 'WEP';
+          else if (securityArray[i] == '2')
+             str = str + 'IEEE 802.1X';
+          else if (securityArray[i] == '3')
+             str = str + 'WPA';
+          else if (securityArray[i] == '4')
+             str = str + 'UAM';
+			else if (securityArray[i] == '5')
+				str = str + 'WAPI';
+          str = str + '</td>';
+          str = str + '</tr>';
+      }
+		else
+		{
+          str = str + '<tr>';
+          str = str + '<td width="45%" bgcolor="#E8F8FF" nowrap>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Multiple SSID' + i + ' Security Mode</td>';
+          str = str + '<td bgcolor="#FFFFFF">';
+          if (securityArray[i] == '0')
+             str = str + 'Disable';
+          else if (securityArray[i] == '1')
+             str = str + 'WEP';
+          else if (securityArray[i] == '2')
+             str = str + 'IEEE 802.1X';
+          else if (securityArray[i] == '3')
+             str = str + 'WPA';
+          else if (securityArray[i] == '4')
+             str = str + 'UAM';
+			else if (securityArray[i] == '5')
+				str = str + 'WAPI';
+          str = str + '</td>';
+          str = str + '</tr>';
+      }
+   }
+   document.write(str);
+}
+
+function parseTime(t)
+{
+	var str=new String("");
+	var tmp=parseInt(t);
+	var sec=0,min=0,hr=0,day=0;
+	sec=t % 60;  //sec
+	min=parseInt(t/60) % 60; //min
+	hr=parseInt(t/(60*60)) % 24; //hr
+	day=parseInt(t/(60*60*24)); //day
+
+	str=(day >0? day+" day,  ":"0 day,  ")+(hr >0? formatStr(hr,2)+":":"00:")+(min >0? formatStr(min,2)+":":"00:")+(sec >0? formatStr(sec,2)+"":"00");
+	return str;
+}
+
+function sysUpTime()
+{
+	var str =new String("");
+
+	var tmp_upTime = up_secs;
+	str+="device system up Time:"+parseTime(tmp_upTime);
+	document.write(str);
+}
+
+</script>
+</head>
+
+<link rel=stylesheet type=text/css href=style.css>
+<BODY leftmargin=0 topmargin=0 onload=initValue()>
+
+<TABLE WIDTH=100%>
+  <script>pageHead();</script>
+  
+  	<table width=100% cellspacing=2 cellpadding=0>
+		<tr> 
+			<td colspan=2><font face=Arial color=#8bacb1 size=2><b><span id=_0>WLAN Status</span></b></font></td>
+		</tr>
+	</table>
+	
+  <table width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+    <tr> 
+      <td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b><span id=_1>System Info</span></b></font></td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Driver Version</td>
+      <td bgcolor="#FFFFFF"><% CGI_GET_WLN_DRIVER_VERSION();%></td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>RF IC Type</td>
+      <td bgcolor="#FFFFFF"><% CGI_GET_WLN_RC_TYPE();%></td>
+    </tr>
+    <tr> 
+      <td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b><span id=_2>Wireless</span></b></font>
+      </td>
+    </tr>
+    <tr>
+      <td WIDTH=45% bgcolor="#E8F8FF" nowrap>Access Point Name</td>
+      <td bgcolor="#FFFFFF"><% CGI_CFG_GET(CFG_SYS_NAME); %></td>
+    </tr>
+    <tr>
+      <td WIDTH=45% bgcolor="#E8F8FF" nowrap>Wireless Mode</td>
+      <td bgcolor="#FFFFFF"><% CGI_GET_WLN_CURRENT_WIRELESS_MODE();%></td>
+    </tr>
+    <script>
+        getMultipleSSID();
+    </script>
+    <tr>
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Frequency (Channel)</td>
+      <td bgcolor="#FFFFFF"><% CGI_GET_WLN_CURRENT_CHANNEL();%></td>
+    </tr>
+    <tr>
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Broadcast Network Name (SSID)</td>
+      <td bgcolor="#FFFFFF"><% CGI_GET_WLN_CURRENT_BROADCAST_SSID();%></td>
+    </tr>
+    <script>
+        getSecurityMode();
+    </script>
+    <tr>
+      <td bgcolor="#B7DCFB" nowrap colspan="2"><b><font color="#333333"><span id=_3>Other Information</span></font></b></td>
+    </tr>
+    <tr> 
+      <td bgcolor="#E8F8FF" nowrap>Wireless Associated Station List</td>
+      <td bgcolor="#FFFFFF"><input type="button" name="associateTable" style="{font-family:arial; width:160px;}" value="AssociateTable" style="font-size: 8pt;" onClick="window.open('associate_table.html')"></td>
+    </tr>
+  </table>
+  
+ <script>pageTail();</script>
+ <script>chglang();</script>
+</body>
+</html>

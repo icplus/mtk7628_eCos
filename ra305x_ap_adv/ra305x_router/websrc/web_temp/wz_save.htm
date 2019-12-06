@@ -1,0 +1,50 @@
+<!--REAL
+<% int rc=CGI_do_cmd(req); %>
+REAL-->
+<HTML>
+<HEAD> 
+<title>Ralink Wireless Access Point</title>    
+<META http-equiv=Content-Type content="text/html; charset=utf8">
+<SCRIPT LANGUAGE="JavaScript" src=lang.js></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">
+/*DEMO*/
+	var rc=0;
+/*END_DEMO*/
+/*REAL
+	var rc=<%WEB_printf(req, "%d",rc);%>;
+REAL*/
+
+var msg=wz_save[0];
+
+if (rc < 0) 
+{
+   if(rc == -5)
+   	msg=wz_save[1];
+   else
+   	msg=wz_save[2];
+}   
+
+</SCRIPT>
+
+<link rel=stylesheet type=text/css href=style.css>
+</HEAD>   
+<BODY>
+
+<BODY bgcolor=#CCCCCC topmargin=0 leftmargin=0>
+<img src=images/title.jpg>
+<table width=100%>
+<tr>
+	<td height=160 align=center valign=middle><script>document.write(msg);</script></td>
+</tr>
+<tr>
+	<td align=center><button type=button onclick="location.href='wz_fw.htm'"><script language=javascript>document.write(Button_txt[8])</script></button></td>
+</tr>
+</table>
+</form>
+</html>
+<!--REAL
+<%
+	if (rc>=0)
+		mon_snd_cmd(MON_CMD_REBOOT);
+%>
+REAL-->

@@ -1,0 +1,160 @@
+<html>
+<head>
+<title>Ralink Wireless Access Point</title>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=big5">
+<link REL=stylesheet TYPE="text/css" HREF="style.css">
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+/*DEMO*/
+addCfg("opmode",101,"1");
+addCfg("WANT",100,"5");
+addCfg("LTUN", 50, "l2tp_user");
+addCfg("LTMTU", 51, "1400");
+addCfg("LTIDL", 52, "60");
+addCfg("LTIP", 53, "10.10.10.221");
+addCfg("LTMSK", 54, "255.255.255.0");
+addCfg("LTSVR", 55, "10.10.10.227");
+addCfg("LTCM", 57, "1" );
+addCfg("LTWANIF", 59, 1);
+addCfg("LTGW",65,"10.10.10.254");
+addCfg("LTWANIF",56,1);
+addCfg("LTPW", 58, "******");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+CGI_MAP(WANT, CFG_WAN_IP_MODE);
+CGI_MAP(LTUN, CFG_L2T_USER);
+CGI_MAP(LTMTU, CFG_L2T_MTU);
+CGI_MAP(LTIDL, CFG_L2T_IDLET );
+CGI_MAP(LTIP, CFG_L2T_IP );
+CGI_MAP(LTMSK, CFG_L2T_MSK );
+CGI_MAP(LTSVR, CFG_L2T_SVR );
+CGI_MAP(LTCM, CFG_L2T_AUTO);
+CGI_MAP(LTWANIF, CFG_L2T_WANIF);
+CGI_MAP(LTGW,CFG_L2T_GW);
+CGI_MAP(LTWANIF, CFG_L2T_WANIF);
+%>
+addCfg("LTPW", <%CGI_CFG_ID(CFG_L2T_PASS);%> , "******" );
+REAL*/
+addCfg("mode",0,"5");
+
+var __opmode = 1*getCfg("opmode");
+
+function Apply() {
+	var f=document.L2T;
+	if(f.LTWANIF[1].checked)
+	{
+		if (!verifyIP2(f.LTIP,"IP 位址")) return ;
+		if (!ipMskChk(f.LTMSK,"子網路遮罩")) return ;
+		if (!verifyIP0(f.LTGW,"閘道器位址")) return ;
+	}
+	if (!verifyIP2(f.LTSVR,"伺服器 IP 位址/名稱")) return ;
+	if (!rangeCheck(f.LTMTU,546,1460,"MTU")) return ;
+	if (!rangeCheck(f.LTIDL,60,3600,"閒置時間")) return ; 
+	if (!chkStrLen(f.LTUN,1,255,"使用者帳號")) return ;
+	if (!chkStrLen(f.LTPW,0,255,"使用者密碼")) return ;
+	if (!chkPwdUpdate(f.LTPW,f._ps2,f._changed)) return;
+
+	setCfg("WANT",5);
+	form2Cfg(f);
+	subForm(f,'do_cmd.htm','LAN',cPage);
+}
+
+function init() {
+	cfg2Form(document.L2T);
+	clickL2T();
+}
+
+function Cancel()
+{
+	init();
+}
+function Help()
+{
+	window.open("help_home.htm#l2tp","help");
+}
+
+function clickL2T()
+{
+	var f = document.L2T; 
+	var b = ((f.LTWANIF[0].checked)? true : false);
+	f.LTIP.disabled = b;
+	f.LTMSK.disabled = b;
+	f.LTGW.disabled = b;  
+}
+</SCRIPT>
+
+</head>
+
+<body leftmargin=0 topmargin=0 Onload=init()>
+<script>pageHead();</script>
+<FORM name=L2T>
+<script>pageWanSel(Number(getCfg("opmode")));</script>
+<br><br>
+
+<table width=100%>
+<tr> 
+	<td colspan=2 height=30><font face=Arial size=2 color=#8bacb1><b>L2TP 用戶端</b></td>
+</tr>
+<tr> 
+	<td width=34%>&nbsp;</td>
+	<td width=66%> 
+	<input type=radio value=0 name=LTWANIF onClick=clickL2T()>動態的 IP
+	<input type=radio value=1 name=LTWANIF onClick=clickL2T()>固定的 IP
+	</td>
+</tr>
+<tr> 
+	<td>IP 位址</td>
+	<td><input type=text name=LTIP size=16 maxlength=15></td>
+</tr>
+<tr> 
+	<td>子網路遮罩</td>
+	<td><input type=text name=LTMSK size=16 maxlength=15></td>
+</tr>
+<tr> 
+	<td>閘道器</td>
+	<td><input type=text name=LTGW size=16 maxlength=15></td>
+</tr>
+<tr> 
+	<td>伺服器 IP 位址/名稱</td>
+	<td><input type=text name=LTSVR size=16 maxlength=15></td>
+</tr>
+<tr> 
+	<td>L2TP 使用者帳號</td>
+	<td><input type=text name=LTUN size=32 maxlength=63></td>
+</tr>
+<tr> 
+	<td>L2TP 使用者密碼</td>
+	<td><input type=password name=LTPW size=32 maxlength=31 value=****** onkeypress=chkPwd1Chr(this,_ps2,_changed)></td>
+			<input type=hidden name=_changed value=0>
+</tr>
+<tr> 
+	<td>確定密碼</td>
+	<td><input type=password name=_ps2 size=32 maxlength=31 value=****** onkeypress=chkPwd1Chr(PTPW,this,_changed)></td>
+</tr>
+<tr> 
+	<td>最大閒置時間</td>
+	<td><input type=text name=LTIDL maxlength=4 size=4>秒</td>
+</tr>
+<tr> 
+	<td>MTU</td>
+	<td><input type=text name=LTMTU maxlength=4 size=5></td>
+</tr>
+<tr>
+	<td>連線方式</td>
+	<td>
+	<input type=radio name=LTCM value=0>自動連線
+	<input type=radio name=LTCM value=2>手動連線
+	<input type=radio name=LTCM value=1>有流量時連線
+	</td>
+</tr>
+</table>
+</form>
+
+<script>pageButton();</script>
+<script>pageTail();</script>
+</BODY>
+</HTML>

@@ -1,0 +1,16 @@
+UPnP Known Issues and TODO list
+===============================
+
++1. WAN device options implementation
+    (1) PPP interfaces
+    (2) DHCP configuration
+    (3) WAN interface statistics
+ 2. GENA
+    (1) Multiple URL in Callback
+    (2) Domain name resolving
+    (3) Non-blocking connect
+*3. HTTP socket bind problem
++4. Notification with state variables externally changed
+ 5. Full UPNP type Support
++6. Presentation: web server
+*7. SSDP byebye problem: fixed in Linux!

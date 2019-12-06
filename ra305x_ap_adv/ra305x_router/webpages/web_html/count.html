@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A1000 WiFi</title>
+<link rel="stylesheet" href="css/count.css">
+</head>
+
+<body>
+<div class="container">
+	<span id="section1" style="display:block">
+	<div class="page_header">
+	<h1>系统正在重启，请稍等...</h1>
+	</div>
+	<div class="page_main">
+		<div id="wifi_logo">
+			<img src="images/hengloading.gif" alt="Please wait" width="250" height="185">
+			<span></span>
+		</div>
+		<div class="btn_start">
+		<input type="button" value="25" id="btn_count">
+		<span></span>
+		</div>
+	</div>
+	</span>
+
+	<span id="section2" style="display:none">
+	<div class="page_header">
+	<h1>重启成功，现在请重新连接后缀带"-Plus"的无线名称！</h1>
+	</div>
+	<div class="page_main">
+		<div id="wifi_logo">
+			<img src="images/setSucess.png" alt="Please wait">
+			<span></span>
+		</div>
+		<div class="btn_start">
+		<input type="button" value="返回首页" id="btn_sucess" onClick="location.href='index.html'">
+		<span></span>
+		</div>
+	</div>
+	</span>
+	<script language="javascript" type="text/javascript">
+		
+		var second = document.getElementById('btn_count').value;
+		setInterval("redirect()", 1000); 
+		function redirect(){
+			if (second < 0){
+				document.title = "重启成功，现在请连接最新生成的无线名称！";
+				document.getElementById("section1").style.display = "none";
+				document.getElementById("section2").style.display = "block";
+				
+			} else{
+				document.getElementById('btn_count').value = second--; 
+			}
+	}
+</script>
+</div>
+</body>
+</html>

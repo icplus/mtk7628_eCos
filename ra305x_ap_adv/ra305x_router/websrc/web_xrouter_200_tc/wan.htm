@@ -1,0 +1,34 @@
+<html>
+<head>
+<title>Ralink Wireless Access Point</title>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=big5">
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+
+/*DEMO*/
+addCfg("opmode",101,"2");
+addCfg("WANT",100,"4");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+CGI_MAP(WANT, CFG_WAN_IP_MODE);
+%>
+REAL*/
+
+function init()
+{
+	var type = 1*getCfg("WANT");
+	var opmode = 1*getCfg("opmode");	
+	wanChgPage(type, opmode);
+}
+
+</SCRIPT>
+
+</head>
+  
+<body onLoad="init();">
+</BODY>
+</HTML>

@@ -1,0 +1,65 @@
+<html>
+<head>
+<title>Ralink Wireless Access Point</title>
+<meta HTTP-EQUIV="Content-Type"	CONTENT="text/html;	charset=big5">
+<link REL=stylesheet TYPE="text/css" HREF="style.css">
+<SCRIPT	language=JavaScript	src=utils.js></SCRIPT>
+<SCRIPT	language=JavaScript	src=spec.js></SCRIPT>
+<SCRIPT	language=JavaScript>
+
+/*DEMO*/
+addCfg("opmode",100,"3");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+var __opmode = 1*getCfg("opmode");
+
+function init()	{
+	f=document.OPMODE;
+	cfg2Form(f);
+}
+
+function Apply() {
+	var	f=document.OPMODE;
+	form2Cfg(f);
+	subForm(f,'do_cmd.htm','OPMODE',cPage);
+}
+function Cancel()
+{
+	init();
+}
+function Help()
+{
+	window.open("help_home.htm#opmode","help");
+}
+
+</SCRIPT>
+
+</head>
+
+<body leftmargin=0 topmargin=0 Onload=init()>
+<script>pageHead();</script>
+
+<FORM name=OPMODE>
+
+<table width=100%>
+	<tr><td width="15%"><input type=radio name=opmode value=1>Gateway: </td><td ></td></tr>
+	<tr><td></td><td>The first ethernet port is treated as WAN port. The other ethernet ports and the wireless interface are bridged together and are treated as LAN port.</td></tr>
+/*REAL<% #ifdef APCLI_SUPPORT %>REAL*/
+	<tr><td><input type=radio name=opmode value=2>AP Client: </td><td></td></tr>
+	<tr><td></td><td>The wireless apcli interface is treated as WAN port, and the wireless ap interface and the ethernet ports are LAN port.</td></tr>
+/*REAL<% #ifdef MAC_REPEATER_SUPPORT %>REAL*/
+	<tr><td><input type=radio name=opmode value=3>Repeater: </td><td></td></tr>
+	<tr><td></td><td>The wireless sta and ethernet MAC will passthrough to RootAP, and all network interfaces will be bridged.</td></tr>
+/*REAL<% #endif //MAC_REPEATER_SUPPORT %>REAL*/	
+/*REAL<% #endif //APCLI_SUPPORT %>REAL*/	
+</table>
+<br><br>
+
+<script>pageButton();</script>
+<script>pageTail();</script>
+</BODY>
+</HTML>

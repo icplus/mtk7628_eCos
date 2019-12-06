@@ -1,0 +1,89 @@
+.btn_n
+{
+	color:#FFFFFF;
+	font-weight: bold;
+	font-size:12px;
+}
+
+.btn_d 
+{
+	color:#000000;
+	font-weight: bold;
+	font-size:12px;
+}
+
+.btn_nav
+{
+	font-size: 14px;
+	cursor: pointer;
+	height:33px;
+	width:72px;
+	background: rgb(214,211,206);
+}
+
+.nav_top_hl
+{
+	height:36px;
+	width: 100px;
+	text-align: center;
+	display: inline-block;
+	cursor: pointer;
+	color: white;
+	margin-left: 4px;
+	margin-top: 6px;
+	font: bold 24px \'Times New Roman\';
+}
+
+.nav_top
+{
+	height:36px;
+	width: 100px;
+	text-align: center;
+	display: inline-block;
+	cursor: pointer;
+	color: rgb(168,168,168);
+	margin-left: 4px;
+	margin-top: 6px;
+	font: bold 24px \'Times New Roman\';
+}
+
+
+.btn_small
+{
+	height:22px;
+	width:60px;
+	background: rgb(214,211,206);
+}
+
+.nav_left_n
+{
+	color: white;
+	text-align: center;
+	font-size: 12px;
+	font-weight: bold;
+	cursor: pointer;
+	width:90px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	background-color: rgb(66,90,140);
+}
+
+.nav_left_d
+{
+	color: black;
+	text-align: center;
+	font-size: 12px;
+	font-weight: bold;
+	cursor: pointer;
+	width:90px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	background-color: rgb(214,214,231);
+}
+
+
+body,pre,p,td,th,ol,ul,li{font-family:Helvetica,Arial,Sans Serif; font-size:9pt;}
+input,select,option{font-family:Helvetica,Arial,Sans Serif; font-size:8pt;}
+A{text-decoration:none;}
+a{text-decoration:none;}
+

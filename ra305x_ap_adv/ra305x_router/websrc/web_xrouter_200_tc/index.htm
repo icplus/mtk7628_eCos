@@ -1,0 +1,22 @@
+<html>
+<head>
+<SCRIPT	language=JavaScript	src=utils.js></SCRIPT>
+<SCRIPT	language=JavaScript	src=spec.js></SCRIPT>
+<SCRIPT	language=JavaScript>
+/*DEMO*/
+addCfg("opmode",100,"1");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+var __opmode = 1*getCfg("opmode");
+
+if (__opmode == 3)
+	location='lan.htm';
+else
+	location='wz.htm';
+</script>
+</head>
+</html>

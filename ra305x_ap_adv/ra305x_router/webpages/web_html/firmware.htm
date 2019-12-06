@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A1000 WiFi</title>
+<link rel="stylesheet" href="css/firmware.css" />
+<SCRIPT language=JavaScript src=utils.js></SCRIPT> 
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT> 
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+/*DEMO*/
+	addCfg("opmode",100,"3");
+    FirwareVerion="v1.00(C)";
+    FirwareDate=dateStrC(1103895780+28800);
+/*END_DEMO*/
+/*REAL
+    FirwareVerion="v<%CGI_CUST_VER_STR();%>";
+    FirwareDate=dateStrC(<%CGI_FMW_BUILD_SEC();%>);
+REAL*/
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+
+
+var __opmode = 1*getCfg("opmode");
+
+function Apply(){
+	f=document.frmSetup;
+	if(f.files.value=="")
+       {
+		alert("请选择要更新的固件！");
+		return ;
+	}      
+	if(confirm('确定要进行更新吗?')){
+	f.submit() ;
+	}
+}
+</SCRIPT>
+
+</HEAD>
+
+<BODY leftmargin=0 topmargin=0 onLoad=init()>
+<div id="page_header">
+	<h1>更新固件</h1>
+</div>
+<div id="btn_start">
+<form  name=frmSetup method=POST action=do_cmd.htm enctype=multipart/form-data>
+<input type=hidden name=CMD value=SYS_UPG>
+<INPUT type=hidden name=GO value=firmware.htm>
+<table width=100% border=0 cellpadding=0 height=217>
+<tr>
+      <td height=10 colspan=2>当前固件版本: <script language="JavaScript">document.write(FirwareVerion);</script></td>
+</tr>
+<tr>
+      <td height=10>请选择要更新的固件:</td>
+</tr>
+<tr>
+      <td height=20 colspan=2><input type=file name=files size=20></td>
+</tr>
+</table>
+</form>
+	<input type="button" value="开始更新" id="btn" onClick="Apply()">
+    </div>
+</BODY>
+</HTML>

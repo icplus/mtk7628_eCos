@@ -1,0 +1,754 @@
+<!-- Copyright 2004, Ralink Technology Corporation All Rights Reserved. -->
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="expires" CONTENT="0">
+<META http-equiv="Content-Type" content="text/html; charset=utf8">
+<link href="css.css" rel="stylesheet" type="text/css">
+<title>Ralink Wireless Access Point</title>
+<SCRIPT language=JavaScript src=lang.js></SCRIPT>
+<SCRIPT language=JavaScript src=wireless.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language="JavaScript" type="text/javascript"> 
+
+/*REAL
+<%
+//CGI_MAP(radio_on, CFG_WLN_RadioOn);
+CGI_MAP(bg_protection, CFG_WLN_BGProtection);
+CGI_MAP(basic_rate, CFG_WLN_BasicRate);
+CGI_MAP(beacon, CFG_WLN_BeaconPeriod);
+CGI_MAP(dtim, CFG_WLN_DtimPeriod);
+CGI_MAP(fragment, CFG_WLN_FragThreshold);
+CGI_MAP(rts, CFG_WLN_RTSThreshold);
+CGI_MAP(short_preamble, CFG_WLN_TxPreamble);
+CGI_MAP(short_slot, CFG_WLN_ShortSlot);
+CGI_MAP(tx_burst, CFG_WLN_TxBurst);
+CGI_MAP(pkt_aggregate, CFG_WLN_PktAggregate);
+CGI_MAP(IEEE80211H2, CFG_WLN_IEEE80211H);
+CGI_MAP(AutoChannelSelect2, CFG_WLN_AutoChannelSelect);
+CGI_MAP(wmm_capable, CFG_WLN_WmmCapable);
+CGI_MAP(apsd_capable, CFG_WLN_APSDCapable);
+CGI_MAP(tx_power, CFG_WLN_TxPower);
+CGI_MAP(bss_coexistence, CFG_WLN_HT_BSSCoexistence);
+CGI_MAP(igmp_sn, CFG_WLN_IgmpSnEnable);
+%>
+REAL*/
+
+//var RadioEnable = "<% CGI_CFG_GET(CFG_WLN_RadioOn); %>";
+var basicRate = "<% CGI_CFG_GET(CFG_WLN_BasicRate); %>";
+var bgProtection = "<% CGI_CFG_GET(CFG_WLN_BGProtection); %>";
+var dataRate = "<% CGI_CFG_GET(CFG_WLN_TxRate); %>";
+var beaconInterval = "<% CGI_CFG_GET(CFG_WLN_BeaconPeriod); %>"; 
+var dtimValue = "<% CGI_CFG_GET(CFG_WLN_DtimPeriod); %>";
+var fragmentThreshold = "<% CGI_CFG_GET(CFG_WLN_FragThreshold); %>";
+var rtsThreshold = "<% CGI_CFG_GET(CFG_WLN_RTSThreshold); %>";
+var shortPreamble = "<% CGI_CFG_GET(CFG_WLN_TxPreamble); %>";
+var shortSlot = "<% CGI_CFG_GET(CFG_WLN_ShortSlot); %>";
+var txBurst = "<% CGI_CFG_GET(CFG_WLN_TxBurst); %>";
+var pktAggregate = "<% CGI_CFG_GET(CFG_WLN_PktAggregate); %>";
+var wmmCapable = "<% CGI_CFG_GET(CFG_WLN_WmmCapable); %>"; 
+var APSDCapable = "<% CGI_CFG_GET(CFG_WLN_APSDCapable); %>";
+//var DLSCapable = "<% CGI_CFG_GET(CFG_WLN_DLSCapable); %>";
+var wirelessMode = "<% CGI_CFG_GET(CFG_WLN_WirelessMode); %>";
+var ieee80211h = "<% CGI_CFG_GET(CFG_WLN_IEEE80211H); %>"; 
+var txPower = "<% CGI_CFG_GET(CFG_WLN_TxPower); %>";
+var bssConValue = "<% CGI_CFG_GET(CFG_WLN_HT_BSSCoexistence); %>";
+var igmpsnValue = "<% CGI_CFG_GET(CFG_WLN_IgmpSnEnable); %>";
+
+var ieee80211hArray;
+
+/*
+function onClickRadioOnOff(indexValue)
+{
+	if (indexValue == "0")
+		document.location = "wireless_advanced.html?RADIO_ON_OFF=0";
+	else if (indexValue == "1")
+		document.location = "wireless_advanced.html?RADIO_ON_OFF=1";
+}
+*/
+
+function initValue()
+{
+	var datarateArray;
+
+	ieee80211hArray = ieee80211h.split(";");
+
+	bgProtection = 1*bgProtection;
+	document.wireless_advanced.bg_protection.options.selectedIndex = bgProtection;
+
+	basicRate = 1*basicRate;
+	if (basicRate == 3)
+		document.wireless_advanced.basic_rate.options.selectedIndex = 0;
+	else if (basicRate == 15)
+		document.wireless_advanced.basic_rate.options.selectedIndex = 1;
+	else if (basicRate == 351)
+		document.wireless_advanced.basic_rate.options.selectedIndex = 2;
+
+	wirelessMode = 1*wirelessMode;
+
+
+	if ((wirelessMode == 2) || (wirelessMode == 8))
+	{
+			document.wireless_advanced.basic_rate.disabled = true;
+		document.wireless_advanced.bg_protection.disabled = true;
+	}
+		else
+	{
+			document.wireless_advanced.ieee_80211h.disabled = true;
+		document.getElementById("ieee_80211h_enable").disabled=true;
+		document.getElementById("ieee_80211h_disable").disabled=true;
+
+		if (wirelessMode == 4)
+			document.wireless_advanced.bg_protection.disabled = true;
+		else if (wirelessMode == 1)
+		{
+			document.wireless_advanced.bg_protection.disabled = true;
+			RemoveOption();
+		}
+	}
+
+	beaconInterval = 1*beaconInterval;
+	document.wireless_advanced.beacon.value = beaconInterval;
+	dtimValue = 1*dtimValue;
+	document.wireless_advanced.dtim.value = dtimValue;
+	fragmentThreshold = 1*fragmentThreshold;
+	document.wireless_advanced.fragment.value = fragmentThreshold;
+	rtsThreshold = 1*rtsThreshold;
+	document.wireless_advanced.rts.value = rtsThreshold;
+
+	shortPreamble = 1*shortPreamble;
+	if (shortPreamble == 1)
+	{
+		document.wireless_advanced.short_preamble[0].checked = true;
+		document.wireless_advanced.short_preamble[1].checked = false;
+	}
+	else
+	{
+		document.wireless_advanced.short_preamble[0].checked = false;
+		document.wireless_advanced.short_preamble[1].checked = true;
+	}
+
+	shortSlot = 1*shortSlot;
+	if (shortSlot == 1)
+	{
+		document.wireless_advanced.short_slot[0].checked = true;
+	}
+	else
+	{
+		document.wireless_advanced.short_slot[1].checked = true;
+	}
+
+	bssConValue = 1*bssConValue;
+	if (bssConValue == 1)
+	{
+		document.wireless_advanced.bss_coexistence[0].checked = true;
+	}
+	else
+	{
+		document.wireless_advanced.bss_coexistence[1].checked = true;
+	}
+
+	igmpsnValue = 1*igmpsnValue;
+	if (igmpsnValue == 1)
+	{
+		document.wireless_advanced.igmp_sn[0].checked = true;
+	}
+	else
+	{
+		document.wireless_advanced.igmp_sn[1].checked = true;
+	}
+
+	txBurst = 1*txBurst;
+	if (txBurst == 1)
+	{
+		document.wireless_advanced.tx_burst[0].checked = true;
+		document.wireless_advanced.tx_burst[1].checked = false;
+	}
+	else
+	{
+		document.wireless_advanced.tx_burst[0].checked = false;
+		document.wireless_advanced.tx_burst[1].checked = true;
+	}
+
+	pktAggregate = 1*pktAggregate;
+	if (pktAggregate == 1)
+	{
+		document.wireless_advanced.pkt_aggregate[0].checked = true;
+		document.wireless_advanced.pkt_aggregate[1].checked = false;
+	}
+	else
+	{
+		document.wireless_advanced.pkt_aggregate[0].checked = false;
+		document.wireless_advanced.pkt_aggregate[1].checked = true;
+	}
+
+	ieee80211hArray[0] = 1*ieee80211hArray[0];
+	if (ieee80211hArray[0] == 1)
+		document.wireless_advanced.ieee_80211h[0].checked = true;
+	else
+		document.wireless_advanced.ieee_80211h[1].checked = true;
+
+	wmmCapable = 1*wmmCapable;
+	if (wmmCapable == 1)
+	{
+		document.wireless_advanced.wmm_capable[0].checked = true;
+		document.wireless_advanced.wmm_capable[1].checked = false;
+	}
+	else
+	{
+		document.wireless_advanced.wmm_capable[0].checked = false;
+		document.wireless_advanced.wmm_capable[1].checked = true;
+	}
+
+	APSDCapable = 1*APSDCapable;
+	if (APSDCapable == 1)
+	{
+		document.wireless_advanced.apsd_capable[0].checked = true;
+		document.wireless_advanced.apsd_capable[1].checked = false;
+	}
+	else
+	{
+		document.wireless_advanced.apsd_capable[0].checked = false;
+		document.wireless_advanced.apsd_capable[1].checked = true;
+	}
+/*
+	DLSCapable = 1*DLSCapable;
+	if (DLSCapable == 1)
+	{
+		document.wireless_advanced.dls_capable[0].checked = true;
+		document.wireless_advanced.dls_capable[1].checked = false;
+	}
+	else
+	{
+		document.wireless_advanced.dls_capable[0].checked = false;
+		document.wireless_advanced.dls_capable[1].checked = true;
+	}
+*/
+	document.getElementById("div_apsd_capable").style.visibility = "hidden";
+	document.getElementById("div_apsd_capable").style.display = "none";
+	document.wireless_advanced.apsd_capable.disabled = true;
+	//document.getElementById("div_dls_capable").style.visibility = "hidden";
+	//document.getElementById("div_dls_capable").style.display = "none";
+	//document.wireless_advanced.dls_capable.disabled = true;
+
+	if (wmmCapable == 1)
+	{
+		document.getElementById("div_apsd_capable").style.visibility = "visible";
+		document.getElementById("div_apsd_capable").style.display = "";
+		document.wireless_advanced.apsd_capable.disabled = false;
+		//document.getElementById("div_dls_capable").style.visibility = "visible";
+		//document.getElementById("div_dls_capable").style.display = "";
+		//document.wireless_advanced.dls_capable.disabled = false;
+		document.getElementById("apsd_capable_enable").disabled = false;
+		document.getElementById("apsd_capable_disable").disabled = false;
+		//document.getElementById("dls_capable_enable").disabled = false;
+		//document.getElementById("dls_capable_disable").disabled = false;
+	}
+	else
+	{
+		document.getElementById("apsd_capable_enable").disabled = true;
+		document.getElementById("apsd_capable_disable").disabled = true;
+		//document.getElementById("dls_capable_enable").disabled = true;
+		//document.getElementById("dls_capable_disable").disabled = true;
+	}
+
+	document.wireless_advanced.tx_power.value = txPower;
+/*
+	RadioEnable = 1*RadioEnable;
+	if (RadioEnable == 1)
+	{
+		document.wireless_advanced.radio_on[0].checked = true;
+		document.wireless_advanced.radio_on[1].checked = false;
+	}
+	else
+	{
+		document.wireless_advanced.radio_on[0].checked = false;
+		document.wireless_advanced.radio_on[1].checked = true;
+	}
+*/
+}
+
+function RemoveOption()
+ {
+	var x=document.getElementById("basic_rate");
+	x.remove(2);
+}
+
+function init()
+{
+	var f=document.LAN;
+	cfg2Form(f);
+}
+function Cancel() {
+	init();
+}
+function Help(){
+	window.open("help_home.htm#lan","help");
+}
+
+function Apply()
+{
+	var idx;
+	var testVal;
+
+	if (document.wireless_advanced.beacon.value == "" )
+	{
+		alert('Please specify Beacon Interval');
+		document.wireless_advanced.beacon.focus();
+		document.wireless_advanced.beacon.select();
+		//return false;
+		return;
+	}
+
+	testVal = document.wireless_advanced.beacon.value;
+	for(idx = 0; idx < document.wireless_advanced.beacon.value.length; idx++)
+	{
+		if(isNaN(parseInt(testVal.charAt(idx), 10)))
+		{
+			alert('Please specify Beacon Interval');
+			document.wireless_advanced.beacon.focus();
+			document.wireless_advanced.beacon.select();
+			//return false;
+			return;
+		}
+	}
+
+	if ((document.wireless_advanced.beacon.value < 20) || (document.wireless_advanced.beacon.value > 999))
+	{
+		alert('Invalid Beacon Interval');
+		document.wireless_advanced.beacon.focus();
+		document.wireless_advanced.beacon.select();
+		//return false;
+		return;
+	}
+
+	if (document.wireless_advanced.dtim.value == "" )
+	{
+		alert('Please specify DTIM Interval');
+		document.wireless_advanced.dtim.focus();
+		document.wireless_advanced.dtim.select();
+		//return false;
+		return;
+	}
+
+	testVal = document.wireless_advanced.dtim.value;
+	for(idx = 0; idx < document.wireless_advanced.dtim.value.length; idx++)
+	{
+		if(isNaN(parseInt(testVal.charAt(idx), 10)))
+		{
+			alert('Invalid DTIM Interval');
+			document.wireless_advanced.dtim.focus();
+			document.wireless_advanced.dtim.select();
+			//return false;
+			return;
+		}
+	}
+
+	if ((document.wireless_advanced.dtim.value < 1) || (document.wireless_advanced.dtim.value > 255))
+	{
+		alert('Invalid DTIM Interval');
+		document.wireless_advanced.dtim.focus();
+		document.wireless_advanced.dtim.select();
+		//return false;
+		return;
+	}
+
+	if (document.wireless_advanced.fragment.value == "" )
+	{
+		alert('Please specify Fragmentation Length');
+		document.wireless_advanced.fragment.focus();
+		document.wireless_advanced.fragment.select();
+		//return false;
+		return;
+	}
+
+	testVal = document.wireless_advanced.fragment.value;
+	for(idx = 0; idx < document.wireless_advanced.fragment.value.length; idx++)
+	{
+		if(isNaN(parseInt(testVal.charAt(idx), 10)))
+		{
+			alert('Please specify Fragmentation Length');
+			document.wireless_advanced.fragment.focus();
+			document.wireless_advanced.fragment.select();
+			//return false;
+			return;
+		}
+	}
+
+	if ((document.wireless_advanced.fragment.value < 256) || (document.wireless_advanced.fragment.value > 2346))
+	{
+		alert('Invalid Fragmentation Length');
+		document.wireless_advanced.fragment.focus();
+		document.wireless_advanced.fragment.select();
+		//return false;
+		return;
+	}
+
+	if (document.wireless_advanced.rts.value == "" )
+	{
+		alert('Please specify RTS Threshold');
+		document.wireless_advanced.rts.focus();
+		document.wireless_advanced.rts.select();
+		//return false;
+		return;
+	}
+
+	testVal = document.wireless_advanced.rts.value;
+	for(idx = 0; idx < document.wireless_advanced.rts.value.length; idx++)
+	{
+		if(isNaN(parseInt(testVal.charAt(idx), 10)))
+		{
+			alert('Invalid RTS Threshold');
+			document.wireless_advanced.rts.focus();
+			document.wireless_advanced.rts.select();
+			//return false;
+			return;
+		}
+	}
+
+	if ((document.wireless_advanced.rts.value < 1) || (document.wireless_advanced.rts.value > 2347))
+	{
+		alert('Invalid RTS Threshold');
+		document.wireless_advanced.rts.focus();
+		document.wireless_advanced.rts.select();
+		//return false;
+		return;
+	}
+
+	if (document.wireless_advanced.tx_power.value == "" )
+	{
+		alert("Please specify Tx Power");
+		document.wireless_advanced.tx_power.focus();
+		document.wireless_advanced.tx_power.select();
+		//return false;
+		return;
+	}
+
+	testVal = document.wireless_advanced.tx_power.value;
+	for(idx = 0; idx < document.wireless_advanced.tx_power.value.length; idx++)
+	{
+		if(isNaN(parseInt(testVal.charAt(idx), 10)))
+		{
+			alert("Invalid Tx Power");
+			document.wireless_advanced.tx_power.focus();
+			document.wireless_advanced.tx_power.select();
+			//return false;
+			return;
+		}
+	}
+
+	if ((document.wireless_advanced.tx_power.value < 1) || (document.wireless_advanced.tx_power.value > 100))
+	{
+		alert("Invalid Tx Power");
+		document.wireless_advanced.tx_power.focus();
+		document.wireless_advanced.tx_power.select();
+		//return false;
+		return;
+	}
+
+	if (document.wireless_advanced.ieee_80211h[0].checked == true)
+	{
+		if (1*ieee80211hArray[0] == 0)
+			document.wireless_advanced.rebootAP.value = 1;
+	}
+	else
+	{
+		if (1*ieee80211hArray[0] == 1)
+			document.wireless_advanced.rebootAP.value = 1;
+	}
+
+	if (document.wireless_advanced.wmm_capable[0].checked == true)
+	{
+		if (1*wmmCapable == 0)
+			document.wireless_advanced.rebootAP.value = 1;
+	}
+	else
+	{
+		document.wireless_advanced.apsd_capable[1].checked = true;
+
+		if (1*wmmCapable == 1)
+			document.wireless_advanced.rebootAP.value = 1;
+	}
+
+	if (document.wireless_advanced.apsd_capable[0].checked == true)
+	{
+		if (1*APSDCapable == 0)
+			document.wireless_advanced.rebootAP.value = 1;
+	}
+	else
+	{
+		if (1*APSDCapable == 1)
+			document.wireless_advanced.rebootAP.value = 1;
+	}
+
+	if (document.wireless_advanced.ieee_80211h[0].checked == true)
+		document.wireless_advanced.AutoChannelSelect2.value = 1;
+	else
+		document.wireless_advanced.AutoChannelSelect2.value = 0;
+
+
+	if (document.wireless_advanced.wmm_capable[0].checked == true)
+	{
+		if (wirelessMode < 5)
+			document.wireless_advanced.tx_burst[1].checked = true;
+	}
+
+	if (document.wireless_advanced.wmm_capable[1].checked == true)
+	{
+		document.wireless_advanced.apsd_capable[1].checked = true;
+		//document.wireless_advanced.dls_capable[1].checked =true;
+	}
+	
+	if (document.wireless_advanced.tx_power.value == '')
+		document.wireless_advanced.tx_power.value = 100;
+
+	if(document.wireless_advanced.ieee_80211h[0].checked == true)
+	{
+		ieee80211hArray[0] =1;
+		ieee80211hArray[1] =1;
+		ieee80211hArray[2] =1;
+		ieee80211hArray[3] =1;
+	}
+	else
+	{
+		ieee80211hArray[0] =0;
+		ieee80211hArray[1] =0;
+		ieee80211hArray[2] =0;
+		ieee80211hArray[3] =0;
+	}
+	ieee80211h = '';
+	ieee80211h = ieee80211h + ieee80211hArray[0];
+	ieee80211h = ieee80211h + ';';
+	ieee80211h = ieee80211h + ieee80211hArray[1];
+	ieee80211h = ieee80211h + ';';		
+	ieee80211h = ieee80211h + ieee80211hArray[2];
+	ieee80211h = ieee80211h + ';';
+	ieee80211h = ieee80211h + ieee80211hArray[3];
+	document.wireless_advanced.IEEE80211H2.value = ieee80211h;		
+
+	var f=document.wireless_advanced;
+	
+	form2Cfg(f);
+
+	subForm(f,'do_cmd.htm','WIRELESS_ADVANCED',cPage);
+
+	return true;
+	
+}
+
+function open_wmm_window()
+{
+	window.open("wmm.html","WMM_Parameters_LIst","toolbar=no, location=yes, scrollbars=yes, resizable=no, width=640, height=480")
+}
+
+function wmm_capable_enable_switch()
+{
+	document.getElementById("div_apsd_capable").style.visibility = "hidden";
+	document.getElementById("div_apsd_capable").style.display = "none";
+	document.wireless_advanced.apsd_capable.disabled = true;
+	//document.getElementById("div_dls_capable").style.visibility = "hidden";
+	//document.getElementById("div_dls_capable").style.display = "none";
+	//document.wireless_advanced.dls_capable.disabled = true;
+
+	if (document.wireless_advanced.wmm_capable[0].checked == true)
+	{
+		document.getElementById("div_apsd_capable").style.visibility = "visible";
+		document.getElementById("div_apsd_capable").style.display = "";
+		document.wireless_advanced.apsd_capable.disabled = false;
+		//document.getElementById("div_dls_capable").style.visibility = "visible";
+		//document.getElementById("div_dls_capable").style.display = "";
+		//document.wireless_advanced.dls_capable.disabled = false;
+		document.getElementById("apsd_capable_enable").disabled = false;
+		document.getElementById("apsd_capable_disable").disabled = false;
+		//document.getElementById("dls_capable_enable").disabled = false;
+		//document.getElementById("dls_capable_disable").disabled = false;
+	}
+	else
+	{
+		document.getElementById("apsd_capable_enable").disabled = true;
+		document.getElementById("apsd_capable_disable").disabled = true;
+		//document.getElementById("dls_capable_enable").disabled = true;
+		//document.getElementById("dls_capable_disable").disabled = true;
+	}
+}
+</script>
+</head>
+
+<link rel=stylesheet type=text/css href=style.css>
+<BODY leftmargin=0 topmargin=0 onload=initValue()>
+
+<TABLE WIDTH=100%>
+  <script>pageHead();</script>
+  
+<form method=get name=wireless_advanced action=wireless_advanced.html onSubmit="return Apply()">
+
+	<table width=100% cellspacing=2 cellpadding=0>
+		<tr> 
+			  <td colspan=2><font face=Arial color=#8bacb1 size=2><b>WI-FI Advanced Setup</b></font></td>
+		</tr>
+	</table>
+	
+  <table width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+    <tr> 
+      <td bgcolor="#B7DCFB" colspan="2"><font color="#333333"><b>Advanced Wireless</b></font></td>
+    </tr>
+<!--
+    <tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Radio On/Off</td>
+			<td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio name=radio_on value="1" checked>Enable &nbsp;
+        			<input type=radio name=radio_on value="0">Disable
+			</b></font></td>
+		</tr>
+-->
+		<tr  id="div_bg_protection" name="div_bg_protection" style="visibility:visible;display:;"> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>BG Protection Mode</td>
+      <td bgcolor="#FFFFFF">
+	    <select name="bg_protection" size="1" style="{font-family:arial; width:100px; color:#003366; font-weight: bold; font-size: 9pt;}">
+	      <option value=0 selected>Auto</option>
+	      <option value=1>On</option>
+	      <option value=2>Off</option>
+	    </select>
+      </td>
+    </tr>
+		<tr id="div_basic_rate" name="div_basic_rate" style="visibility:visible;display:;"> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Basic Data Rates</td>
+      <td bgcolor="#FFFFFF">
+				<select name="basic_rate" id="basic_rate" size="1" style="{font-family:arial; width:140px; color:#003366; font-weight: bold; font-size: 9pt;}">
+		  	<option value="3" >1-2 Mbps</option>
+            <option value="15" >Default(1-2-5.5-11 Mbps)</option>
+            <option value="351" >All(1-2-5.5-6-11-12-24 Mbps)</option>
+	    </select>
+      </td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Beacon Interval</td>
+      <td bgcolor="#FFFFFF">
+        <input type=text name=beacon size=5 maxlength=3 value="100"> ms <font color="#808080">(range 20 - 999, default 100)</font>
+      </td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Data Beacon Rate (DTIM) </td>
+      <td bgcolor="#FFFFFF">
+        <input type=text name=dtim size=5 maxlength=3 value="1"> ms <font color="#808080">(range 1 - 255, default 1)</font>
+      </td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Fragment Threshold</td>
+      <td bgcolor="#FFFFFF">
+        <input type=text name=fragment size=5 maxlength=4 value=""> <font color="#808080">(range 256 - 2346, default 2346)</font>
+      </td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>RTS Threshold</td>
+      <td bgcolor="#FFFFFF">
+        <input type=text name=rts size=5 maxlength=4 value=""> <font color="#808080">(range 1 - 2347, default 2347)</font>
+      </td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>TX Power</td>
+      <td bgcolor="#FFFFFF">
+        <input type=text name=tx_power size=5 maxlength=3 value="100"> <font color="#808080">(range 1 - 100, default 100)</font>
+      </td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Short Preamble</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+        <input type=radio name=short_preamble value="1" checked>Enable &nbsp;
+        <input type=radio name=short_preamble value="0">Disable
+      </b></font></td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Short Slot</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+        <input type=radio name=short_slot value="1" checked>Enable &nbsp;
+        <input type=radio name=short_slot value="0">Disable
+      </b></font></td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Tx Burst</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+        <input type=radio name=tx_burst value="1" checked>Enable &nbsp;
+        <input type=radio name=tx_burst value="0">Disable
+      </b></font></td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Pkt_Aggregate</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+        <input type=radio name=pkt_aggregate value="1">Enable &nbsp;
+        <input type=radio name=pkt_aggregate value="0" checked>Disable
+      </b></font></td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>IEEE 802.11H Support</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio id="ieee_80211h_enable" name="ieee_80211h" value="1">Enable &nbsp;
+				<input type=radio id="ieee_80211h_disable" name="ieee_80211h" value="0" checked>Disable <font color="#808080">(only in A band)</font>
+      </b></font></td>
+    </tr>
+        <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>20/40 BssCoexSupport</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+        <input type=radio name=bss_coexistence value="1">Enable &nbsp;
+        <input type=radio name=bss_coexistence value="0" checked>Disable
+      </b></font></td>
+    </tr>
+        <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>IGMP Snooping</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+        <input type=radio name=igmp_sn value="1">Enable &nbsp;
+        <input type=radio name=igmp_sn value="0" checked>Disable
+      </b></font></td>
+    </tr>
+  </table>
+  <br>
+  <hr width="540" align="left">
+  <br>
+  <table width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+    <tr> 
+      <td bgcolor="#B7DCFB"colspan="2"><font color="#333333"><b>Wi-Fi Multimedia</b></font></td>
+    </tr>
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>WMM Capable</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+        <input type=radio name=wmm_capable value="1" onClick="wmm_capable_enable_switch()" checked>Enable &nbsp;
+        <input type=radio name=wmm_capable value="0" onClick="wmm_capable_enable_switch()">Disable
+      </b></font></td>
+    </tr>
+    <tr id="div_apsd_capable" name="div_apsd_capable" style="visibility:visible;display:;">
+      <td width="45%" bgcolor="#E8F8FF" nowrap>APSD Capable</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio id="apsd_capable_enable" name=apsd_capable value="1">Enable &nbsp;
+				<input type=radio id="apsd_capable_disable" name=apsd_capable value="0" checked>Disable
+      </b></font></td>
+    </tr> 
+<!--
+    <tr id="div_dls_capable" name="div_dls_capable" style="visibility:visible;display:;">
+      <td width="45%" bgcolor="#E8F8FF" nowrap>DLS Capable</td>
+      <td bgcolor="#FFFFFF"><font color="#003366" face=arial><b>
+				<input type=radio id="dls_capable_enable" name=dls_capable value="1">Enable &nbsp;
+				<input type=radio id="dls_capable_disable" name=dls_capable value="0" checked>Disable
+      </b></font></td>
+    </tr>
+-->
+    <tr> 
+      <td width="45%" bgcolor="#E8F8FF" nowrap>WMM Parameters</td>
+      <td bgcolor="#FFFFFF">
+        <input type=button name="wmm_list" style="{font-family:arial; width:180px; color:#003366; font-weight: bold; font-size: 9pt;}" value="WMM Configuration" onClick="open_wmm_window()">
+      </td>
+    </tr>
+    <input type="hidden" name="rebootAP" value="0">
+    <input type="hidden" name="BasicRate2">
+    <input type="hidden" name="AutoChannelSelect2">  
+    <input type="hidden" name="IEEE80211H2">
+  </table>
+  <br>
+</form>
+
+<script>pageButton();</script>
+<script>pageTail();</script>    
+
+</body>
+</html>

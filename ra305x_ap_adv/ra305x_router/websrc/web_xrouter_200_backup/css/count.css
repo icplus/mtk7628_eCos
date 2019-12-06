@@ -1,0 +1,17 @@
+.img-loading{
+	width:320px;
+	height:400px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align:center;
+}
+.img-loading img{
+	vertical-align:middle;
+}
+.img-loading span{
+	height:100%;
+	width:0;
+	overflow:hidden;
+	display:inline-block;
+	vertical-align:middle;
+}

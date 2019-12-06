@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+	<specVersion>
+		<major>1</major>
+		<minor>0</minor>
+	</specVersion>
+	<device>
+		<deviceType>urn:schemas-upnp-org:device:InternetGatewayDevice2WLAN:1</deviceType>
+		<friendlyName>MTKRouter2WLAN</friendlyName>
+		<manufacturer>Mediatek Technology, Corp.</manufacturer>
+		<manufacturerURL>http://www.mediatek.com/</manufacturerURL>
+		<modelDescription>Mediatek Home Gateway</modelDescription>
+		<modelName>MTKRouter2WLAN</modelName>
+		<modelURL>http://www.mediatek.com/</modelURL>
+		<UDN>uuid:7fff6211-b0fa-7540-5ca1-0b624d01b4bf</UDN>
+		<deviceList> 	
+    <device>
+    <deviceType>urn:schemas-wifialliance-org:device:WFA5GDevice:1</deviceType>
+    <friendlyName>MTKAP5G</friendlyName>
+    <manufacturer>Mediatek Technology, Corp.</manufacturer>
+    <manufacturerURL>http://www.mediatek.com/</manufacturerURL>
+    <modelDescription>Mediatek AP 5G WSC device</modelDescription>
+    <modelName>Mediatek Wireless 5G Access Point</modelName>
+    <modelNumber>MTKAP5G</modelNumber>
+    <modelURL>http://www.mediatek.com/</modelURL>
+    <serialNumber>87654321</serialNumber>

@@ -1,0 +1,406 @@
+<HTML>
+<HEAD>
+<TITLE>Ralink Wireless Access Point</TITLE>
+<META HTTP-EQUIV=Content-Type CONTENT="no-cache">
+<META HTTP-EQUIV=Content-Type CONTENT="text/html; charset=big5">
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+</HEAD>
+<script language="JavaScript">
+/*DEMO*/ 
+addCfg("LANIP", 0,"192.168.0.1");
+addCfg("LANMSK",23,"255.255.255.0");
+addCfg("VS1",1,"1;Virtual Server FTP;100-1100;tcp;192.168.0.2;21;1;3600-46833;99");
+addCfg("VS2",2,"0;Virtual Server HTTP;80-80;tcp;0.0.0.0;80;1;54133-67890;67");
+addCfg("VS3",3,"0;Virtual Server HTTPS;443-443;tcp;0.0.0.0;443;0;0;0");
+addCfg("VS4",4,"0;Virtual Server DNS;53-53;udp;0.0.0.0;53;0;0;0");
+addCfg("VS5",5,"0;Virtual Server SMTP;25-25;tcp;0.0.0.0;25;0;0;0");
+addCfg("VS6",6,"0;Virtual Server POP3;110-110;tcp;0.0.0.0;110;0;0;0");
+addCfg("VS7",7,"0;Virtual Server Telnet;23-23;tcp;0.0.0.0;23;0;0;0");
+addCfg("VS8",8,"0;IPSec;500-500;udp;0.0.0.0;500;0;0;0");
+addCfg("VS9",9,"0;PPTP;1723-1723;tcp;0.0.0.0;1723;0;0;0");
+addCfg("VS10",10,"0;NetMeeting;1720-1720;tcp;0.0.0.0;1720;0;0;0");
+addCfg("VS11",11,"0;DCS-1000;80-80;tcp;0.0.0.0;80;0;0;0");
+addCfg("VS12",12,"0;DCS-2000;80-80;tcp;0.0.0.0;80;0;0;0");
+addCfg("VS13",13,"0;DVC-1000;1720-1720;tcp;0.0.0.0;1720;0;0;0");
+addCfg("VS14",14,"");
+addCfg("VS15",15,"");
+addCfg("VS16",16,"");
+addCfg("VS17",17,"");
+addCfg("VS18",18,"");
+addCfg("VS19",19,"");
+addCfg("VS20",20,"");
+addCfg("SPL1",1,"1;Battle.net;6112;tcp/udp;6112;tcp/udp");
+addCfg("SPL2",2,"0;Dialpad;51200-51201,51210;tcp/udp;7175;tcp/udp");
+addCfg("SPL3",3,"1;ICU II;2000-2038,2050-2051,2069,2085,3010-3030;tcp/udp;2019;tcp/udp");
+addCfg("SPL4",4,"1;MSN Gaming Zone;2300-2400,28800-29000;tcp/udp;47624;tcp/udp");
+addCfg("SPL5",5,"0;PC-to-Phone;12120,12122,24150-24220;tcp/udp;12053;tcp/udp");
+addCfg("SPL6",6,"0;Quick Time 4;6970-6999;tcp/udp;554;tcp/udp");
+addCfg("SPL7",7,"");
+addCfg("SPL8",8,"");
+addCfg("SPL9",9,"");
+addCfg("SPL10",10,"");
+addCfg("opmode",100,"1");
+for(i=11;i<=32;i++) setCfg("SPL"+i,"");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(LANIP, CFG_LAN_IP);
+CGI_MAP(LANMSK, CFG_LAN_MSK);
+CGI_MAP_ARRAY(VS, CFG_NAT_VTS+1, 32);
+CGI_MAP_ARRAY(SPL, CFG_NAT_PTRG+1, 32);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+
+var __opmode = 1*getCfg("opmode");
+var max=32;
+var lanip=getCfg("LANIP");
+var lanmsk=getCfg("LANMSK");
+var netip=lanip.replace(/\.\d{1,3}$/,".");
+var VSList=new Array();
+var SelRowBC;
+var SelRow = -1; 
+var count=0;
+var prot=["tcp/udp","tcp","udp"];
+
+function generateHTML()
+{
+	var str=new String("");
+	var n=0;
+	for(j=1;j<=max;j++){
+		if(getCfg("VS"+j))
+		{
+			count++;
+			VSList[j]=getCfg("VS"+j);
+			var s = VSList[j].split(";");
+			var t = s[2].split("-");
+			var temp=t[1]-t[0]-(-s[5]);
+			str+="<tr>";
+			str+="<td><input type=\"checkbox\" name=\"en\""+(s[0]=="1"? " checked " : " ")+" disabled></td>";
+			str+="<td>"+s[1]+"</td><td>"+s[4]+"&nbsp;&nbsp;</td>";
+			str+="<td>"+ProtToStr(s[3])+" "+s[5]+"-"+temp+"/"+s[2]+"</td>";
+			str+="<td>"+showSchedule(s[6],s[7],s[8])+"</td>";
+			str+="<td>";
+			str+="<img src=\"./images/edit.gif\" width=\"15\" height=\"17\" border=\"0\" alt=\"編輯\" onclick=\"EditRow("+j+")\">";
+			str+="<img src=\"./images/delet.gif\" width=\"15\" height=\"18\" border=\"0\" alt=\"刪除\" onClick=\"doDelete("+(j+1)+")\">";
+			str+="</td>";
+			str+="</tr>";
+			n++;
+		}
+	}
+	document.writeln(str);
+	document.getElementById('sum').innerHTML=n+'/'+max+" (筆數/總筆數)";
+}
+
+function EditRow(r)
+{
+	var f = document.frmVS;
+	var s = VSList[r].split(";");
+	var pri,pub;
+	f.editRow.value=r;
+	if (s[0]=="1")
+	{
+	    f.enable[0].checked=true;
+	}
+	else
+	{
+	    f.enable[1].checked=true;
+	}
+	f.name.value = s[1];
+	f.ip.value = s[4];
+	f.protocol.selectedIndex=ProtToIdx(prot,s[3]);
+	
+	pub=s[2].split("-");
+	f.priPort_s.value = s[5];
+	f.priPort_e.value = pub[1]-pub[0]-(-s[5]);;
+	f.pubPort_s.value = pub[0];
+	f.pubPort_e.value = pub[1];	
+    	setSchedule(f,s[6],s[7],s[8]);
+	SelectRow("tabVS",r);
+	f.enable[0].focus();
+}
+
+function Cancel()
+{
+    var f = document.frmVS;
+    f.editRow.value = "-1"
+    SelectRow("tabVS",-1)
+    f.reset();
+}
+
+function preSubmit()
+{
+    var f = document.frmVS;
+    for(j=1;j<=max;j++){
+	if (VSList[j]) m=VSList[j];
+	else m="";
+	setCfg("VS"+j,m);
+    }
+    form2Cfg(f);
+    subForm(f,'do_cmd.htm','WAN',cPage);
+}
+
+function Apply()
+{
+    if (checkParameter()==false) return;
+    var f = document.frmVS;
+    var num;
+    
+    num=parseInt(f.editRow.value)+1;
+    if (f.editRow.value == "-1") num=count+1;
+    else  num=f.editRow.value;
+    
+    if (num>max)
+    {
+           alert("虛擬伺服器最多可建立"+max+"筆資料。\n\n請刪除不用的資料。"); 
+           return;
+    }
+    
+    VSList[num]=boolToStr(f.enable[0].checked)+";"+
+                          f.name.value+";"+
+                          f.pubPort_s.value+"-"+f.pubPort_e.value+";"+
+                          IdxToProt(prot,f.protocol.selectedIndex)+";"+
+                          evalIP(f.ip.value)+";"+
+                          f.priPort_s.value+";"+ 
+                          boolToStr(f.schd[1].checked)+";"+ 
+                          Schedule2str(f);
+    preSubmit();
+}
+
+function doDelete(num)
+{
+    if (confirm("您確定要刪除此項目?")==false) return;
+    var f = document.frmVS;
+    rmEntry(VSList, num-1);
+    preSubmit();
+}
+
+function checkParameter()
+{
+   var f = document.frmVS;
+   var i=0;
+   var range=0;   
+   //name
+   var n=f.name.value; 
+   	if (isBlank(n)) { alert("無效的名稱"); return false;}
+    if(!chksc(n,"名稱")) return false;
+   
+	// private ip
+	if (!validIP(f.ip.value)) { alert("無效的個人IP位址"); return false;}
+	if (evalIP(f.ip.value)==lanip) { alert("輸入的IP是系統的IP位址。"); return false;}
+	if (!isSameClass(f.ip.value,lanip,lanmsk)) { alert("輸入的IP必須是LAN IP。"); return false; }
+
+	// public port
+	if (!isNumber(f.pubPort_s.value)) { alert("無效的公用服務埠"); return false;}
+	if (!validPort(f.pubPort_s.value)) return false;
+	if (!isNumber(f.pubPort_e.value)) { alert("無效的公用服務埠"); return false;}
+	if (!validPort(f.pubPort_e.value)) return false;
+	if(f.pubPort_e.value-f.pubPort_s.value<0) { alert("結束端口值必須大於開始端口值"); return false; }
+	range=f.pubPort_e.value-f.pubPort_s.value;
+	f.priPort_e.value=0;
+	f.priPort_e.value=f.priPort_s.value-(-range);
+
+	// private port
+	if (!isNumber(f.priPort_s.value)) { alert("無效的個人服務埠"); return false; }
+	if (!validPort(f.priPort_s.value)) return false;
+	if (!isNumber(f.priPort_e.value)) { alert("無效的個人服務埠"); return false; }
+	if (!validPort(f.priPort_e.value)) return false;
+   
+
+	if(f.schd[1].checked){
+    	st=(f.hour1.selectedIndex+12*f.am1.selectedIndex)*3600+(f.min1.selectedIndex)*5*60;
+    	et=(f.hour2.selectedIndex+12*f.am2.selectedIndex)*3600+(f.min2.selectedIndex)*5*60;
+    	if(et<st || (f.day1.selectedIndex==(f.day2.selectedIndex+1))){ alert("無效的排程範圍"); return false;} 
+    }
+/*
+	if (f.enable[1].checked) return true; // don't chk anymore
+	// check the same public port
+	for(i=1;i<VSList.length;i++)
+	{
+		if (Number(f.editRow.value)==i) continue;
+		s=VSList[i].split(";");
+		if (s[0]!="1") continue; // if disable, skip
+		if((f.protocol.selectedIndex==ProtToIdx(prot,s[3]))||(ProtToIdx(prot,s[3])==0)||(f.protocol.selectedIndex==0))
+		{
+			if((Number(f.pubPort.value)==Number(s[2]))) { alert("個人服務埠已經被使用。"); return false;}
+			if(evalIP(f.ip.value)==s[4]&&(Number(f.priPort.value)==Number(s[5]))) { alert("公用服務埠已經被使用。"); return false;}
+		}
+	}
+	for (i=1;i<=max;i++)
+	{
+		var sp=getCfg("SPL"+i);
+		var s=sp.split(";");
+		if (s[0]=='1')
+			if (!chkPortRange2(f.pubPort.value,s[2])) { alert("公用服務埠已經被特殊應用程式"+s[1]+"使用了。"); return false;}
+	}*/
+	return true;
+}
+function Help(){
+	window.open("help_adv.htm#smap","help");
+}
+</script>
+<link rel=stylesheet type=text/css href=style.css>
+<BODY BGCOLOR=#FFFFFF leftmargin=0 topmargin=0>
+
+<TABLE WIDTH=765 BORDER=0 CELLSPACING=0 CELLPADDING=0 ALIGN=center HEIGHT=100%>
+<script>pageHead();</script>
+<form name=frmVS method=POST>
+<input type=hidden name=editRow value=-1>
+<table width=100% border=0 cellspacing=2 cellpadding=0 height=30>
+<tr> 
+      <td colspan=4 height="20"><font face=Arial color=#8bacb1 size=2><b>    虛擬伺服器</b></font></td>
+</tr>
+<tr id=xxyy> 
+      <td width=18% align=right>&nbsp;</td>
+      <td height=11 colspan=3><input type=radio name=enable value=1>啟動<input type=radio name=enable value=0 checked>關閉</td>
+</tr>
+<tr> 
+      <td width=18% align=left>名稱</td>
+      <td height=12 colspan=3><input type=text name=name size=32 maxlength=31><!--<input type="button" value="Clear" onClick="doReset()" name="clear">--></td>
+</tr>
+<tr> 
+      <td width=18% align=left>個人 IP 位址</td>
+      <td height=25 colspan=3><input type=text name=ip size=15 maxlength=15></td>
+</tr>
+<tr> 
+      <td width=18% align=left>協定模式</td>
+      <td height=25 colspan=3>
+      <select name=protocol size=1>
+      <option value=0>Both</option>
+      <option value=1 selected>TCP</option>
+      <option value=2>UDP</option>
+      </select>
+      </td>
+</tr>
+<tr> 
+      <td width=18% height=2 align=left>公用服務埠</td>
+      <td height=25 colspan=3><input type=text name=pubPort_s size=5 maxlength=5>~<input type=text name=pubPort_e size=5 maxlength=5></td>
+</tr>
+<tr> 
+      <td width=18% height=28 align=left>個人服務埠</td>
+      <td height=25 colspan=3><input type=text name=priPort_s size=5 maxlength=5>~<input type=text name=priPort_e size=5 maxlength=5 disabled></td>
+</tr>
+<tr> 
+      <td width=18% align=left>排程</td>
+      <td height=25 colspan=3><input type=radio name=schd value=0 checked>任何時間</td>
+</tr>
+<tr> 
+                  <td width=18%>&nbsp;</td>
+                  <td width=12% height=25><input type=radio name=schd value=1>從</td>
+                  <td colspan=2>每個 
+                    <select size=1 name=hour1>
+                      <option value=0>00</option>
+                      <option value=1>01</option>
+                      <option value=2>02</option>
+                      <option value=3>03</option>
+                      <option value=4>04</option>
+                      <option value=5>05</option>
+                      <option value=6>06</option>
+                      <option value=7>07</option>
+                      <option value=8>08</option>
+                      <option value=9>09</option>
+                      <option value=10>10</option>
+                      <option value=11>11</option>
+                    </select>
+                    : 
+                    <select size=1 name=min1>
+                      <option value=0>00</option>
+                      <option value=5>05</option>
+                      <option value=10>10</option>
+                      <option value=15>15</option>
+                      <option value=20>20</option>
+                      <option value=25>25</option>
+                      <option value=30>30</option>
+                      <option value=35>35</option>
+                      <option value=40>40</option>
+                      <option value=45>45</option>
+                      <option value=50>50</option>
+                      <option value=55>55</option>
+                    </select>
+                    <select size=1 name=am1>
+                      <option value=0>AM</option>
+                      <option value=1>PM</option>
+                    </select>
+                    到 
+                    <select size=1 name=hour2>
+                      <option value=0>00</option>
+                      <option value=1>01</option>
+                      <option value=2>02</option>
+                      <option value=3>03</option>
+                      <option value=4>04</option>
+                      <option value=5>05</option>
+                      <option value=6>06</option>
+                      <option value=7>07</option>
+                      <option value=8>08</option>
+                      <option value=9>09</option>
+                      <option value=10>10</option>
+                      <option value=11>11</option>
+                    </select>
+                    : 
+                    <select size=1 name=min2>
+                      <option value=0>00</option>
+                      <option value=5>05</option>
+                      <option value=10>10</option>
+                      <option value=15>15</option>
+                      <option value=20>20</option>
+                      <option value=25>25</option>
+                      <option value=30>30</option>
+                      <option value=35>35</option>
+                      <option value=40>40</option>
+                      <option value=45>45</option>
+                      <option value=50>50</option>
+                      <option value=55>55</option>
+                    </select>
+                    <select size=1 name=am2>
+                      <option value=0>AM</option>
+                      <option value=1>PM</option>
+                    </select>
+                    </td>
+</tr>
+<tr> 
+                  <td width=18% height=25>&nbsp;</td>
+                  <td height=25 width=12%>&nbsp;</td>
+                  <td height=25 colspan=2>日期 
+                    <select size=1 name=day1>
+										<script language="JavaScript">createSelectTagChild(0,6,0,"week");</script>
+										</select>
+                    到 
+                    <select size=1 name=day2>
+										<script language="JavaScript">createSelectTagChild(0,6,0,"week");</script>
+                    </select>
+                    </td>
+</tr>
+<tr> 
+      <td colspan=4><br></td>
+</tr>
+<tr >
+   	<td colspan=4 align=right>
+	<script>pageButton();</script>
+	</td>
+</tr>
+<tr> 
+      <td colspan=3 align=left><font face=Arial color=#8bacb1 size=2><b>虛擬伺服器列表</b></font></td>
+	<td align=right id=sum></td>
+</tr>
+<tr>
+      <td colspan=4>
+      <table width=100% border=0 id=tabVS cellpadding=0 cellspacing=0>
+      <tr bgcolor=#B7DCFB> 
+          <td>&nbsp;</td>
+          <td><font color=#333333>名稱</font></td>
+          <td><font color=#333333>個人IP位址</font></td>
+          <td><font color=#333333>&nbsp;&nbsp;&nbsp;協定</font></td>
+          <td><font color=#333333>排程</font></td>
+          <td>&nbsp;</td>
+      </tr>
+      <!-- Virtual Server lists //--><script>generateHTML();</script><!-- Virtual Server Lists //-->
+      </table>
+      </td>
+</tr>
+</table>
+</form>
+
+<script>pageTail();</script>  
+</BODY></HTML>

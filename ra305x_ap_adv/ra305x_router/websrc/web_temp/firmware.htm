@@ -1,0 +1,79 @@
+<HTML> 
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=utf8">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<link rel=stylesheet type=text/css href=style.css>
+<SCRIPT language=JavaScript src=lang.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT> 
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT> 
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+/*DEMO*/
+    FirwareVerion="v1.00(C)";
+    FirwareDate=dateStrC(1103895780+28800);
+/*END_DEMO*/
+/*REAL
+    FirwareVerion="v<%CGI_CUST_VER_STR();%>";
+    FirwareDate=dateStrC(<%CGI_FMW_BUILD_SEC();%>);
+REAL*/
+var lang="firmware"
+function Apply(){
+	f=document.frmSetup;
+	if(f.files.value=="")
+       {
+		alert(Alerts[79]);
+		return ;
+	}      
+	if(confirm(Alerts[80])){
+	f.submit() ;
+	}
+}
+function Cancel() {
+	init();
+}
+function Help(){
+	window.open("help_tools.htm#fwug","help");
+}
+function init()
+{
+	document.frmSetup.reset();
+}
+</SCRIPT>
+
+</HEAD>
+
+<BODY leftmargin=0 topmargin=0 onLoad=init()>
+<script>pageHead();</script>
+
+<form  name=frmSetup method=POST action=do_cmd.htm enctype=multipart/form-data>
+<input type=hidden name=CMD value=SYS_UPG>
+<INPUT type=hidden name=GO value=firmware.htm>
+<table width=100% border=0 cellpadding=0 height=217>
+<tr>
+      <td height=30 colspan=2><font face=Arial color=#8bacb1 size=2><b><span id=_0>Firmware Upgrade</span></b></font></td>
+</tr>
+
+<tr>
+      <td id=_1 height=70 colspan=2>
+Attention!!! During firmware updates, the power cannot be turned off. The system will restart automatically after completing the upgrade.</td>
+</tr>
+
+<tr>
+      <td height=10 colspan=2 align=center><FONT SIZE=2><B><span id=_2>Current Firmware Version: </span><script language="JavaScript">document.write(FirwareVerion);</script></b></font></td>
+</tr>
+<tr>
+      <td height=10 colspan=2 align=center><FONT SIZE=2><B><b><span id=_3>Firmware Date: </span><script language="JavaScript">document.write(FirwareDate);</script></b></font></td>
+</tr>
+<tr>
+      <td height=54 colspan=2 align=center><input type=file name=files size=20></td>
+</tr>
+</table>
+</form>
+
+<script>pageButton();</script>
+<script>pageTail();</script>
+<script>chglang();</script>
+</BODY>
+</HTML>

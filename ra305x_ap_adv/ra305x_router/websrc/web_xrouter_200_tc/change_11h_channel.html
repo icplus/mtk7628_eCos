@@ -1,0 +1,40 @@
+<!-- Copyright 2004, Ralink Technology Corporation All Rights Reserved. -->
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<link href="css.css" rel="stylesheet" type="text/css">
+<title>Ralink Wireless Access Point Add Originator BA Session</title>
+<script language="JavaScript" type="text/javascript">
+function checkValue()
+{
+	return true;
+}
+</script>
+</head>
+
+<body>
+<form method=get name=change_11h_channel action=change_11h_channel.html>
+<table align="center" width="480" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+    <tr>
+      <td width="45%" bgcolor="#E8F8FF" nowrap>Frequency (Channel)</td>
+      <td bgcolor="#FFFFFF">
+        <select id="sz11hChannel" name="sz11hChannel" size="1" style="{font-family:arial; width:160px; color:#003366; font-weight: bold; font-size: 9pt;}">
+          <!--#include ssi=getWlan11aChannelList()-->
+        </select>
+        (only in A band)
+      </td>
+    </tr>
+</table>
+<br>
+<table align="center" width = "320" border = "0" cellpadding = "2" cellspacing = "1">
+	<tr align="center">
+		<td>
+			<input type=submit style="{width:120px;}" value="Apply"> &nbsp; &nbsp; <input type=reset  style="{width:120px;}" value="Cancel" onClick="window.location.reload()">
+		</td>
+	</tr>
+</table>
+</form>
+</body>
+</html>

@@ -1,0 +1,895 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ralink Wireless Access Point</title>
+    <SCRIPT language="JavaScript" src="js/wireless.js"></SCRIPT>
+    <SCRIPT language="JavaScript" src="js/utils.js"></SCRIPT>
+    <SCRIPT language="JavaScript" src="js/spec.js"></SCRIPT>
+    <SCRIPT language="JavaScript" src="js/utils_adv.js"></SCRIPT>
+    <script type="text/javascript" src="js/native/wireless_apcli.js"></script>
+    <SCRIPT language="JavaScript" type="text/javascript">
+    var apcliencryptype_s;
+    var apcliauth_s;
+    var opmode_s = 1 * getCfg("opmode");
+
+    function CheckHex(name, index, count) {
+        var val, i;
+
+        val = eval('document.wireless_apcli_setup' + '.' + name + index + '.value');
+
+        for (i = 0; i < count; i++) {
+            if (isNaN(parseInt(val.charAt(i), 16))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function CheckMAC() {
+        var val, i, idx;
+
+        val = document.wireless_apcli_setup.apcli_bssid.value;
+
+        if (val == "")
+            return true;
+
+        for (i = 0; i < 5; i++) {
+            if (isNaN(parseInt(val.charAt(3 * i), 16))) {
+                alert('The bssid is worng format or using incorrect characters.');
+                document.wireless_apcli_setup.apcli_bssid.focus();
+                document.wireless_apcli_setup.apcli_bssid.select();
+                return false;
+            } else if (isNaN(parseInt(val.charAt(3 * i + 1), 16))) {
+                alert('The bssid is worng format or using incorrect characters.');
+                document.wireless_apcli_setup.apcli_bssid.focus();
+                document.wireless_apcli_setup.apcli_bssid.select();
+                return false;
+            } else if (val.charAt(3 * i + 2) != ':') {
+                alert('The bssid is worng format or using incorrect characters.');
+                document.wireless_apcli_setup.apcli_bssid.focus();
+                document.wireless_apcli_setup.apcli_bssid.select();
+                return false;
+            }
+        }
+
+        if (isNaN(parseInt(val.charAt(15), 16))) {
+            alert('The bssid is worng format or using incorrect characters.');
+            document.wireless_apcli_setup.apcli_bssid.focus();
+            document.wireless_apcli_setup.apcli_bssid.select();
+            return false;
+        } else if (isNaN(parseInt(val.charAt(16), 16))) {
+            alert('The bssid is worng format or using incorrect characters.');
+            document.wireless_apcli_setup.apcli_bssid.focus();
+            document.wireless_apcli_setup.apcli_bssid.select();
+            return false;
+        }
+
+        return true;
+    }
+
+    function ReplaceAll(inputString) {
+        var regex = '&quot;';
+        var str5 = new String(inputString);
+
+        while (str5.indexOf(regex) != -1) {
+            str5 = str5.replace(regex, '\"');
+        }
+
+        return str5;
+    }
+
+    function initValue() {
+        document.getElementById("div_apcli_enable").style.visibility = "hidden";
+        document.getElementById("div_apcli_enable").style.display = "none";
+        document.wireless_apcli_setup.apcli_ssid.disabled = true;
+        document.wireless_apcli_setup.apcli_bssid.disabled = true;
+        document.wireless_apcli_setup.apcli_s_mode.disabled = true;
+        document.getElementById("div_apcli_wep").style.visibility = "hidden";
+        document.getElementById("div_apcli_wep").style.display = "none";
+        document.wireless_apcli_setup.apcli_wep_auth_mode.disabled = true;
+        document.wireless_apcli_setup.apcli_wep_key_length.disabled = true;
+        document.wireless_apcli_setup.apcli_wep_key_method.disabled = true;
+        document.wireless_apcli_setup.apcli_wep_key_1.disabled = true;
+        document.wireless_apcli_setup.apcli_wep_key_2.disabled = true;
+        document.wireless_apcli_setup.apcli_wep_key_3.disabled = true;
+        document.wireless_apcli_setup.apcli_wep_key_4.disabled = true;
+        document.wireless_apcli_setup.apcli_wep_default_key.disabled = true;
+        document.getElementById("div_apcli_wpa").style.visibility = "hidden";
+        document.getElementById("div_apcli_wpa").style.display = "none";
+        document.wireless_apcli_setup.apcli_wpa_auth_mode.disabled = true;
+        document.wireless_apcli_setup.apcli_wpa_cipher.disabled = true;
+        document.wireless_apcli_setup.apcli_passphrase.disabled = true;
+
+        document.wireless_apcli_setup.apcli_wep_key_1.value = apcliwepkey1;
+        document.wireless_apcli_setup.apcli_wep_key_2.value = apcliwepkey2;
+        document.wireless_apcli_setup.apcli_wep_key_3.value = apcliwepkey3;
+        document.wireless_apcli_setup.apcli_wep_key_4.value = apcliwepkey4;
+        document.wireless_apcli_setup.apcli_passphrase.value = apcliwpakey;
+
+
+        if (1 * apclienable == 1) {
+            document.getElementById("div_apcli_enable").style.visibility = "visible";
+            document.getElementById("div_apcli_enable").style.display = "";
+            document.wireless_apcli_setup.apcli_ssid.disabled = false;
+            document.wireless_apcli_setup.apcli_bssid.disabled = false;
+            document.wireless_apcli_setup.apcli_s_mode.disabled = false;
+            document.wireless_apcli_setup.apcli_enable.value = 1;
+            document.getElementById("select_apcli_enable").value = 'Enable';
+
+            if (apclissid != '')
+                document.wireless_apcli_setup.apcli_ssid.value = ReplaceAll(apclissid);
+
+            if (1 * apclichn_index != 0)
+                document.wireless_apcli_setup.apcli_channel.options.selectedIndex = apclichn_index;
+            // <!-- Only when ApCliAutoConnect is enabled can index zero be selected -->
+
+            if (1 * apcliautoconnect == 1)
+            {
+                document.wireless_apcli_setup.apcli_channel.options.selectedIndex = 0;
+            }
+
+            console.log(apcliencryptype)
+
+            if (apcliencryptype == 'NONE')
+            {
+                document.getElementById('select_apcli_s_mode').value = 'Disable';
+                console.log(apcliencryptype)
+            } 
+            else if (apcliencryptype == 'WEP')
+            {
+                // <!-- WEP -->
+                document.getElementById('select_apcli_s_mode').value = 'WEP';
+                document.getElementById("div_apcli_wep").style.visibility = "visible";
+                document.getElementById("div_apcli_wep").style.display = "";
+                document.wireless_apcli_setup.apcli_wep_auth_mode.disabled = false;
+                document.wireless_apcli_setup.apcli_wep_key_length.disabled = false;
+                document.wireless_apcli_setup.apcli_wep_key_method.disabled = false;
+                document.wireless_apcli_setup.apcli_wep_key_1.disabled = false;
+                document.wireless_apcli_setup.apcli_wep_key_2.disabled = false;
+                document.wireless_apcli_setup.apcli_wep_key_3.disabled = false;
+                document.wireless_apcli_setup.apcli_wep_key_4.disabled = false;
+                document.wireless_apcli_setup.apcli_wep_default_key.disabled = false;
+
+                if (apcliauth == 'OPEN')
+                    document.wireless_apcli_setup.apcli_wep_auth_mode.options.selectedIndex = 0;
+                else
+                    document.wireless_apcli_setup.apcli_wep_auth_mode.options.selectedIndex = 1;
+
+                if (1 * apcliwepkeytype == 0)
+                    document.wireless_apcli_setup.apcli_wep_key_method.options.selectedIndex = 0;
+                else
+                    document.wireless_apcli_setup.apcli_wep_key_method.options.selectedIndex = 1;
+
+                if (1 * apcliwepdefaultKey == 1)
+                    document.wireless_apcli_setup.apcli_wep_default_key.options.selectedIndex = 0;
+                else if (1 * apcliwepdefaultKey == 2)
+                    document.wireless_apcli_setup.apcli_wep_default_key.options.selectedIndex = 1;
+                else if (1 * apcliwepdefaultKey == 3)
+                    document.wireless_apcli_setup.apcli_wep_default_key.options.selectedIndex = 2;
+                else if (1 * apcliwepdefaultKey == 4)
+                    document.wireless_apcli_setup.apcli_wep_default_key.options.selectedIndex = 3;
+
+                if (apcliwepkey1 != "") {
+                    if ((document.wireless_apcli_setup.apcli_wep_key_1.value.length == 5) || (document.wireless_apcli_setup.apcli_wep_key_1.value.length == 10))
+                        document.wireless_apcli_setup.apcli_wep_key_length.options.selectedIndex = 0;
+                    else
+                        document.wireless_apcli_setup.apcli_wep_key_length.options.selectedIndex = 1;
+                }
+
+                if (apcliwepkey2 != "") {
+                    if ((document.wireless_apcli_setup.apcli_wep_key_2.value.length == 5) || (document.wireless_apcli_setup.apcli_wep_key_2.value.length == 10))
+                        document.wireless_apcli_setup.apcli_wep_key_length.options.selectedIndex = 0;
+                    else
+                        document.wireless_apcli_setup.apcli_wep_key_length.options.selectedIndex = 1;
+                }
+
+                if (apcliwepkey3 != "") {
+                    if ((document.wireless_apcli_setup.apcli_wep_key_3.value.length == 5) || (document.wireless_apcli_setup.apcli_wep_key_3.value.length == 10))
+                        document.wireless_apcli_setup.apcli_wep_key_length.options.selectedIndex = 0;
+                    else
+                        document.wireless_apcli_setup.apcli_wep_key_length.options.selectedIndex = 1;
+                }
+
+                if (apcliwepkey4 != "") {
+                    if ((document.wireless_apcli_setup.apcli_wep_key_4.value.length == 5) || (document.wireless_apcli_setup.apcli_wep_key_4.value.length == 10))
+                        document.wireless_apcli_setup.apcli_wep_key_length.options.selectedIndex = 0;
+                    else
+                        document.wireless_apcli_setup.apcli_wep_key_length.options.selectedIndex = 1;
+                }
+
+                APClientWepKeyLengthOnChange();
+
+                document.wireless_apcli_setup.apcli_wep_key_1.value = apcliwepkey1;
+                document.wireless_apcli_setup.apcli_wep_key_2.value = apcliwepkey2;
+                document.wireless_apcli_setup.apcli_wep_key_3.value = apcliwepkey3;
+                document.wireless_apcli_setup.apcli_wep_key_4.value = apcliwepkey4;
+            } else if ((apcliencryptype == "TKIP") || (apcliencryptype == "AES")) {
+                // <!-- WPA-PSK,WPA2-PSK -->
+                document.getElementById('select_apcli_s_mode').value = 'WPA';
+                document.getElementById("div_apcli_wpa").style.visibility = "visible";
+                document.getElementById("div_apcli_wpa").style.display = "";
+                document.wireless_apcli_setup.apcli_wpa_auth_mode.disabled = false;
+                document.wireless_apcli_setup.apcli_wpa_cipher.disabled = false;
+                document.wireless_apcli_setup.apcli_passphrase.disabled = false;
+
+                if (apcliauth == 'WPAPSK')
+                    document.wireless_apcli_setup.apcli_wpa_auth_mode.options.selectedIndex = 0;
+                else
+                    document.wireless_apcli_setup.apcli_wpa_auth_mode.options.selectedIndex = 1;
+
+                if (apcliencryptype == "TKIP")
+                    document.wireless_apcli_setup.apcli_wpa_cipher[0].checked = true;
+                else
+                    document.wireless_apcli_setup.apcli_wpa_cipher[1].checked = true;
+            }
+            scan();
+        }
+        else
+        {
+            document.wireless_apcli_setup.apcli_enable.value = 0;
+            document.getElementById("select_apcli_enable").value = 'Disable';
+            // 初始化时，中继关闭时，扫描按钮隐藏
+            document.getElementById("scanBtn").style.display = "none";
+            // 默认中继为关闭状态
+            document.getElementById('select_apcli_s_mode').value = 'Disable';
+        }
+    }
+    //中继开关
+    var APClientPower = function(str) {
+        var ele = document.getElementById('select_apcli_enable');
+        if (str == '0') {
+            ele.value = 'Disable';
+            document.wireless_apcli_setup.apcli_enable.value = 0;
+            document.getElementById("div_apcli_enable").style.visibility = "hidden";
+            document.getElementById("div_apcli_enable").style.display = "none";
+            document.wireless_apcli_setup.apcli_ssid.disabled = true;
+            document.wireless_apcli_setup.apcli_bssid.disabled = true;
+            document.wireless_apcli_setup.apcli_s_mode.disabled = true;
+            document.getElementById("div_apcli_wep").style.visibility = "hidden";
+            document.getElementById("div_apcli_wep").style.display = "none";
+            document.wireless_apcli_setup.apcli_wep_auth_mode.disabled = true;
+            document.wireless_apcli_setup.apcli_wep_key_length.disabled = true;
+            document.wireless_apcli_setup.apcli_wep_key_method.disabled = true;
+            document.wireless_apcli_setup.apcli_wep_key_1.disabled = true;
+            document.wireless_apcli_setup.apcli_wep_key_2.disabled = true;
+            document.wireless_apcli_setup.apcli_wep_key_3.disabled = true;
+            document.wireless_apcli_setup.apcli_wep_key_4.disabled = true;
+            document.wireless_apcli_setup.apcli_wep_default_key.disabled = true;
+            document.getElementById("div_apcli_wpa").style.visibility = "hidden";
+            document.getElementById("div_apcli_wpa").style.display = "none";
+            document.wireless_apcli_setup.apcli_wpa_auth_mode.disabled = true;
+            document.wireless_apcli_setup.apcli_wpa_cipher.disabled = true;
+            document.wireless_apcli_setup.apcli_passphrase.disabled = true;
+            //中继扫描按钮隐藏 
+            document.getElementById("scanBtn").style.display = "none";
+            // 中继关闭时运行模式为桥模式
+            document.wireless_apcli_setup.opmode.value = '1';
+        } else if (str == '1') {
+            ele.value = 'Enable';
+            document.wireless_apcli_setup.apcli_enable.value = 1;
+            document.getElementById("div_apcli_enable").style.visibility = "visible";
+            document.getElementById("div_apcli_enable").style.display = "";
+            document.wireless_apcli_setup.apcli_ssid.disabled = false;
+            document.wireless_apcli_setup.apcli_bssid.disabled = false;
+            document.wireless_apcli_setup.apcli_s_mode.disabled = false;
+            //中继扫描按钮出现 
+            document.getElementById("scanBtn").style.display = "";
+            // 中继开启时运行模式为中继模式
+            document.wireless_apcli_setup.opmode.value = '2';
+            APClientSecurityOnChange();
+        }
+    };
+    //<!-- 中继开关结束 -->
+    //<!-- 选择中继加密方式 -->
+    var APClientSecurity = function(str) {
+        var ele = document.getElementById('select_apcli_s_mode');
+        if (str == '0') {
+            ele.value = 'Disable';
+            document.wireless_apcli_setup.apcli_s_mode.value = 0;
+            APClientSecurityOnChange()
+        } else if (str == '1') {
+            ele.value = 'WEP';
+            document.wireless_apcli_setup.apcli_s_mode.value = 1;
+            APClientSecurityOnChange()
+        } else if (str == '2') {
+            ele.value = 'WPA';
+            document.wireless_apcli_setup.apcli_s_mode.value = 2;
+            APClientSecurityOnChange()
+        }
+    };
+    // <!-- end -->
+    function APClientSecurityOnChange() {
+        // WEP
+        document.getElementById("div_apcli_wep").style.visibility = "hidden";
+        document.getElementById("div_apcli_wep").style.display = "none";
+        document.wireless_apcli_setup.apcli_wep_auth_mode.disabled = true;
+        document.wireless_apcli_setup.apcli_wep_key_length.disabled = true;
+        document.wireless_apcli_setup.apcli_wep_key_method.disabled = true;
+        document.wireless_apcli_setup.apcli_wep_key_1.disabled = true;
+        document.wireless_apcli_setup.apcli_wep_key_2.disabled = true;
+        document.wireless_apcli_setup.apcli_wep_key_3.disabled = true;
+        document.wireless_apcli_setup.apcli_wep_key_4.disabled = true;
+        document.wireless_apcli_setup.apcli_wep_default_key.disabled = true;
+        // WPA
+        document.getElementById("div_apcli_wpa").style.visibility = "hidden";
+        document.getElementById("div_apcli_wpa").style.display = "none";
+        document.wireless_apcli_setup.apcli_wpa_auth_mode.disabled = true;
+        document.wireless_apcli_setup.apcli_wpa_cipher.disabled = true;
+        document.wireless_apcli_setup.apcli_passphrase.disabled = true;
+
+        if (document.getElementById('select_apcli_s_mode').value == 'WEP') {
+            // <!-- WEP -->
+            document.wireless_apcli_setup.apcli_s_mode.value = 1;
+            document.getElementById("div_apcli_wep").style.visibility = "visible";
+            document.getElementById("div_apcli_wep").style.display = "";
+            document.wireless_apcli_setup.apcli_wep_auth_mode.disabled = false;
+            document.wireless_apcli_setup.apcli_wep_key_length.disabled = false;
+            document.wireless_apcli_setup.apcli_wep_key_method.disabled = false;
+            document.wireless_apcli_setup.apcli_wep_key_1.disabled = false;
+            document.wireless_apcli_setup.apcli_wep_key_2.disabled = false;
+            document.wireless_apcli_setup.apcli_wep_key_3.disabled = false;
+            document.wireless_apcli_setup.apcli_wep_key_4.disabled = false;
+            document.wireless_apcli_setup.apcli_wep_default_key.disabled = false;
+
+            APClientWepKeyLengthOnChange();
+        } else if (document.getElementById('select_apcli_s_mode').value == 'WPA') {
+            // <!-- WPA-PSK,WPA2-PSK -->
+            document.wireless_apcli_setup.apcli_s_mode.value = 2;
+            document.getElementById("div_apcli_wpa").style.visibility = "visible";
+            document.getElementById("div_apcli_wpa").style.display = "";
+            document.wireless_apcli_setup.apcli_wpa_auth_mode.disabled = false;
+            document.wireless_apcli_setup.apcli_wpa_cipher.disabled = false;
+            document.wireless_apcli_setup.apcli_passphrase.disabled = false;
+        }
+    }
+
+    function APClientWepKeyLengthOnChange() {
+        document.wireless_apcli_setup.apcli_wep_key_1.value = '';
+        document.wireless_apcli_setup.apcli_wep_key_2.value = '';
+        document.wireless_apcli_setup.apcli_wep_key_3.value = '';
+        document.wireless_apcli_setup.apcli_wep_key_4.value = '';
+
+        if (document.wireless_apcli_setup.apcli_wep_key_length.options.selectedIndex == 0) {
+            // <!-- KEY length 64 bits -->
+            if (document.wireless_apcli_setup.apcli_wep_key_method.options.selectedIndex == 0) {
+                // <!-- HEX -->
+                document.wireless_apcli_setup.apcli_wep_key_1.maxLength = 10;
+                document.wireless_apcli_setup.apcli_wep_key_2.maxLength = 10;
+                document.wireless_apcli_setup.apcli_wep_key_3.maxLength = 10;
+                document.wireless_apcli_setup.apcli_wep_key_4.maxLength = 10;
+            } else {
+                // <!-- ASCII -->
+                document.wireless_apcli_setup.apcli_wep_key_1.maxLength = 5;
+                document.wireless_apcli_setup.apcli_wep_key_2.maxLength = 5;
+                document.wireless_apcli_setup.apcli_wep_key_3.maxLength = 5;
+                document.wireless_apcli_setup.apcli_wep_key_4.maxLength = 5;
+            }
+        } else {
+            // <!-- KEY length 128 bits -->
+            if (document.wireless_apcli_setup.apcli_wep_key_method.options.selectedIndex == 0) {
+                // <!-- HEX -->
+                document.wireless_apcli_setup.apcli_wep_key_1.maxLength = 26;
+                document.wireless_apcli_setup.apcli_wep_key_2.maxLength = 26;
+                document.wireless_apcli_setup.apcli_wep_key_3.maxLength = 26;
+                document.wireless_apcli_setup.apcli_wep_key_4.maxLength = 26;
+            } else {
+                // <!-- ASCII -->
+                document.wireless_apcli_setup.apcli_wep_key_1.maxLength = 13;
+                document.wireless_apcli_setup.apcli_wep_key_2.maxLength = 13;
+                document.wireless_apcli_setup.apcli_wep_key_3.maxLength = 13;
+                document.wireless_apcli_setup.apcli_wep_key_4.maxLength = 13;
+            }
+        }
+    }
+
+    function Apply() {
+        var wpapsk_length = document.wireless_apcli_setup.apcli_passphrase.value.length;
+        var wpapsk_value = document.wireless_apcli_setup.apcli_passphrase.value;
+        // var IfmodeChange = 0;
+        var apclientValue;
+
+        if (CheckMAC() == false)
+        //return false;
+            return;
+
+        // if (apclienable != wireless_apcli_setup.apcli_enable.value) {
+        //     IfmodeChange = 1;
+        // }
+
+        if (document.wireless_apcli_setup.apcli_channel.options.selectedIndex == 0) {
+            document.wireless_apcli_setup.apcli_autoconnect.value = 1;
+            //<! -- Channel stay unchanged -->
+            document.wireless_apcli_setup.apcli_channel.options.selectedIndex = apclichn_index;
+        } else {
+            document.wireless_apcli_setup.apcli_autoconnect.value = 0;
+        }
+
+        if (document.wireless_apcli_setup.apcli_s_mode.value == 1) {
+            if (document.wireless_apcli_setup.apcli_wep_key_length.options.selectedIndex == 0) {
+                // <!-- KEY length 64 bits -->
+                if (document.wireless_apcli_setup.apcli_wep_key_method.options.selectedIndex == 0) {
+                    // <!-- HEX -->
+                    for (i = 1; i <= 4; i++) {
+                        if (eval("document.wireless_apcli_setup.apcli_wep_key_" + i).value != "") {
+                            if (eval("document.wireless_apcli_setup.apcli_wep_key_" + i).value.length != 10) {
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).focus();
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).select();
+                                alert('The encryption key should be Hexadecimal digits and 10 characters.');
+                                //return false;
+                                return;
+                            } else {
+                                if (CheckHex('apcli_wep_key_', i, 10) == false) {
+                                    eval("document.wireless_apcli_setup.apcli_wep_key_" + i).focus();
+                                    eval("document.wireless_apcli_setup.apcli_wep_key_" + i).select();
+                                    alert('The encryption key should be Hexadecimal digits and 10 characters.');
+                                    //return false; 
+                                    return;
+                                }
+                            }
+                        } else {
+                            if ((1 * document.wireless_apcli_setup.apcli_wep_default_key.options.selectedIndex + 1) == i) {
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).focus();
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).select();
+                                alert('The encryption key should be Hexadecimal digits and 10 characters.');
+                                //return false; 
+                                return;
+                            }
+                        }
+                    }
+                } else if (document.wireless_apcli_setup.apcli_wep_key_method.options.selectedIndex == 1) {
+                    // <!-- ASCII -->
+                    for (i = 1; i <= 4; i++) {
+                        if (eval("document.wireless_apcli_setup.apcli_wep_key_" + i).value != "") {
+                            if (eval("document.wireless_apcli_setup.apcli_wep_key_" + i).value.length != 5) {
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).focus();
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).select();
+                                alert('The WEP key should be Alphanumeric and 5 characters.');
+                                //return false;
+                                return;
+                            }
+                        } else {
+                            if ((1 * document.wireless_apcli_setup.apcli_wep_default_key.options.selectedIndex + 1) == i) {
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).focus();
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).select();
+                                alert('The WEP key should be Alphanumeric and 5 characters.');
+                                //return false; 
+                                return;
+                            }
+                        }
+                    }
+                }
+            } else if (document.wireless_apcli_setup.apcli_wep_key_length.options.selectedIndex == 1) {
+                // <!-- KEY length 128 bits -->
+                if (document.wireless_apcli_setup.apcli_wep_key_method.options.selectedIndex == 0) {
+                    // <!-- HEX -->
+                    for (i = 1; i <= 4; i++) {
+                        if (eval("document.wireless_apcli_setup.apcli_wep_key_" + i).value != "") {
+                            if (eval("document.wireless_apcli_setup.apcli_wep_key_" + i).value.length != 26) {
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).focus();
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).select();
+                                alert('The encryption key should be Hexadecimal digits and 26 characters.');
+                                //return false;
+                                return;
+                            } else {
+                                if (CheckHex('apcli_wep_key_', i, 26) == false) {
+                                    eval("document.wireless_apcli_setup.apcli_wep_key_" + i).focus();
+                                    eval("document.wireless_apcli_setup.apcli_wep_key_" + i).select();
+                                    alert('The encryption key should be Hexadecimal digits and 26 characters.');
+                                    //return false;
+                                    return;
+                                }
+                            }
+                        } else {
+                            if ((1 * document.wireless_apcli_setup.apcli_wep_default_key.options.selectedIndex + 1) == i) {
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).focus();
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).select();
+                                alert('The encryption key should be Hexadecimal digits and 26 characters.');
+                                //return false; 
+                                return;
+                            }
+                        }
+                    }
+                } else if (document.wireless_apcli_setup.apcli_wep_key_method.options.selectedIndex == 1) {
+                    // <!-- ASCII -->
+                    for (i = 1; i <= 4; i++) {
+                        if (eval("document.wireless_apcli_setup.apcli_wep_key_" + i).value != "") {
+                            if (eval("document.wireless_apcli_setup.apcli_wep_key_" + i).value.length != 13) {
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).focus();
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).select();
+                                alert('The WEP key should be Alphanumeric and 13 characters.');
+                                //return false;
+                                return;
+                            }
+                        } else {
+                            if ((1 * document.wireless_apcli_setup.apcli_wep_default_key.options.selectedIndex + 1) == i) {
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).focus();
+                                eval("document.wireless_apcli_setup.apcli_wep_key_" + i).select();
+                                alert('The WEP key should be Alphanumeric and 13 characters.');
+                                //return false; 
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (document.wireless_apcli_setup.apcli_s_mode.value == 2) {
+            if ((1 * wpapsk_length < 8) || (1 * wpapsk_length > 64)) {
+                document.wireless_apcli_setup.apcli_passphrase.focus();
+                document.wireless_apcli_setup.apcli_passphrase.select();
+                alert('The entered Pre-Shared Key is invalid. Enter a valid Pre-Shared Key of between 8 to 63 alphanumeric characters or 64 hexadecimal characters. (0-9, a-f and A-F)');
+                //return false;
+                return;
+            }
+
+            if (1 * wpapsk_length == 64) {
+                for (i = 0; i < 64; i++) {
+                    if (isNaN(parseInt(wpapsk_value.charAt(i), 16))) {
+                        document.wireless_apcli_setup.apcli_passphrase.focus();
+                        document.wireless_apcli_setup.apcli_passphrase.select();
+                        alert('The entered Pre-Shared Key is invalid. Enter a valid Pre-Shared Key of between 8 to 63 alphanumeric characters or 64 hexadecimal characters. (0-9, a-f and A-F)');
+                        //return false;
+                        return;
+                    }
+                }
+            }
+        }
+
+        apcliencryptype_s = '';
+        apcliauth_s = '';
+        if (document.wireless_apcli_setup.apcli_s_mode.value == 0) {
+            apcliencryptype_s = 'NONE';
+            apcliauth_s = 'OPEN';
+        } else if (document.wireless_apcli_setup.apcli_s_mode.value == 1) {
+            apcliencryptype_s = 'WEP';
+            if (document.wireless_apcli_setup.apcli_wep_auth_mode.options.selectedIndex == 0)
+                apcliauth_s = 'OPEN';
+            else if (document.wireless_apcli_setup.apcli_wep_auth_mode.options.selectedIndex == 1)
+                apcliauth_s = 'SHARED';
+        } else if (document.wireless_apcli_setup.apcli_s_mode.value == 2) {
+            if (document.wireless_apcli_setup.apcli_wpa_cipher[0].checked == true)
+                apcliencryptype_s = 'TKIP';
+            else if (document.wireless_apcli_setup.apcli_wpa_cipher[1].checked == true)
+                apcliencryptype_s = 'AES';
+
+            if (document.wireless_apcli_setup.apcli_wpa_auth_mode.options.selectedIndex == 0)
+                apcliauth_s = 'WPAPSK';
+            else if (document.wireless_apcli_setup.apcli_wpa_auth_mode.options.selectedIndex == 1)
+                apcliauth_s = 'WPA2PSK';
+        }
+        document.wireless_apcli_setup.apcliencryptype2.value = apcliencryptype_s;
+        document.wireless_apcli_setup.apcliauth2.value = apcliauth_s;
+
+
+        if (document.wireless_apcli_setup.apcli_wep_default_key.options.selectedIndex == 0)
+            document.wireless_apcli_setup.ApCliDefaultKeyID2.value = 1;
+        else if (document.wireless_apcli_setup.apcli_wep_default_key.options.selectedIndex == 1)
+            document.wireless_apcli_setup.ApCliDefaultKeyID2.value = 2;
+        else if (document.wireless_apcli_setup.apcli_wep_default_key.options.selectedIndex == 2)
+            document.wireless_apcli_setup.ApCliDefaultKeyID2.value = 3;
+        else if (document.wireless_apcli_setup.apcli_wep_default_key.options.selectedIndex == 3)
+            document.wireless_apcli_setup.ApCliDefaultKeyID2.value = 4;
+
+        if (document.wireless_apcli_setup.apcli_wep_key_method.options.selectedIndex == 0) {
+            document.wireless_apcli_setup.ApCliKey2Type2.value = 0;
+            document.wireless_apcli_setup.ApCliKey3Type2.value = 0;
+            document.wireless_apcli_setup.ApCliKey4Type2.value = 0;
+        } else {
+            document.wireless_apcli_setup.ApCliKey2Type2.value = 1;
+            document.wireless_apcli_setup.ApCliKey3Type2.value = 1;
+            document.wireless_apcli_setup.ApCliKey4Type2.value = 1;
+        }
+
+        var f = document.wireless_apcli_setup;
+        form2Cfg(f);
+
+        // if (IfmodeChange)
+        //     subForm(f, 'do_cmd.htm', 'LAN', cPage);
+        // else
+            // subForm(f, 'do_cmd.htm', 'wireless_apcli_setup', cPage);
+        subForm(f, 'do_cmd.htm', 'wireless_apcli_setup', cPage);
+
+        return true;
+    }
+    </script>
+</head>
+<link rel="stylesheet" type="text/css" href="css/style.css">
+
+<body onload="initValue()">
+    <script>
+    pageHead();
+    </script>
+    <form method="get" name="wireless_apcli_setup" action="wireless_apcli_setup.html" onSubmit="Apply()">
+        <input type="hidden" name="apcliencryptype2">
+        <input type="hidden" name="apcliauth2">
+        <input type="hidden" name="ApCliDefaultKeyID2">
+        <input type="hidden" name="ApCliKey2Type2">
+        <input type="hidden" name="ApCliKey3Type2">
+        <input type="hidden" name="ApCliKey4Type2">
+        <input type="hidden" name="opmode" value="2">
+
+        <div class="title">
+            <label>AP-Client Configuration Setup</label>
+        </div>
+        <div class="input-group dropdown">
+            <label class="suffix"></label>
+            <input type="text" id="select_apcli_enable">
+            <label for="">APCli Function</label>
+            <input type="hidden" name="apcli_enable">
+            <ul class="dropdown-list">
+                <li value="0" onClick="APClientPower('0')">
+                    Disable
+                </li>
+                <li value="1" onClick="APClientPower('1')">
+                    Enable
+                </li>
+            </ul>
+        </div>
+        <!-- start -->
+        <div id="div_apcli_enable" name="div_apcli_enable" style="visibility:visible;display:;margin-top:20px;">
+            <div class="input-group">
+                <input type="text" name="apcli_ssid" value="">
+                <label for="">Network Name(SSID)</label>
+            </div>
+            <div class="input-group" style="display:none;">
+                <input type="text" name="apcli_bssid" value="<% CGI_WLN_APCLIENT_BSSID();%>">
+                <label for="">BSSID</label>
+            </div>
+            <!-- 信道选择，调整默认为自动选择然后隐藏 -->
+            <div style="display:none">
+                <select name="apcli_channel">
+                    <option value=0 selected>AutoSeek</option>
+                    <!-- <% CGI_GET_WLN_11G_CHN_LIST(); %> -->
+                </select>
+                <input type="hidden" name="apcli_autoconnect">
+            </div>
+            <div class="input-group dropdown">
+                <label class="suffix"></label>
+                <input type="text" id="select_apcli_s_mode">
+                <label for="">Security Mode</label>
+                <input type="hidden" name="apcli_s_mode">
+                <ul class="dropdown-list">
+                    <li value="0" onClick="APClientSecurity('0')">
+                        Disable
+                    </li>
+                    <li style="display:none;" value="1" onClick="APClientSecurity('1')">
+                        WEP
+                    </li>
+                    <li value="2" onClick="APClientSecurity('2')">
+                        WPA
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- end -->
+        <br>
+        <table id="div_apcli_wep" name="div_apcli_wep" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD" style="visibility:hidden;display:none;">
+            <tr>
+                <td bgcolor="#B7DCFB" colspan="3">
+                    <font color="#333333"><b>Wire Equivalence Protection (WEP)</b></font>
+                </td>
+            </tr>
+            <tr>
+                <td width="45%" colspan="2" bgcolor="#E8F8FF" nowrap>Authentication Type</td>
+                <td bgcolor="#FFFFFF">
+                    <select name="apcli_wep_auth_mode" size="1" style="{font-family:arial; width:120px; color:#003366; font-weight: bold; font-size: 9pt;}">
+                        <option value=0 selected>Open System</option>
+                        <option value=1>Shared Key</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td width="45%" colspan="2" bgcolor="#E8F8FF" nowrap>WEP Key Length</td>
+                <td bgcolor="#FFFFFF">
+                    <select name="apcli_wep_key_length" size="1" style="{font-family:arial; width:240px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="APClientWepKeyLengthOnChange()">
+                        <option value=0 selected>64 bit (10 hex digits/ 5 ascii keys)</option>
+                        <option value=1>128 bit (26 hex digits/13 ascii keys)</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td width="45%" colspan="2" bgcolor="#E8F8FF" nowrap>WEP Key Entry Method</td>
+                <td bgcolor="#FFFFFF">
+                    <select name="apcli_wep_key_method" size="1" style="{font-family:arial; width:120px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="APClientWepKeyLengthOnChange()">
+                        <option value=0 selected>Hexadecimal</option>
+                        <option value=1>Ascii Text</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td width="25%" rowspan="4" bgcolor="#E8F8FF" nowrap>WEP Keys</td>
+                <td width="20%" bgcolor="#E8F8FF" align="center" nowrap>WEP Key 1 :</td>
+                <td bgcolor="#FFFFFF">
+                    <input type=text name=apcli_wep_key_1 maxlength=26 value="">
+                </td>
+            </tr>
+            <tr>
+                <td width="20%" bgcolor="#E8F8FF" align="center" nowrap>WEP Key 2 : </td>
+                <td bgcolor="#FFFFFF">
+                    <input type=text name=apcli_wep_key_2 maxlength=26 value="">
+                </td>
+            </tr>
+            <tr>
+                <td width="20%" bgcolor="#E8F8FF" align="center" nowrap>WEP Key 3 : </td>
+                <td bgcolor="#FFFFFF">
+                    <input type=text name=apcli_wep_key_3 maxlength=26 value="">
+                </td>
+            </tr>
+            <tr>
+                <td width="20%" bgcolor="#E8F8FF" align="center" nowrap>WEP Key 4 : </td>
+                <td bgcolor="#FFFFFF">
+                    <input type=text name=apcli_wep_key_4 maxlength=26 value="">
+                </td>
+            </tr>
+            <tr>
+                <td width="45%" colspan="2" bgcolor="#E8F8FF" nowrap>Default Key</td>
+                <td bgcolor="#FFFFFF">
+                    <select name="apcli_wep_default_key" size="1" style="{font-family:arial; width:120px; color:#003366; font-weight: bold; font-size: 9pt;}">
+                        <option value=1 selected>Key 1</option>
+                        <option value=2>Key 2</option>
+                        <option value=3>Key 3</option>
+                        <option value=4>Key 4</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+        <div id="div_apcli_wpa" name="div_apcli_wpa" style="visibility:visible;display:;">
+            <!-- WPAPSK/WPA2PSK选择，默认选择的是WPA2PSK，不显示 -->
+            <div style="display:none">
+                <select name="apcli_wpa_auth_mode">
+                    <option value=0>WPA1PSK</option>  
+                    <option value=1 selected>WPA2PSK</option>
+                </select>
+            </div>
+            <!-- TKIP/AES选择，默认选择AES,不显示 -->
+            <div style="display:none">
+                <input type=radio name=apcli_wpa_cipher value="0">TKIP &nbsp;
+                <input type=radio name=apcli_wpa_cipher value="1" checked>AES &nbsp;
+            </div>
+            <div class="input-group">
+                <input type="text" name="apcli_passphrase" value="">
+                <label for="">Password</label>
+            </div>
+        </div>
+        <br>
+    </form>
+    <script>
+    pageButton();
+    </script>
+    <!-- 这部分为中继扫描部分 -->
+    <input type="button" value="scan" onclick="scan()" class="btn" id="scanBtn">
+    <iframe name="_scanDate" style="display:none"></iframe>
+    <form method="POST" target="_scanDate" name="wireless_apcli_scan" action="do_cmd.htm" onSubmit="return scan()" enctype="multipart/form-data">
+        <input type="hidden" name="CMD" value="WIRELESS_SITESURVEY">
+        <input type="hidden" name="GO" value="wireless_apcli_setup.html">
+    </form>
+    <form id="wireless_apcli_data" style="margin-top:40px;"></form>
+    <!-- 扫描结束 -->
+    <script>pageTail();</script>
+</body>
+
+</html>
+<script type="text/javascript">
+function scan() {
+    var responseText;
+    var formScan = document.wireless_apcli_scan;
+    formScan.submit();
+    setTimeout(jsonData, 3000);
+}
+
+function jsonData() {
+    var responseText = document.getElementsByName('_scanDate')[0].contentWindow.document.body.innerHTML;
+    var obj = eval(responseText);
+    //var obj = JSON.parse(responseText);
+      // console.log(obj)
+    var jsonTable = "<table class='table' cellspacing=0 cellpadding=0><tr>";
+    	jsonTable += "<th width='30%'>SSID</th>";
+    	jsonTable += "<th width='20%'>bssid</th>";
+    	jsonTable += "<th width='30%'>security</th>";
+    	jsonTable += "<th width='10%'>signal</th>";
+    	jsonTable += "<th width='10%'>edit</th>";
+    	jsonTable += "</tr>";
+    for (var i = 0; i < obj.length; i++) {
+        jsonTable += "<tr>";
+	if(/^0x/.test(obj[i].ssid)){
+	    var spile_ssid = prePro(obj[i].ssid);
+            //console.log(spile_ssid);
+	    //var ssid_name = decodeURI(spile_ssid);
+            try
+	      {
+		var ssid_name = decodeURI(spile_ssid);
+		jsonTable += "<td>" + ssid_name + "</td>";
+	      }
+	    catch(e){
+                console.log(e.name + ':' + e.message);
+                jsonTable += "<td>" + obj[i].ssid + "</td>";
+              }   		
+	}
+	else{
+            jsonTable += "<td>" + obj[i].ssid + "</td>";
+	}	
+        jsonTable += "<td>" + obj[i].bssid + "</td>";
+        jsonTable += "<td>" + obj[i].security + "</td>";
+        jsonTable += "<td>" + obj[i].signal + "</td>";
+        jsonTable += "<td><input type='button' class='scanConnect' name='inputRadio' value='connect'\
+ onClick=checkRadio('" + obj[i].ssid + "','" + obj[i].security + "')></td>";
+        jsonTable += "</tr>";
+    }
+    jsonTable += "</table>";
+    document.getElementById("wireless_apcli_data").innerHTML = jsonTable;
+}
+function prePro(data)
+{
+	if (data.length % 2) return '';
+	var tmp='';
+	
+	for(i=0;i<data.length;i+=2)
+	{
+		tmp += '%' + data.charAt(i) + data.charAt(i+1);
+		
+	}
+	var objdata = tmp.substring(3);
+	return objdata;
+}
+function checkRadio(ssid,security)
+{
+
+	if(/^0x/.test(ssid))
+        {
+            var textSSID = prePro(ssid);
+            try
+            {
+                var newSSID = decodeURI(textSSID);        
+	            document.wireless_apcli_setup.apcli_ssid.value = newSSID;
+                console.log(newSSID);
+            }
+            catch(e)
+            {
+                document.wireless_apcli_setup.apcli_ssid.value = ssid;
+            }
+        }
+    else
+    {
+	    document.wireless_apcli_setup.apcli_ssid.value = ssid;
+    }
+    if(security.indexOf("WPAPSK") >= 0)
+    {   
+         document.getElementById("select_apcli_s_mode").value = 'WPA';
+         APClientSecurityOnChange();
+         document.wireless_apcli_setup.apcli_wpa_auth_mode.options.selectedIndex = 0;
+    }
+    else if(security.indexOf("WPA1PSK") >= 0 && security.indexOf("WPA2PSK") >= 0)
+    {
+        document.getElementById("select_apcli_s_mode").value = 'WPA';
+        APClientSecurityOnChange();
+    }
+    else if(security.indexOf("WPA1PSK") >= 0 && security.indexOf("WPA2PSK") == -1)
+    {
+        document.getElementById("select_apcli_s_mode").value = 'WPA';
+        APClientSecurityOnChange();
+        document.wireless_apcli_setup.apcli_wpa_auth_mode.options.selectedIndex = 0;
+    }
+    else if(security.indexOf("WPA1PSK") == -1 && security.indexOf("WPA2PSK") >= 0)
+    {
+        document.getElementById("select_apcli_s_mode").value = 'WPA';
+        APClientSecurityOnChange();
+        document.wireless_apcli_setup.apcli_wpa_auth_mode.options.selectedIndex = 1;
+    }
+     else if(security.indexOf("NONE") >= 0)
+    {
+        document.getElementById("select_apcli_s_mode").value = 'Disable';
+        APClientSecurityOnChange();
+        document.wireless_apcli_setup.apcli_wpa_auth_mode.options.selectedIndex = 0;
+    }
+    pageScroll();
+}
+function pageScroll(){
+    window.scrollBy(0, -100);
+    scrolldelay = setTimeout('pageScroll()',10);
+    var sTop = document.documentElement.scrollTop+document.body.scrollTop;
+    if(sTop == 0) clearTimeout(scrolldelay);
+}
+</script>

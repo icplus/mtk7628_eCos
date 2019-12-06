@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <TITLE>Ralink Wireless Access Point</TITLE>
+    <script language="JavaScript" src="js/utils.js"></script>
+    <script language="JavaScript" src="js/spec.js"></script>
+    <script type="text/javascript" src="js/native/admin.js"></script>
+    <script language="JavaScript">
+    function initPassword(){
+    	var adminPwd = "<% CGI_CFG_GET(CFG_SYS_ADMPASS); %>";
+
+    	if (adminPwd == ''){
+    	    document.adminSetup.SYSPS.value = '';
+    		document.adminSetup.SYSPS2.value = '';
+    	}
+    	else{
+    	    document.adminSetup.SYSPS.value = adminPwd;
+    		document.adminSetup.SYSPS2.value = adminPwd;
+    	}
+    }
+    function down(){
+        var ele = document.adminSetup.SYSPS;
+        ele.type = 'text';
+    }
+    function up(){
+        var ele = document.adminSetup.SYSPS;
+        ele.type = 'password';
+    }
+    function keydown(){
+        var ele = document.adminSetup.SYSPS2;
+        ele.type = 'text';
+    }
+    function keyup(){
+        var ele = document.adminSetup.SYSPS2;
+        ele.type = 'password';
+    }
+    function SetAdmin() {
+        f = document.adminSetup;
+        if (!chkStrLen(f.SYSPS, 0, 12, "Password")) return;
+        if (!chkPwdUpdate(f.SYSPS, f.SYSPS2, f.SYSPSC)) return;
+        form2Cfg(f);
+        subForm(f, 'do_cmd.htm', 'SYS', cPage);
+    }
+    function FirmwareUpgrade() {
+        Fir = document.FrmUpgrade;
+        var filePath = Fir.files.value;
+        if (filePath == "") {
+            alert("Please select the file!");
+            return;
+        }
+        if (!/\.(img|bin)$/i.test(filePath)) {
+
+            alert("You did not select a frrmware, or you can upload the file type is wrong!");
+            return;
+        }
+        if (confirm('Are you sure you want to upgrade?')) {
+            Fir.submit();
+        }
+    }
+
+    function rebootConfirm(f) {
+        if (!confirm('Are you sure you want to reboot?'))
+            return;
+
+        addFormElm('CCMD', 0);
+        subForm(f, 'do_cmd.htm', 'SYS_CONF', cPage);
+    }
+
+    function restoreConfirm(f) {
+        //if( !confirm('Restore To Factory Default Settings ?') )
+        if (!confirm('Restore To Factory Default Settings'))
+            return;
+        f.action = "do_cmd.htm";
+        //f.encoding="multipart/form-data" ;
+        f.CCMD.value = 1;
+        f.submit()
+    }
+    </script>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</HEAD>
+
+<body onload="initPassword()">
+    <script>
+    pageHead();
+    </script>
+    <form name="adminSetup">
+        <div class="title">
+            <label>Administrator Settings</label>
+        </div>
+        <div class="input-group dropdown">
+            <input type="password" name="SYSPS" value="">
+            <label for="">New Password</label>
+            <i class="icon"><img onmousedown="down()" onmouseup="up()" src="images/eye.png"></i>
+            <input type="hidden" name="SYSPSC" value="0">
+        </div>
+        <div class="input-group dropdown">
+            <input type="password" name="SYSPS2" value="">
+            <i class="icon"><img onmousedown="keydown()" onmouseup="keyup()" src="images/eye.png"></i>
+            <label for="">Confirm Password</label>
+        </div>
+        <input type="button" onClick="SetAdmin()" value="Apply" class="btn" />
+    </form>
+    <div class="hr"></div>
+    <form name="FrmUpgrade" method="POST" action="do_cmd.htm" enctype="multipart/form-data">
+        <input type=hidden name=CMD value=SYS_UPG>
+        <INPUT type=hidden name=GO value=admin.htm>
+        <div class="title">
+            <label>Firmware Upgrade</label>
+        </div>
+        <div>
+            <a href="javascript:(void);" class="upload">
+                <input type="file" name="files" id="">
+            </a>
+        </div>
+        <input type="button" class="btn" onClick="FirmwareUpgrade()" value="Apply">
+    </form>
+    <div class="hr"></div>
+    <form name="RebootSetup">
+        <div class="title">
+            <label>Reboot Router</label>
+        </div>
+        <input type="button" value="Reboot" name="Reboot" onClick="rebootConfirm(document.RebootSetup)" class="btn" />
+    </form>
+    <div class="hr"></div>
+    <form name=frmSetup method=POST enctype=multipart/form-data>
+        <INPUT type=hidden name=CMD value=SYS_CONF>
+        <INPUT type=hidden name=GO value=admin.htm>
+        <INPUT type=hidden name=CCMD value="100">
+        <div class="title">
+            <label>Restore To Factory Default Settings</label>
+        </div>
+        <input type="button" value="Reset" name="restore" onClick="restoreConfirm(document.frmSetup)" class="btn" />
+    </form>
+    <script>
+    pageTail();
+    </script>
+</body>
+
+</HTML>

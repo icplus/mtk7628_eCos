@@ -1,0 +1,36 @@
+TD {
+	FONT-SIZE: 12px; COLOR: #000000; FONT-FAMILY: "Arial", "Helvetica", "sans-serif"
+}
+BODY {
+    FONT-SIZE: 12px
+}
+A:link {
+	COLOR: #000000; TEXT-DECORATION: none
+}
+A:visited {
+	COLOR: #003399; TEXT-DECORATION: none
+}
+A:hover {
+	COLOR: #cc0000; TEXT-DECORATION: underline
+}
+.Nav A:link {
+	WIDTH: 100%; COLOR: #000000; BACKGROUND-COLOR: #82baed; TEXT-DECORATION: none
+}
+.Nav A:visited {
+	WIDTH: 100%; COLOR: #003399; BACKGROUND-COLOR: #82baed; TEXT-DECORATION: none
+}
+.Nav A:hover {
+	WIDTH: 100%; COLOR: #ffffff; BACKGROUND-COLOR: #cc0000
+}
+.button {
+	FONT-SIZE: 12px; BORDER-LEFT-COLOR: #c7dfea; BORDER-BOTTOM-COLOR: #355e70; BORDER-TOP-COLOR: #c7dfea; FONT-FAMILY: "Arial", "新細明體",; BACKGROUND-COLOR: #e3eff5; BORDER-RIGHT-COLOR: #355e70
+}
+.input {
+	BORDER-RIGHT: #333333 1px groove; BORDER-TOP: #cccccc 1px groove; BORDER-LEFT: #cccccc 1px groove; BORDER-BOTTOM: #666666 1px groove; FONT-FAMILY: "Arial", "新細明體" font-size: 9pt; BACKGROUND-COLOR: #ffffff
+}
+.table {
+	BORDER-RIGHT: #1651ab 1px solid; BORDER-TOP: #1651ab 1px solid; LIST-STYLE-POSITION: inside; FONT-SIZE: 12px; BORDER-LEFT: #1651ab 1px solid; COLOR: #2e338b; BORDER-BOTTOM: #1651ab 1px solid; WHITE-SPACE: normal; LIST-STYLE-TYPE: circle
+}
+.box {
+	FONT-SIZE: 12px; FONT-FAMILY: "Arial"
+}

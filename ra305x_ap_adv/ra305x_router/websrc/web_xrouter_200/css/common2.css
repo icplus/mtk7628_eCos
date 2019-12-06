@@ -1,0 +1,220 @@
+.pageContent{
+	width:1000px;
+	height:500px;
+	margin:0 auto;
+	padding-top:20px;
+	padding-bottom:10px;
+	background-color:#FFF;
+}
+.pageContent1{
+	width:800px;
+	height:530px;
+	margin:0 auto;
+	padding-top:20px;
+	padding-bottom:20px;
+	background-color:#FFF;
+	
+}
+.pageContent2{
+	width:620px;
+	height:520px;
+	margin:0 auto;
+	padding-top:10px;
+	padding-bottom:10px;
+	background-color:#FFF;
+	border:2px solid #222;
+}
+
+
+.item{
+	display:block;
+	width:100px;
+	height:30px;
+	cursor:pointer;
+	border-bottom:2px solid #FFF;
+	color:#FFF;
+	text-align:center;
+	line-height:30px;
+}
+
+.item-selected{
+	background-color:#E6E6E6;
+	color:#000;
+}
+.upgrade{
+	width:700px;
+	height:500px;
+}
+.comment{
+	margin:0 auto;
+	margin-top:50px;
+	width:480px;
+	border: 1px solid #d8d8d8;
+	padding:10px;
+	text-align:center;
+}
+
+.firmwareInfo{
+	width:500px;
+	margin:0 auto;
+	margin-top:50px;
+}
+
+.firmware-label-left{
+	width:150px;
+	height:30px;
+	text-align:left;
+	float:left;
+	line-height:30px;
+}
+.firmware-label-right{
+	width:350px;
+	height:30px;
+	text-align:left;
+	float:right;
+	line-height:30px;
+}
+
+.file-box{
+	clear:both;
+	width:500px;
+	margin:0 auto;
+	text-align:center;
+	padding-top:10px;
+	padding-bottom:10px
+} 
+.file-txt{
+	height:30px;
+	border:1px solid #cdcdcd;
+	width:200px;
+	background-color:#FFF;
+	overflow:hidden;
+} 
+.file-btn{
+	background-color:#FFF;
+	border:1px solid #CDCDCD;
+	height:33px;
+	width:100px;
+} 
+.file{
+	display:none;
+} 
+
+.btn-sys{
+	width:150px;
+	height:35px;
+	background-color:#FFF;
+	border:1px solid #cdcdcd;
+	font-size:16px;
+	margin-top:10px;
+}
+.system-settings{
+	width:500px;
+	margin:0 auto;
+}
+.sys-label{
+	width:490px;
+	height:20px;
+	line-height:20px;
+	padding:5px;
+	margin:0 auto;
+	margin-top:25px;
+	background-color:#222;
+	color:#FFF;
+}
+
+.div-btn-system{
+	width:500px;
+	margin:0 auto;
+	text-align:center;
+	
+}
+.status{
+	width:700px;
+	height:500px;
+	margin-top:50px;
+}
+.status-title{
+	width:590px;
+	margin:0 auto;
+	height:25px;
+	line-height:25px;
+	background-color:#FFF;
+	border-bottom:2px solid #FFF;
+	color:#000;
+	padding-left:10px;
+}
+.status-items{
+	width:600px;
+	margin:0 auto;
+	height:23px;
+	background-color:#999;
+	border-bottom:2px solid #FFF;
+}
+.items-left, .items-right{
+	height:23px;
+	padding-left:10px;
+	background-color:#fff;
+}
+.items-left{
+	width:189px;
+	float:left;
+	border-right:1px solid #FFF;
+}
+.items-right{
+	width:389px;
+	float:left;
+	border-left:1px solid #FFF;
+	overflow:hidden;
+}
+
+.basic-item-div{
+	width:300px;
+	height:25px;
+	margin:0 auto;
+	margin-top:10px;
+	border:1px solid #d8d8d8;
+	background-color:#FFF;
+}
+.wifi-label{
+	width:119px;
+	float:left;
+	height:25px;
+	line-height:25px;
+	padding-left:10px;
+	border-right:1px solid #d8d8d8;
+	text-align:center;
+}
+.mode-sel,.ssid-input{
+	width:170px;
+	float:right;
+	height:25px;
+	line-height:25px;
+	border:none;
+	background-color:#FFF;
+}
+
+.ssid-input{
+	text-align:center;
+}
+
+.wifi-btn-div{
+	width:300px;
+	margin:0 auto;
+	margin-top:10px;
+	text-align:center;
+}
+
+.wifi-btn{
+	width:300px;
+	height:30px;
+	border:1px solid #d8d8d8;
+	background:#FFF;
+}
+
+.wifi-radio-div{
+	width:160px;
+	float:right;
+	line-height:25px;
+	margin-left:10px;
+}

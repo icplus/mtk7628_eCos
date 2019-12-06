@@ -1,0 +1,241 @@
+<HTML>
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+/*DEMO*/
+addCfg("LANIP",20,"192.168.0.1");
+addCfg("qos_en",24,1);
+addCfg("opmode",100,"1");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(LANIP, CFG_LAN_IP);
+CGI_MAP(qos_en, CFG_QOS_EN);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+
+
+/*DEMO*/
+addCfg("LS1",1,'101;1024;5000;1');
+addCfg("LS2",2,'102;2000;5000;1');
+addCfg("LS3",3,'103;3000;0;0');
+addCfg("LS4",4,'104;5000;3000;1');
+addCfg("LS5",5,'104~110;5000;3000;1');
+addCfg("LS6",6,'');
+/*END_DEMO*/
+/*REAL
+<%CGI_MAP_ARRAY(LS, CFG_QOS_IPTABLE+1, 40);%>
+REAL*/
+
+var max=40;
+var ipList=new Array();
+for (var i=0; i<max; i++)
+{
+	var l=getCfg("LS"+(1+i));
+	if (l) ipList[i]=l;
+	else break;
+}
+
+var s_max=32;
+var dyn_sel_idx;
+var LANIP=getCfg("LANIP");
+var netip=LANIP.replace(/\.\d{1,3}$/,".");
+var s_edit_idx;
+var SelRowBC;
+var SelRow = -1;
+var __opmode = 1*getCfg("opmode");
+
+function init()
+{
+	var f=document.frmSetup;
+	cfg2Form(f);
+	dyn_sel_idx=-1;
+	SelectRow("tab",-1)
+}
+
+function Cancel()
+{
+	init();
+	document.frmSetup.reset();
+	s_edit_idx=dhcpList.length;
+}
+function Help()
+{
+	window.open("help_home.htm#dhcp","help");
+}
+function Apply()
+{
+	doSubmit(0);
+}
+function doSubmit(del) {
+	var f=document.frmSetup;
+	var ip4=getCfg("LANIP").match(/\d{1,3}$/);
+	if ((!del) && (f.IP4_start.value != '')) {
+		var IP4_start = Number(f.IP4_start.value);
+		var IP4_end = Number(f.IP4_end.value);
+		var uplink = f.uplink.value * 1024;
+		var downlink = f.downlink.value * 1024;
+
+		if ((netip + IP4_start) == LANIP)
+			{ alert("The start IP address is invalid"); return }
+		
+		if ((f.IP4_start.value == '') || (IP4_start <= 0) || (IP4_start > 255))
+			{ alert("The start IP address is invalid"); return }
+
+		if ((f.IP4_end.value != '') && ((IP4_end <= 0) || (IP4_end > 255)))
+			{ alert("The end IP address is invalid"); return }
+
+		if ((f.IP4_end.value != '') && (IP4_end < IP4_start)) {
+			alert("The starting IP address of the available IP address pool should be less than or equal to the ending one.");
+			return ;
+		}
+		if (s_edit_idx >= max) { alert("There can be at most "+max+" clients in the table list. \n\nPlease delete unnecessary data."); return}
+
+		var set = IP4_start;
+		if (uplink == '')
+			uplink = 0;
+		if (downlink == '')
+			downlink = 0;
+		if ((f.IP4_end.value != '') && (IP4_start != IP4_end))
+			set += "~" + IP4_end;
+		set += ';' +uplink+';'+downlink+';'+(f.en[0].checked? '1' : '0');
+		ipList[s_edit_idx]=set;
+	}
+
+	for (i=0; i<max;i++)
+	{
+		if (ipList[i])
+			setCfg("LS"+(1+i),ipList[i]);
+		else
+			setCfg("LS"+(1+i),'');
+	}
+	form2Cfg(f);
+	subForm(f,'do_cmd.htm','QOS',cPage);
+}
+
+function showStList()
+{
+var m='';
+var r=1;
+	for (i=0;i<ipList.length;i++) {
+		var s=ipList[i].split(";");
+		if (s.length !=4) break;
+		r++;
+		m+='<tr>';
+		m+='<td>'+'<input type=checkbox  DISABLED '+((s[3]=='0')? '' : 'CHECKED')+'></td>';
+		m+='<td>'+ netip +s[0]+'</td>';
+		if (s[1] == 0)
+			m+='<td>unlimit</td>';
+		else
+			m+='<td>'+Math.round(s[1]/1024*100)/100+' K</td>';
+		if (s[2] == 0)
+			m+='<td>unlimit</td>';
+		else
+			m+='<td>'+Math.round(s[2]/1024*100)/100+' K</td>';
+		m+='<td align=center><img src=images/edit.gif border=0 alt="Edit" onclick=doSel('+i+','+r+')>';
+		m+='<img src=images/delet.gif border=0 alt="Delete" onClick=doDel('+i+')></td>';
+		m+='</tr>';
+	}
+	s_edit_idx=ipList.length;
+	document.write(m);
+}
+
+function doSel(i,r){
+	SelectRow("tab",r);
+	doEdit(ipList[i]);
+	s_edit_idx=i;
+}
+function doEdit(str){
+	var f=document.frmSetup;
+	var c = str.split(";");
+	f.name.value = c[0];
+	var mm = c[0].split("~")
+	f.IP4_start.value = mm[0];
+	if (mm.length == 2)
+		f.IP4_end.value = mm[1];
+	if (c[3]=='1') f.en[0].checked=true; else f.en[1].checked=true;
+	f.uplink.value = Math.round(c[1]/1024*100)/100;
+	f.downlink.value = Math.round(c[2]/1024*100)/100;
+}
+
+function doDel(i){
+	if (!confirm("Are you sure you want to delete this item?")) return;
+	var f=document.frmSetup;
+	rmEntry(ipList, i);
+	doSubmit(1);
+}
+
+</SCRIPT>
+<link rel=stylesheet type=text/css href=style.css>
+</HEAD>
+
+<BODY leftmargin=0 topmargin=0 onload=init()>
+<script>pageHead();</script>
+
+<form name=frmSetup>
+<table width=100% border=0 height=215>
+<tr>
+<td colspan=2 height=15><font face=Arial color=#8bacb1 size=2><b>QoS</b></font></td>
+</tr>
+<tr>
+<td width=32%>QoS Service</td>
+<td><input type=radio value=1 name=qos_en>Enable<input type=radio name=qos_en value=0 checked>Disable</td>
+</tr>
+	<tr>
+		<td colspan=2 height=15><font face=Arial color=#8bacb1 size=2><b>Traffic Control</b></font></td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><input type=radio value=1 name=en>Enable<input type=radio value=0 name=en CHECKED>Disable</td>
+	</tr>
+	<tr>
+		<td>IP Address</td>
+		<td><script>document.write(netip);</script>
+			<input name=IP4_start size=3 maxlength=3>&nbsp;~&nbsp;
+			<input name=IP4_end size=3 maxlength=3>
+		</td>
+	</tr>
+	<tr>
+		<td>Uplink</td>
+		<td>
+			<input name=uplink size=8 maxlength=8> &nbsp;K&nbsp;Bytes/Second
+		</td>
+	</tr>
+	<tr>
+		<td>Downlink</td>
+		<td>
+			<input name=downlink size=8 maxlength=8> &nbsp;K&nbsp;Bytes/Second
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td>(0: unlimit)</td>
+	</tr>
+	<tr>
+		<td colspan=2 alight=right><script>pageButton();</script></td>
+	</tr>
+</table>
+<table width=100% id=tab cellpadding=0 cellspacing=0>
+	<tr>
+		<td colspan=5 height=30><font face=Arial color=#8bacb1 size=2><b>IP Table</b></font></td>
+	</tr>
+	<tr bgcolor=#B7DCFB>
+		<td>&nbsp;</td>
+		<td width=25%>IP Address</font></td>
+		<td width=25%>Uplink (Bytes/Second)</font></td>
+		<td width=26%>Downlink (Bytes/Second)</font></td>
+		<td>&nbsp;</td>
+	</tr>
+	<script>showStList();</script>
+</table>
+</form>
+<script>pageTail();</script>
+</BODY>
+</HTML>

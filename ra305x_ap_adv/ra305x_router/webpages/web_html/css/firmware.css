@@ -1,0 +1,90 @@
+html,body {
+    height: 100%;
+	width:100%;
+
+	margin:0px;
+	overflow:auto;
+	font-family:微软雅黑;
+}
+#page_header{
+	background-color:#ffc69e;
+	width:100%;
+	min-height:140px;
+	padding:0;
+	margin:0;
+	text-align:center;
+}
+h1 {
+	font-size: 30px;
+    color: #fff;
+    text-align: center;
+    height: auto;
+	line-height:140px;
+	margin:0;
+}
+h2 {
+	font-size: 25px;
+    color: #fff;
+    text-align: center;
+    height: 60px;
+	line-height:60px;
+	margin:0;
+}
+#page_main{
+	width:100%;
+	min-width:1000px;
+	height:448px;
+	margin:0;
+}
+#wifi_logo{
+	width:320px;
+	height:360px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align:center;
+}
+#wifi_logo img{
+	vertical-align:middle;
+}
+#wifi_logo span{
+	height:100%;
+	width:0;
+	overflow:hidden;
+	display:inline-block;
+	vertical-align:middle;
+}
+#btn_start{
+	width:320px;
+	height:auto;
+	margin-left: auto;
+	margin-right: auto;
+	color:#999;
+	font-size:16px;
+}
+#btn{
+	width:320px;
+	height:48px;
+	color:#FFF;
+    background: #bb7f56;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    vertical-align: baseline;
+    font-family: '微软雅黑';
+	border-radius: 40px;
+}
+.upgrade{
+	width:300px;
+	height:40px;
+	line-height:40px;
+    cursor: pointer;
+	color:#428bef;
+    vertical-align: baseline;
+	text-align:right;
+}
+.upgrade a{
+	color:#428bef;
+	text-decoration:none;
+	font-size:13px;
+	
+}

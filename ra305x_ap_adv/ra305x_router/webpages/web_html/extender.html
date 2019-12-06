@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A1000 WiFi</title>
+<link rel="stylesheet" href="css/setting.css"/>
+<script language="JavaScript" src="js/utils_adv.js"></script>
+<script language="JavaScript" src="js/utils.js"></script>
+<script language="JavaScript" src="js/wireless.js"></script>
+<script language="JavaScript" src="js/spec.js"></script>
+</head>
+<body>
+<div class="container">
+	<input type="hidden" id="scanResult" value="<% CGI_GET_SCAN_RESULT();%>"/>
+	<!-- ======================================================================= -->
+	<div id="page_header">
+		<div class="settingheader">
+			<div class="leftbox"><img src="images/wifi.png" width="100%"></div>
+			<div class="rightbox">
+				<div class="bigfont">无线中继器配置</div>
+				<div class="smallfont">请选择您要中继的无线名称</div>
+			</div>
+		</div>
+	</div>
+	<div id="page_main">
+		<div id="wifi_Info">
+			<select id="wifi-sel" class="form_select" onChange="changeSel();">
+				<option value="0">请选择..</option>   
+			</select>
+		</div>
+		<form name="wireless_apcli_setup">
+		<div id="passwd">
+			<label class="form-label" for="wireless_2_4_key_val">输入密码 :</label>
+			<input type="text" class="input-text txt-psd" placeholder="密码长度不能小于8位数" name="apcli_passphrase" maxlength="30" autocomplete="off">
+		</div>
+		<div id="btn_submit">
+		<input type="button" value="应用提交" id="btn" onClick="Apply();">
+		<span></span>
+		</div>
+		</form>
+	</div>
+</dev>	
+<script language="javascript" type="text/javascript">	
+/*REAL
+<%
+CGI_MAP(WirelessMode2, CFG_WLN_WirelessMode);
+CGI_MAP(n_bandwidth, CFG_WLN_HT_BW);
+CGI_MAP(BasicRate2, CFG_WLN_BasicRate);
+CGI_MAP(ssid, CFG_WLN_SSID1);
+CGI_MAP(bssid_num, CFG_WLN_BssidNum);
+CGI_MAP(AutoChannelSelect2, CFG_WLN_AutoChannelSelect);
+CGI_MAP(sz11gChannel, CFG_WLN_Channel);
+CGI_MAP(EncrypType2, CFG_WLN_WdsEncrypType);
+CGI_MAP(WdsDefaultKey2, CFG_WLN_WdsDefaultKeyID);
+CGI_MAP(EXTCHA2, CFG_WLN_HT_EXTCHA);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+
+CGI_MAP(apcli_ssid, CFG_WLN_ApCliSsid);
+CGI_MAP(apcli_bssid, CFG_WLN_ApCliBssid);
+CGI_MAP(apcli_enable, CFG_WLN_ApCliEnable);
+CGI_MAP(apcli_passphrase, CFG_WLN_ApCliWPAPSK);
+CGI_MAP(apcliencryptype2, CFG_WLN_ApCliEncrypType);
+CGI_MAP(apcliauth2, CFG_WLN_ApCliAuthMode);
+CGI_MAP(ApCliDefaultKeyID2, CFG_WLN_ApCliDefaultKeyID);
+
+CGI_MAP(SSIDIndexTemp, CFG_WLN_SSIDIndex);
+CGI_MAP(WscAuthType2, CFG_WLN_WscAuthType);
+CGI_MAP(WscEncrypType2, CFG_WLN_WscEncrypType);
+CGI_MAP(WscConfigured2, CFG_WLN_WscConfStatus);
+CGI_MAP(WscNewKey2, CFG_WLN_WscNewKey);
+CGI_MAP(SecurityMode2, CFG_WLN_SecurityMode);
+CGI_MAP(AuthMode, CFG_WLN_AuthMode);
+CGI_MAP(EncrypType, CFG_WLN_EncrypType);
+CGI_MAP(WPAPSK1Temp, CFG_WLN_WPAPSK1);
+CGI_MAP(WPAPSK2Temp, CFG_WLN_WPAPSK2);
+CGI_MAP(WPAPSK3Temp, CFG_WLN_WPAPSK3);
+CGI_MAP(WPAPSK4Temp, CFG_WLN_WPAPSK4);
+
+%>
+REAL*/
+
+var __opmode = 1*getCfg("opmode");
+var strArr = new Array();
+var wifiStr;
+var wifiSel;
+
+/*init Cfg*/
+setCfg("apcli_enable","1");/*使能apcli模式*/
+setCfg("opmode","3");
+setCfg("ApCliDefaultKeyID2","1");
+setCfg("AutoChannelSelect2","0");
+setCfg("EXTCHA2","1");
+//For wifi Security
+setCfg("SSIDIndexTemp","0");
+setCfg("AuthMode","OPEN;OPEN;OPEN;OPEN");
+setCfg("EncrypType","NONE;NONE;NONE;NONE");
+//setCfg("WscAuthType2","32");
+//setCfg("WscEncrypType2","4");
+//setCfg("WscConfigured2","2");
+setCfg("SecurityMode2","0;0;0");
+//For dns
+//setCfg("dns","0");
+//add
+setCfg("WirelessMode2","9");
+setCfg("n_bandwidth","1");
+/*------------------------------------------*/
+
+function setSecurity(SecuritySel){
+	/*alert(SecuritySel);*/
+	if(SecuritySel != null)
+	{
+		if(SecuritySel.indexOf("NONE") != -1){
+			setCfg("apcliauth2","OPEN");
+			setCfg("apcliencryptype2","NONE");
+			return;
+		}else {
+			var authStr = new Array();
+			authStr = SecuritySel.split('/');
+			if(authStr.length == 2){
+				if(authStr[0].indexOf("1") != -1){
+					if(authStr[0].indexOf("WPA2PSK") != -1){
+						setCfg("AuthMode","WPA2PSK");
+						setCfg("apcliauth2","WPA2PSK");	
+					}else{
+						setCfg("AuthMode","WPAPSK");
+						setCfg("apcliauth2","WPAPSK");
+					}
+				}else{
+					setCfg("AuthMode",authStr[0]);
+					setCfg("apcliauth2",authStr[0]);
+				}
+				//alert(authStr[0]);
+				//alert(authStr[1]);
+				setCfg("apcliencryptype2","AES");
+				setCfg("EncrypType","AES");
+			}
+		}
+	} else {
+		setCfg("apcliauth2","");
+		setCfg("apcliencryptype2","");
+		alert("wifi信息获取错误！请刷新重试！");
+		/*一些别的操作...重新获取wifi扫描信息等*/
+	}
+}
+
+function changeSel(){
+	var index = wifiSel.selectedIndex;
+	/*alert("index:"+index);*/
+	if(index == 0)
+		return;	
+	var text = wifiSel.options[index].text;
+	/*修改cfg中的值*/
+	setCfg("apcli_ssid",text);//上级路由ssid
+	setCfg("ssid",text+"-Plus");//设置ssid
+	/*获取信道值*/
+	var ChSel = strArr[(index-1)*5];
+	setCfg("sz11gChannel",ChSel);
+	/*设置安全模式*/
+	var SecuritySel = strArr[(index-1)*5+3];
+	/*alert("SecuritySel:"+SecuritySel);*/
+	setSecurity(SecuritySel);
+}
+
+function Apply(){
+	/*获取输入的密码*/
+	var passwd = document.wireless_apcli_setup.apcli_passphrase.value;
+	setCfg("WscNewKey2",passwd);/*设置中继密码*/
+	setCfg("WPAPSK1Temp",passwd);
+	setCfg("WPAPSK2Temp",passwd);
+	setCfg("WPAPSK3Temp",passwd);
+	setCfg("WPAPSK4Temp",passwd);
+	
+	var f=document.wireless_apcli_setup;
+	form2Cfg(f);
+	subForm(f,'reboot.html','WIRELESS_SECURITY',cPage);
+}
+
+function trim(str){   
+    str = str.replace(/^(\s|\u00A0)+/,'');   
+    for(var i=str.length-1; i>=0; i--){   
+        if(/\S/.test(str.charAt(i))){   
+            str = str.substring(0, i+1);   
+            break;   
+        }   
+    }   
+    return str;   
+}
+
+function mySubstr(str,start,end){
+	var tempStr = "";
+	var i=0;
+	for(i=start;i<end;i++){
+		tempStr+=str[i];	
+	}
+	return tempStr;
+}
+
+
+	wifiStr=document.getElementById("scanResult").value.toString();
+	wifiSel=document.getElementById("wifi-sel");
+	if(wifiStr == null || wifiStr.length < 126){
+		alert("扫描wifi失败，请刷新重试！");
+		//window.location.reload("true");
+	}else{
+		var IOfCh = wifiStr.indexOf("Ch")-wifiStr.indexOf("Ch");/*信道*/
+		var IOfSSID = wifiStr.indexOf("SSID")-wifiStr.indexOf("Ch");//*ssid*/
+		var IOfBSSID = wifiStr.indexOf("BSSID")-wifiStr.indexOf("Ch");/*Mac地址*/
+		var IOfSecurity = wifiStr.indexOf("Security")-wifiStr.indexOf("Ch");/*加密方式*/
+		var IOfSiganl = wifiStr.indexOf("Siganl")-wifiStr.indexOf("Ch");/*信号强度*/
+
+		var hangLength = 123+wifiStr.indexOf("Ch")-1;
+		var newStr = wifiStr.substring(127,wifiStr.length);
+		var hang = (newStr.length)/hangLength;
+
+		var i=0;
+		for(i=0;i<hang;i++){
+			strArr[i*5+0] = trim(newStr.substring(IOfCh+hangLength*i,IOfSSID+hangLength*i));
+			strArr[i*5+1] = trim(newStr.substring(IOfSSID+hangLength*i,IOfBSSID+hangLength*i));
+			strArr[i*5+2] = trim(newStr.substring(IOfBSSID+hangLength*i,IOfBSSID+hangLength*i+17));
+			strArr[i*5+3] = trim(newStr.substring(IOfSecurity+hangLength*i,IOfSiganl+hangLength*i));
+			strArr[i*5+4] = trim(newStr.substring(IOfSiganl+hangLength*i,IOfSiganl+hangLength*i+3));
+		}
+		//alert("After for...");
+		for(i=0;i<(strArr.length/5);i++){
+			if(strArr[i*5+1] != ""){
+				wifiSel.options.add(new Option(strArr[i*5+1],strArr[i*5+2]));
+			}else{
+				wifiSel.options.add(new Option("#hidden network#",strArr[i*5+2]));
+			}
+		}
+	}
+</script>
+</body>
+</html>

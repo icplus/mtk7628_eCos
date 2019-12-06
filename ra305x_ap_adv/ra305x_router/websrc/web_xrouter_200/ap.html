@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script language="JavaScript" src="js/common2.js"></script>
+<script language="javascript" src="js/utils.js"></script>
+<script language="javascript" src="js/utils_adv.js"></script>
+<script language="javascript" src="js/spec.js"></script>
+<script language="javascript" src="js/wireless.js"></script>
+
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/common2.css">
+<link rel="stylesheet" href="css/ap.css">
+
+<title>WF8500</title>
+</head>
+<body>
+<div class="pageHead">
+	<div class="navbar">
+		<ul class="navbar_nav">
+			<li><a href="extender.html">Extender</a></li>
+			<li><a href="ap.html">AP</a></li>
+				<li><a href="wifisetting.html">Wifi Setting</a></li>
+			<li><a href="tools.html">Tools</a></li>
+		</ul>
+	</div>
+</div>
+<div class="comment">
+	<div class="comment-content">
+		<div class="comment-text">The setting you input will be your Repeater's ssid and password! You can use those information connect your Repeater after you complete your setting!</div>
+    </div>
+</div>
+<div class="AP-setting">
+	<form name="wireless_security" method="get" action="sucess.html">
+	<div class="AP-ssid">
+    <div class="div-label"><span class="form-label">SSID:</span></div>
+    <input type="text" class="input-ssid" placeholder="Set your SSID" name="ap-ssid" id="ssid" maxlength="30" autocomplete="off"/>
+    </div>
+    
+	 <div class="basic-item-div" id="div-Keytication">
+		<span class="wifi-label">Security</span>	
+                    <select class="mode-sel" id="sel-securityMode"- onchange="securityModeChangeAction()">
+                    	<option value="0" selected>Disable</option>
+                        <option value="1">WPA</option>
+                    </select>
+                </div>
+    <div class="basic-item-div" id="div-Authentication">
+                    <span class="wifi-label">Select SSID</span>
+                    <select class="mode-sel" id="sel-securitySSID">
+<!--                    	<option value="0" selected>SSID1</option>
+                        <option value="1">SSID1</option>
+                        <option value="2">SSID2</option>-->
+                    </select>
+                </div>
+
+     <div class="basic-item-div" id="div-Authentication1">
+                    <span class="wifi-label">Authentication</span>
+                    <select class="mode-sel" id="sel-authenticationMode">
+                    	<option value="0" selected>WPA-Personal</option>
+                        <option value="1">WPA-Enterprise</option>
+                        <option value="2">WPA2-Personal</option>
+                        <option value="3">WPA2-Enterprise</option>
+                        <option value="4">WPA/WPA2-Personal(Mixed Mode)</option>
+                        <option value="5">WPA/WPA2-Enterprise(Mixed Mode)</option>
+                    </select>
+                </div>
+
+    <div class="basic-item-div" id="div-WPAAlgorithms">
+                    <span class="wifi-label">WPA Algorithms</span>
+                    <select class="mode-sel" id="sel-algorithmsMode">
+                    	<option value="0" selected>AES</option>
+                        <option value="1">TKIP</option>
+                    </select>
+                </div>
+    
+    
+    
+      <div class="basic-item-div"id="div-WPAAlgorithms2">
+    	<span class="wifi-label">PASSWD:</span>
+   	 <input type="text" class="mode-sel" placeholder="8-30 bit password" name="ap-password" id="password" maxlength="30" autocomplete="off"/>
+    </div>
+    <!--
+	<div class="AP-passwd">
+    	<div class="div-label"><span class="form-label">safe-mode:</span></div>
+   	 <input type="text" class="input-passwd" placeholder="the safe-mode" name="safe-mode" id="safe-mode" maxlength="30" autocomplete="off"/>
+    </div>
+	-->
+    <div class="btn-div">
+    <input type="button" value="Save" class="btn" onClick="Apply();">
+    <span></span>
+    </div>
+    </form>
+    </div>
+</div>
+
+
+
+
+
+</body>
+<script>
+/*REAL
+<%
+CGI_MAP(WirelessMode2, CFG_WLN_WirelessMode);
+CGI_MAP(n_bandwidth, CFG_WLN_HT_BW);
+CGI_MAP(BasicRate2, CFG_WLN_BasicRate);
+CGI_MAP(ssid, CFG_WLN_SSID1);
+CGI_MAP(bssid_num, CFG_WLN_BssidNum);
+CGI_MAP(AutoChannelSelect2, CFG_WLN_AutoChannelSelect);
+CGI_MAP(sz11gChannel, CFG_WLN_Channel);
+CGI_MAP(EncrypType2, CFG_WLN_WdsEncrypType);
+CGI_MAP(WdsDefaultKey2, CFG_WLN_WdsDefaultKeyID);
+CGI_MAP(EXTCHA2, CFG_WLN_HT_EXTCHA);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+
+CGI_MAP(apcli_ssid, CFG_WLN_ApCliSsid);
+CGI_MAP(apcli_bssid, CFG_WLN_ApCliBssid);
+CGI_MAP(apcli_enable, CFG_WLN_ApCliEnable);
+CGI_MAP(apcli_passphrase, CFG_WLN_ApCliWPAPSK);
+CGI_MAP(apcliencryptype2, CFG_WLN_ApCliEncrypType);
+CGI_MAP(apcliauth2, CFG_WLN_ApCliAuthMode);
+CGI_MAP(ApCliDefaultKeyID2, CFG_WLN_ApCliDefaultKeyID);
+
+CGI_MAP(SSIDIndexTemp, CFG_WLN_SSIDIndex);
+CGI_MAP(WscAuthType2, CFG_WLN_WscAuthType);
+CGI_MAP(WscEncrypType2, CFG_WLN_WscEncrypType);
+CGI_MAP(WscConfigured2, CFG_WLN_WscConfStatus);
+CGI_MAP(WscNewKey2, CFG_WLN_WscNewKey);
+CGI_MAP(SecurityMode2, CFG_WLN_SecurityMode);
+CGI_MAP(AuthMode, CFG_WLN_AuthMode);
+CGI_MAP(EncrypType, CFG_WLN_EncrypType);
+CGI_MAP(WPAPSK1Temp, CFG_WLN_WPAPSK1);
+CGI_MAP(WPAPSK2Temp, CFG_WLN_WPAPSK2);
+CGI_MAP(WPAPSK3Temp, CFG_WLN_WPAPSK3);
+CGI_MAP(WPAPSK4Temp, CFG_WLN_WPAPSK4);
+
+CGI_MAP(dns, CFG_DNS_EN);
+
+%>
+REAL*/
+
+var channel_index  = "<% CGI_WLN_Channel();%>"; 
+var ssid_num = "<% CGI_WLN_SSID_NUM();%>";
+var ssid_s1 = "<% CGI_CFG_GET(CFG_WLN_SSID1); %>";
+var ssid_s2 = "<% CGI_CFG_GET(CFG_WLN_SSID2); %>";
+var ssid_s3 = "<% CGI_CFG_GET(CFG_WLN_SSID3); %>";
+var ssid_s4 = "<% CGI_CFG_GET(CFG_WLN_SSID4); %>";
+
+var PASSWD1 = "<% CGI_CFG_GET(CFG_WLN_WPAPSK1); %>";
+var PASSWD2 = "<% CGI_CFG_GET(CFG_WLN_WPAPSK2); %>";
+var PASSWD3 = "<% CGI_CFG_GET(CFG_WLN_WPAPSK3); %>";
+var PASSWD4 = "<% CGI_CFG_GET(CFG_WLN_WPAPSK4); %>";
+
+var authenticationMode = "<% CGI_CFG_GET(CFG_WLN_AuthMode); %>";
+var encryptionType = "<% CGI_CFG_GET(CFG_WLN_EncrypType); %>";
+
+var authenticationModeArray = authenticationMode.split(";");
+var encryptionTypeArray = encryptionType.split(";");
+
+function page_init(){
+	
+	if(ssid_s1 != null){
+		document.getElementById("ssid").value = ssid_s1;
+	}
+	if(PASSWD1 != null){
+		document.getElementById("password").value = PASSWD1;
+	}
+	/*if(ssid_num != null && ssid_num > 0){
+		var sel = document.getElementById("sel-securitySSID");
+		var op = document.createElement("option");
+		op.setAttribute("value",0);
+		op.setAttribute("checked","checked");
+		op.innerHTML = ssid_s1;
+		sel.appendChild(op);
+		}
+	*/
+	var sel = document.getElementById("sel-securitySSID");
+		var op = document.createElement("option");
+		op.setAttribute("value",0);
+		op.setAttribute("checked","checked");
+		op.innerHTML = ssid_s1;
+		sel.appendChild(op);
+	var ssid_index = document.getElementById("sel-securitySSID").selectedIndex;
+	var sel_authenticationMode = document.getElementById("sel-authenticationMode");
+	var sel_keyMode = document.getElementById("sel-securityMode");
+	if (authenticationModeArray[ssid_index] == 'WPAPSK'){
+		sel_authenticationMode.options.selectedIndex = 0;
+		sel_keyMode.options.selectedIndex = 1;
+	}
+	else if (authenticationModeArray[ssid_index] == 'WPA'){
+		sel_authenticationMode.options.selectedIndex = 1;
+		sel_keyMode.options.selectedIndex = 1;
+	}
+	else if (authenticationModeArray[ssid_index] == 'WPA2PSK'){
+		sel_authenticationMode.options.selectedIndex = 2;
+		sel_keyMode.options.selectedIndex = 1;
+	}
+	else if (authenticationModeArray[ssid_index] == 'WPA2'){
+		sel_authenticationMode.options.selectedIndex = 3;
+		sel_keyMode.options.selectedIndex = 1;
+	}
+	else if (authenticationModeArray[ssid_index] == 'WPAPSKWPA2PSK'){
+		sel_authenticationMode.options.selectedIndex = 4;
+		sel_keyMode.options.selectedIndex = 1;
+	}
+	else if (authenticationModeArray[ssid_index] == 'WPA1WPA2'){
+		sel_authenticationMode.options.selectedIndex = 5;
+		sel_keyMode.options.selectedIndex = 1;
+	}
+	else
+		sel_keyMode.options.selectedIndex = 0;
+		//sel_authenticationMode.options.selectedIndex = 0;
+	<!-- AlgorithmsMode -->
+	var sel_algorithmsMode = document.getElementById("sel-algorithmsMode");
+	if(encryptionTypeArray[ssid_index] == "TKIP")
+		sel_algorithmsMode.options.selectedIndex = 1;
+	else
+		sel_algorithmsMode.options.selectedIndex = 0;
+	//document.getElementById("safe-mode").value =authenticationModeArray[ssid_index];
+	securityModeChangeAction();
+	
+}
+
+function Apply(){
+	
+	setCfg("opmode",1);
+	setCfg("apcli_enable","1");
+	var ssid = document.getElementById("ssid").value;
+	if(ssid == null || ssid == ""){
+		alert("Error:SSID can NOT be empty!");
+		return;	
+	}else if(ssid.length > 32){
+		alert("Error:SSID must be shorter than 32 characters!");
+		return;
+	}
+	setCfg("ssid",ssid);
+		
+	var ssid_index = document.getElementById("sel-securitySSID").selectedIndex;
+	var securityMode = document.getElementById("sel-securityMode").selectedIndex;
+	if(securityMode == 0){
+		authenticationMode[ssid_index] = "OPEN";
+		setCfg("AuthMode",authenticationMode[0]+";OPEN;OPEN;OPEN");
+		encryptionType[ssid_index] = "NONE";
+		setCfg("EncrypType",encryptionType[0]+";NONE;NONE;NONE");
+	}else{
+		var	authMode = document.getElementById("sel-authenticationMode").selectedIndex;
+		
+		switch(authMode){
+			case 0: setCfg("AuthMode","WPAPSK"); break;
+			case 1: setCfg("AuthMode","WPA"); break;
+			case 2: setCfg("AuthMode","WPA2PSK"); break;
+			case 3: setCfg("AuthMode","WPA2"); break;
+			case 4: setCfg("AuthMode","WPAPSKWPA2PSK"); break;
+			case 5: setCfg("AuthMode","WPA1WPA2"); break;
+			default: setCfg("AuthMode","WPA2PSK"); break;
+		}
+		var algoMode = document.getElementById("sel-algorithmsMode").selectedIndex;
+		switch(algoMode){
+			case 0: setCfg("EncrypType","AES"); break;
+			case 1: setCfg("EncrypType","TKIP"); break;
+			default: setCfg("EncrypType","TKIP"); break;
+		}
+			var password = document.getElementById("password").value;
+		if(password.length<8||password.length>16){
+			alert("Error:Password format error!");
+			return;
+			}
+			setCfg("WPAPSK1Temp",password);
+			setCfg("WPAPSK2Temp",password);
+			setCfg("WPAPSK3Temp",password);
+			setCfg("WPAPSK4Temp",password);
+	}
+
+
+	var f = document.wireless_security;
+	form2Cfg(f);
+	subForm(f,'reboot.html','WIRELESS_SECURITY',cPage);
+
+}
+
+function securityModeChangeAction(){
+	if(document.getElementById("sel-securityMode").options.selectedIndex == 0){
+		var val = document.getElementById("div-Authentication").getAttribute("class");
+		var val1 = document.getElementById("div-Authentication1").getAttribute("class");
+		
+		document.getElementById("div-Authentication").setAttribute("class",val+" off");
+		document.getElementById("div-Authentication1").setAttribute("class",val1+" off");
+		
+		var val3 = document.getElementById("div-WPAAlgorithms").getAttribute("class");
+		document.getElementById("div-WPAAlgorithms").setAttribute("class",val3+ " off");
+		var val2 = document.getElementById("div-WPAAlgorithms2").getAttribute("class");
+		document.getElementById("div-WPAAlgorithms2").setAttribute("class",val2+ " off");
+	}else{
+		var val = document.getElementById("div-Authentication").getAttribute("class");
+		val = val.replace(" off","");
+		document.getElementById("div-Authentication").setAttribute("class",val);
+		var val1 = document.getElementById("div-Authentication1").getAttribute("class");
+		val1 = val1.replace(" off","");
+		document.getElementById("div-Authentication1").setAttribute("class",val1);
+		
+		var val3 = document.getElementById("div-WPAAlgorithms").getAttribute("class");
+		val3 = val3.replace(" off","");
+		document.getElementById("div-WPAAlgorithms").setAttribute("class",val3);
+		var val2 = document.getElementById("div-WPAAlgorithms2").getAttribute("class");
+		val2 = val2.replace(" off","");
+		document.getElementById("div-WPAAlgorithms2").setAttribute("class",val3);
+	}
+}
+
+
+/*  function Apply_security(){
+	
+	var securityMode = document.getElementById("sel-securityMode").selectedIndex;
+	if(securityMode == 0){
+		authenticationMode[ssid_index] = "OPEN";
+		setCfg("AuthMode",authenticationMode[0]+";OPEN;OPEN;OPEN");
+		encryptionType[ssid_index] = "NONE";
+		setCfg("EncrypType",encryptionType[0]+";NONE;NONE;NONE");
+	}else{
+		var	authMode = document.getElementById("sel-authenticationMode").selectedIndex;
+		alert(authMode);
+		switch(authMode){
+			case 0: setCfg("AuthMode","WPAPSK"); break;
+			case 1: setCfg("AuthMode","WPA"); break;
+			case 2: setCfg("AuthMode","WPA2PSK"); break;
+			case 3: setCfg("AuthMode","WPA2"); break;
+			case 4: setCfg("AuthMode","WPAPSKWPA2PSK"); break;
+			case 5: setCfg("AuthMode","WPA1WPA2"); break;
+			default: setCfg("AuthMode","WPA2PSK"); break;
+		}
+		var algoMode = document.getElementById("sel-algorithmsMode").selectedIndex;
+		switch(algoMode){
+			case 0: setCfg("EncrypType","AES"); break;
+			case 1: setCfg("EncrypType","TKIP"); break;
+			default: setCfg("EncrypType","TKIP"); break;
+		}
+	}
+	var f = document.wireless_security;
+	form2Cfg(f);
+	subForm(f,'reboot.html','WIRELESS_SECURITY',cPage);
+}
+
+*/
+
+
+
+page_init();
+initItemClickAction();
+</script>
+</html>

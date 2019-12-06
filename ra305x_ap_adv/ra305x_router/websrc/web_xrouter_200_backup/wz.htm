@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <META HTTP-EQUIV="Expires" CONTENT="-1">
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <title>Ralink Wireless Access Point</title>
+    <script type="text/javascript" src="js/spec.js"></script>
+
+</head>
+<style type="text/css">
+.wz {
+    max-width:450px;
+    margin: 0 auto;
+    height: 500px;
+    color:#fff;
+    margin-top:160px;
+    text-align: center;
+}
+</style>
+<script type="text/javascript">
+var lang = "<% CGI_CFG_GET(CFG_SYS_Language); %>";
+function jump()
+{
+    if(document.getElementById("checkboxID").checked)
+        window.location.href="wireless_apcli_setup.html";
+    else{
+        if(lang == 1)
+            alert("请勾选加入体验协议");
+        else
+            alert("Please check to join the experience agreement!");
+    }
+}
+</script>
+<body>
+    <div class="container">
+        <div class="wz">
+            <div id="0">
+                <div><img src="images/LoginFont.png" alt="logo"></div>
+                <br />
+                <div><img src="images/w3Login.png" alt="logo"></div>
+                <p>Welcome to the PandoraBox router</p>
+                <p>Please read the 'User License Agreement' and select whether to continue!</p>
+                <input type="button" value="Agree, continue" onClick="jump()" class="btn big">
+                <div style="display:flex;width:200px;margin:0 auto;margin-top:10px;">
+                    <div><p><input id="checkboxID" style="margin-top:5px" type="checkbox"></p></div>
+                    <div><p>Join the User Experience Improvement Program</p></div>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        translate();
+    </script>
+</body>
+</html>

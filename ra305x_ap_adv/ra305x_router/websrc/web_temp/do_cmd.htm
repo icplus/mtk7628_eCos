@@ -1,0 +1,140 @@
+<HTML>
+<HEAD> 
+<title>Ralink Wireless Access Point</title>    
+<META http-equiv=Content-Type content="text/html; charset=utf8">   
+<SCRIPT LANGUAGE="JavaScript" src=lang.js></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" src=spec.js></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">
+
+
+var rc=0;
+var go;
+var nowait='0';
+var msg='';
+var cmd;
+
+function gurl(u) { if (u=='') u = 'wz.htm'; location=u; }
+
+/*REAL
+	var cmd='<%char *cmd = CGI_QUERY("CMD");%>';
+	var nowait='<%char * nowait=CGI_QUERY("nowait");%>';
+	if (cmd=='SYS_UPG')  msg = "do_cmd[2]";
+REAL*/
+
+</SCRIPT>
+</HEAD>
+
+<body leftmargin=0 topmargin=0>
+<!--REAL
+<%
+#ifdef CONFIG_ZWEB
+if (strcmp(cmd, "SYS_UPG") == 0)
+{
+    extern int lock_web_file(char *filename);
+    
+    lock_web_file("images/bd.gif");
+    lock_web_file("images/bdr.gif");
+    lock_web_file("images/br.gif");
+    lock_web_file("images/srst.jpg");
+    lock_web_file("images/title.jpg");
+}
+#endif
+%>
+<% if (!nowait) { %>
+REAL-->
+<table cellspacing=0 cellpadding=0 align=center width=765>
+
+<tr>
+<td colspan=2><img src=images/title.jpg width=765 height=95></td>
+</tr>
+<tr bgcolor=#C6CACD>
+<td width=740>
+	<table width=75% cellspacing=0 cellpadding=0 align=center height=131>
+	<tr>
+		<td>
+		</td>
+	</tr>
+	<tr>
+		<td align=center>
+		<font size=2>
+		<div id=MSG><script>document.write(msg);</script></div>
+		</font>
+		</td>
+	</tr>
+	<tr>
+		<td align=center>
+		<div id=BTN></div>
+		</td>
+	</tr>
+	</table>
+</td>
+<td align=right width=25 background=images/br.gif></td>
+</tr>
+
+<tr VALIGN=top HEIGHT=12>
+	<td><img HEIGHT=12 width=740 src=images/bd.gif></td>
+	<td><img src=images/bdr.gif></td>
+</tr>
+</table>
+<!--REAL
+<%}%>
+REAL-->
+
+<script>
+
+/*REAL
+	var rc=<%int rc=CGI_do_cmd(req); WEB_printf(req, "%d", rc);%>;
+	var go='<%CGI_QUERY("GO");%>';
+<%
+#ifdef CONFIG_ZWEB
+if (strcmp(cmd, "SYS_UPG") == 0 && rc != 5)
+{
+   	extern int unlock_web_file(char *filename);
+   
+	unlock_web_file("images/bd.gif");
+	unlock_web_file("images/bdr.gif");
+	unlock_web_file("images/br.gif");
+	unlock_web_file("images/srst.jpg");
+	unlock_web_file("images/title.jpg");
+}
+#endif
+%>
+REAL*/
+
+if (nowait==1 && rc>=0) { gurl(go); }
+
+if (rc>=0) { 
+	if (rc<ok_msg.length) msg=ok_msg[rc];
+	else msg=do_cmd[0];
+}
+else
+{
+	var i=-1-rc;
+	if (i<err_msg.length) msg=err_msg[i];
+	else msg=do_cmd[1];
+}
+
+switch (rc)
+{
+	case 5: 
+		btn='<button onclick=javascript:gurl("do_cmd.htm?CMD=SYS_CONF&CCMD=0&nowait=1")>'+Button_txt[4]+'</button>';
+		break;
+
+	default:
+		btn='<button onclick=javascript:gurl(go)>'+Button_txt[8]+'</button>';
+		break;
+
+}
+/*DEMO*/
+	btn='<button onclick=javascript:history.go(-1)>Continue</button>';
+/*END_DEMO*/
+
+if (nowait!=1)
+{
+document.getElementById("MSG").innerHTML = msg;
+document.getElementById("BTN").innerHTML = btn;
+}
+
+</script>
+</body>
+</html>

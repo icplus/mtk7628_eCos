@@ -1,0 +1,53 @@
+<HTML> 
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<script>
+/*DEMO*/
+var upt=89000;
+var ver='V2.1.2.16 , build:2 @ Thu Dec 16 15:25:18 2004';
+var bot='V0.1.5.5';
+/*END_DEMO*/
+/*REAL
+var upt=<% CGI_UPTIME();%>;
+var ver='V<% CGI_CFG_GET(CFG_STS_FMW_VER);%>, <%CGI_CFG_GET(CFG_STS_FMW_INFO);%>';
+var bot='V<% CGI_CFG_GET(CFG_HW_BOT_VER);%>';
+REAL*/
+ups=timeStr(upt);
+
+</script>
+</HEAD>
+
+<BODY>
+系統訊息
+<br>
+<table border=1>
+
+<tr> 
+	<td>版本 </td>
+	<td>
+	<script>document.write('run code: '+ver+'<BR>boot code: '+bot)</script>
+	</td>
+</tr>
+
+<tr> 
+	<td>Uptime</td>
+	<td>
+	<script>document.write(ups)</script>
+	</td>
+</tr>
+	
+<tr> 
+	<td> H/W </td>
+	<td>
+	LAN MAC = <% CGI_LAN_MAC();%><br>
+	WAN MAC = <% CGI_WAN_MAC();%><br>
+	CheckSum = <% WEB_printf(req,"%08X",*((int*)0xbc010020));%><br>
+	S/N = <% CGI_CFG_GET(CFG_HW_SN); %><br>
+	VER = V<% CGI_CFG_GET(CFG_HW_VER);%>
+	</td>
+</tr>
+</table>
+</BODY>

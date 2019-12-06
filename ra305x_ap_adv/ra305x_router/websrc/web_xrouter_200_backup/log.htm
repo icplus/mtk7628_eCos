@@ -1,0 +1,202 @@
+<HTML>
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+//[index,ntp_flag,up_time,ntp_time,str_time,message]
+var syslogList=new Array(
+/*DEMO*/ 
+'1','0','100','100','100','syslog test1',
+'2','0','100','100','100','syslog test2',
+'3','0','100','100','100','syslog test3',
+'4','0','100','100','100','syslog test4',
+'5','0','100','100','100','syslog test5',
+'6','0','100','100','100','syslog test6',
+'7','0','100','100','100','syslog test7',
+'8','0','100','100','100','syslog test8',
+'9','0','100','100','100','syslog test9',
+'10','0','100','100','100','syslog test10'
+
+/*END_DEMO*/
+/*REAL
+<% CGI_GET_SYSLOG_LIST(); %>
+REAL*/
+);
+/*DEMO*/
+addCfg("opmode",100,"1");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+
+var dataLists = new Array();
+var __opmode = 1*getCfg("opmode");
+
+function init(f) {
+
+	var i,tt;
+	var syslog_len;
+	
+	syslog_len = syslogList.length/6;
+	for(i=0;i<syslog_len;i++)
+	{
+		tt = dateStr(Number(syslogList[(syslog_len-1-i)*6+3]));
+		dataLists[i] =new Array(tt,syslogList[(syslog_len-1-i)*6+5]);
+	}
+	showSysLog();
+	cfg2Form(f);
+}
+
+function showSysLog()
+{
+   var str=new String("");
+   var f=document.frmLog;
+   var p=parseInt(f.curpage.value);
+   var max=(dataLists.length%20==0? dataLists.length/20:parseInt(dataLists.length/20)+1);
+   	
+   	/* show 20 pages most.*/
+   if (max>20)
+   	   max=20;
+   
+   if (max==0 || max==1)
+   {
+      f.Pp1.disabled=true;
+      f.Np1.disabled=true;
+   }
+   else
+   {
+    if (p==1) 
+    {
+      f.Pp1.disabled=true;
+      f.Np1.disabled=false;    
+    }
+    if (p==max)
+    {
+      f.Pp1.disabled=false;
+      f.Np1.disabled=true;
+    }
+    if (p > 1 && p < max)
+    {
+      f.Pp1.disabled=false;
+      f.Np1.disabled=false;
+    }
+   }
+   
+   if (document.layers) return true; 
+   {
+        str+="<table border=0 cellSpacing=0 cellPadding=0 width=100%>";
+        str+="<tr>"
+        str+="<td colspan=2 align=left>page "+p+" of "+(max==0? 1:max)+"</td>";
+        str+="</tr>";
+        str+="<tr>"
+        str+="<td width=25% align=left style=\"COLOR: black;background-color:#B7DCFB;TEXT-ALIGN: left;\">Time</td>";
+        str+="<td width=75% align=left style=\"COLOR: black;background-color:#B7DCFB;TEXT-ALIGN: left;\">Message</td>";
+        str+="</tr>";
+   
+        for (var i=((p-1)*20);i < p*20;i++)
+        {
+            if (i>=dataLists.length) break;
+       
+            str+="<tr>";
+            str+="<td width=25%>"+dataLists[i][0]+"</td>";
+            str+="<td width=75%>"+dataLists[i][1]+"</td>";
+            str+="</tr>";
+        }
+        str+="</table>";
+   }
+   
+   if (document.all)
+   {
+      document.all("sLog").innerHTML=str;
+   }
+   else if (document.getElementById)
+   {
+        document.getElementById("sLog").innerHTML=str;
+   }
+}
+function ToPage(p)
+{
+
+   
+   if (dataLists.length==0) return;
+   var f=document.frmLog;
+   var maxPage=(dataLists.length%20==0? dataLists.length/20:parseInt(dataLists.length/20)+1)
+   
+   
+   switch (p)
+   {
+   case "0":
+        f.curpage.value=maxPage;
+        break;
+   case "1":
+        f.curpage.value=1;
+        break;
+   case "-1":
+        f.curpage.value=(parseInt(f.curpage.value)-1 <=0? 1:parseInt(f.curpage.value)-1);
+        break;
+   case "+1":
+        f.curpage.value=(parseInt(f.curpage.value)+1 >=maxPage? maxPage:parseInt(f.curpage.value)+1);
+        break;
+   }
+   showSysLog();
+}
+
+function preDownload(f) {
+   f.action="syslog.bin" ;
+   f.submit() ;
+}
+function preDownload_s(f) {
+   f.action="securelog.bin" ;
+   f.submit() ;
+}
+function preClear(f) {
+   f.action="do_cmd.htm" ;
+   f.submit() ;
+}
+</SCRIPT>
+<link rel=stylesheet type=text/css href=style.css>
+</HEAD>
+
+<BODY leftMargin=0 topMargin=0 onload="init(document.frmLog);">
+<script>pageHead();</script>
+
+<form name=frmLog>
+<INPUT type=hidden name=CMD value=SYS_LOG>
+<INPUT type=hidden name=GO value=log.htm>
+<input type=hidden name=curpage value=1>
+<table width=100% border=0 cellspacing=0 cellpadding=0 height=42>
+<tr> 
+      <td height=12 colspan=2><b><font color=#8bacb1 size=2>View Log</font></b></td>
+</tr>
+<tr> 
+      <td height=40 valign="top" colspan=2>View Log displays the activities. Click on Log Settings for advance features.</td>
+</tr>
+<tr> 
+      <td height=10> 
+      <input type=button value="First Page" name=Fp1 onClick=ToPage("1")>
+      <input type=button value="Last Page" name=Lp1 onClick=ToPage("0")>
+      <input type=button value="Previous" name=Pp1 onClick=ToPage("-1")>
+      <input type=button value="Next" name=Np1 onClick=ToPage("+1")>
+      <input type=button value="Clear" name=clear onclick="preClear(document.frmLog);">
+      <input type=button value="Log Settings" name=setting onClick="window.location.href='log_settings.htm'">
+      <input type=button value="Refresh"  name=refresh�� onClick="window.location.href='log.htm'">
+      </td>
+      <td>
+		<input type="button" value="Help" onclick="window.open('help_status.htm#syslog')" class="btn_nav"  />
+      </td>
+</tr>
+<tr>
+      <td colspan=2><div id=sLog></div></td>
+</tr>
+</table>
+</form>
+	
+<script>pageTail();</script>
+</BODY>
+</HTML>

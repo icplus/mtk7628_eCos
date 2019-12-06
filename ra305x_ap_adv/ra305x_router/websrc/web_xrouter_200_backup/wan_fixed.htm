@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ralink Wireless Access Point</title>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<SCRIPT language="JavaScript" src="js/utils.js"></SCRIPT>
+<SCRIPT language="JavaScript" src="js/spec.js"></SCRIPT>
+<script type="text/javascript" src="js/native/wan_fixed.js"></script>
+<script type="text/javascript" src="js/native/wan.js"></script>
+<SCRIPT language=JavaScript>
+addCfg("mode",0,"1");
+
+var __opmode = 1*getCfg("opmode");
+
+function Apply() {
+	var f=document.SIP;
+	if (!verifyIP2(f.WANIP,"IP address")) return ;
+	if (!ipMskChk(f.WANMSK,"subnet mask")) return ;
+	if (!verifyIP2(f.WANGW,"ISP gateway address")) return ;
+
+	if (!verifyMAC(f.WMAC,"MAC address",1)) return	;
+	if (!verifyIP2(f.DS1,"primary DNS address")) return ;
+	if (!verifyIP0(f.DS2,"secondary DNS address")) return ;
+	if (!rangeCheck(f.MTU,576,1500,"MTU")) return ;
+
+	setCfg("DSFIX",1);
+	setCfg("WANT",1);
+	form2Cfg(f);
+	subForm(f,'do_cmd.htm','LAN',cPage);
+}
+
+function init() {
+	var f=document.SIP;
+	var j=document.LAN;
+	cfg2Form(f);
+	cfg2Form(j);
+	if (f.clnEn.value=='1') setCln(f,getCfg("WMAC")); else clrCln(f);
+}
+
+</SCRIPT>
+
+</head>
+
+<body Onload="init()">
+<script>pageHead();</script>
+<FORM name="SIP">
+	<script>pageWanSel(Number(getCfg("opmode")));</script>
+	<div class="input-group">
+		<input type="text" name=WANIP size=16 maxlength=15>
+		<label for="">IP Address</label>
+	</div>
+	<div class="input-group">
+		<input type="text" name=WANMSK size=16 maxlength=15>
+		<label for="">Subnet Mask</label>
+	</div>
+	<div class="input-group">
+		<input type="text" name="WANGW" size="16" maxlength="15">
+		<label for="">ISP Gateway Address</label>
+	</div>
+	<div class="input-group">
+		<input type="text" name="DS1" size="16" maxlength="15">
+		<label for="">Primary DNS Address</label>
+	</div>
+	<table width="100%" style=" display:none;">
+	<tr>
+		<td>MAC Address</td>
+		<td>
+		<input type=hidden name=clnEn>
+		<input name=WMAC size=2 maxlength=2> -
+		<input name=WMAC size=2 maxlength=2> - 
+		<input name=WMAC size=2 maxlength=2> - 
+		<input name=WMAC size=2 maxlength=2> - 
+		<input name=WMAC size=2 maxlength=2> - 
+		<input name=WMAC size=2 maxlength=2>(Optional)
+		<input type=button name=cln onClick=clnMac(this.form)>
+		</td>
+	</tr>
+	<tr>
+		<td>Secondary DNS Address</td>
+		<td><input name=DS2 size=16 maxlength=15>(Optional)</td>
+	</tr>
+	<tr>
+		<td>MTU</td>
+		<td><input name=MTU maxlength=4 size=5></td>
+	</tr>
+	</table>
+	<script>pageButton();</script>
+</FORM>
+<div class="hr"></div>
+<FORM name="LAN">
+	<div class="title">
+		<label>LAN Settings</label>
+	</div>
+	<div class="input-group">
+		<input type="text" name="LANIP" />
+		<label for="">IP Address</label>
+	</div>
+	<div class="input-group">
+		<input type="text" name="LANMSK" />
+		<label for="">Subnet Mask</label>
+	</div>
+	<input type="button" onClick="setLan()" value="Apply" class="btn" name="lanAddress"/>
+</form>
+<script>pageTail();</script>
+</BODY>
+</HTML>

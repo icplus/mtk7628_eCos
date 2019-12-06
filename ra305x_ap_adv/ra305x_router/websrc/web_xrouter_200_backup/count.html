@@ -1,0 +1,61 @@
+<!DOCTYPE html><!--  hmtl5-->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=11;IE=10;IE=9;IE=8;IE=7;IE=EDGE">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta name="trademark" content="KDE e.V." />
+<meta name="description" content="K Desktop Environment Homepage, KDE.org" />
+<meta name="MSSmartTagsPreventParsing" content="true" />
+<meta name="robots" content="all" />
+<link rel="stylesheet" href="css/common.css" />
+<link rel="stylesheet" href="css/count.css" />
+<!--<script language="JavaScript" src="js/common.js"></script>-->
+<script type="text/javascript">
+ document.write("<scr"+"ipt src=\"js/common.js\"></sc"+"ript>")
+ </script>
+<title>Rebooting system,please wait...</title>
+</head>
+
+<body>
+<script>commonPageHead(-1);</script>
+<div class="pageMain">
+<span id="section1" style="display:block">
+	<div class="img-loading">
+    	<img src="images/loading.gif" height="185" width="250" alt="rebooting" />
+        <span></span>
+    </div>
+    <div class="btn-div">
+    <input type="button" value="25" id="btn_count" class="btn">
+    <span></span>
+    </div>
+</span>
+<span id="section2" style="display:none">
+<div class="page_main">
+	<div class="img-loading">
+    	<img src="images/sucess.png" alt="reboot sucess" width="100" height="100">
+        <span></span>
+    </div>
+    <div class="btn-div">
+    <input type="button" class="btn" value="GO INDEX PAGE" id="btn_sucess" onClick="location.href='index.htm'">
+    <span></span>
+    </div>
+</div>
+</span>
+</div>
+<script language="javascript" type="text/javascript">
+	
+	var second = document.getElementById('btn_count').value;
+	setInterval("redirect()", 1000); 
+	function redirect(){
+		if (second < 0){
+			document.title = "Reboot sucess,you can connect repeater now!";
+	 		document.getElementById("section1").style.display = "none";
+			document.getElementById("section2").style.display = "block";
+		} else{
+			document.getElementById('btn_count').value = second--; 
+		}
+}
+</script>
+</body>
+</html>

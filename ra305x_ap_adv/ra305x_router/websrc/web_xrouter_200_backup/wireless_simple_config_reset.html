@@ -1,0 +1,251 @@
+<!-- Copyright 2004, Ralink Technology Corporation All Rights Reserved. -->
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<link href="css.css" rel="stylesheet" type="text/css">
+<title>Ralink Wireless Access Point</title>
+<SCRIPT language=JavaScript src=wireless.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language="JavaScript" type="text/javascript">  
+
+/*REAL
+<%
+CGI_MAP(WscConfigured2, CFG_WLN_WscConfStatus);
+CGI_MAP(WscSSID2, CFG_WLN_WscSSID);
+CGI_MAP(WscAuthType2, CFG_WLN_WscAuthType);
+CGI_MAP(WscEncrypType2, CFG_WLN_WscEncrypType);
+CGI_MAP(WscNewKey2, CFG_WLN_WscNewKey);
+CGI_MAP(WscPinCode2, CFG_WLN_WscPinCode);
+CGI_MAP(SSID2, CFG_WLN_SSID1);
+CGI_MAP(AuthMode2, CFG_WLN_AuthMode);
+CGI_MAP(EncrypType2, CFG_WLN_EncrypType);
+CGI_MAP(DefaultKeyID2, CFG_WLN_DefaultKeyID);
+CGI_MAP(WPAPSK2, CFG_WLN_WPAPSK1);
+CGI_MAP(SecurityMode2, CFG_WLN_SecurityMode);
+CGI_MAP(IEEE8021X2, CFG_WLN_IEEE8021X);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+
+var wsc_configured = "<% CGI_CFG_GET(CFG_WLN_WscConfStatus); %>";
+var wsc_ssid = "<% CGI_CFG_GET(CFG_WLN_WscSSID); %>";
+var wsc_auth_type = "<% CGI_CFG_GET(CFG_WLN_WscAuthType); %>";
+var wsc_encrp_type = "<% CGI_CFG_GET(CFG_WLN_WscEncrypType); %>";
+var wsc_new_key = "<% CGI_CFG_GET(CFG_WLN_WscNewKey); %>";
+var wsc_pin_code = "<% CGI_WLN_WSC_PIN_CODE();%>";
+var wsc_pin_code2 = "<% CGI_CFG_GET(CFG_WLN_WscPinCode); %>";
+var wln_ssid = "<% CGI_CFG_GET(CFG_WLN_SSID1); %>";
+var wln_auth_mode = "<% CGI_CFG_GET(CFG_WLN_AuthMode); %>";
+var wln_encryp_type = "<% CGI_CFG_GET(CFG_WLN_EncrypType); %>";
+var wln_default_key = "<% CGI_CFG_GET(CFG_WLN_DefaultKeyID); %>";
+var wln_wpapsk = "<% CGI_CFG_GET(CFG_WLN_WPAPSK1); %>";
+var wln_security_mode = "<% CGI_CFG_GET(CFG_WLN_SecurityMode); %>";
+var wln_ieee8021x = "<% CGI_CFG_GET(CFG_WLN_IEEE8021X); %>";
+
+var wln_auth_modeArray;
+var wln_encryp_typeArray;
+var wln_default_keyArray;
+var wln_security_modeArray;
+var wln_ieee8021xArray;
+var __opmode = 1*getCfg("opmode");
+
+function Apply()
+{
+	wln_auth_modeArray = wln_auth_mode.split(";");
+	wln_encryp_typeArray = wln_encryp_type.split(";");
+	wln_default_keyArray = wln_default_key.split(";");
+	wln_security_modeArray = wln_security_mode.split(";");
+	wln_ieee8021xArray = wln_ieee8021x.split(";");
+	
+	if (document.wireless_simple_config_reset.reset_simple_config[0].checked == true)
+	{
+		wln_auth_modeArray[0] = 'WPA2PSK';
+		wln_encryp_typeArray[0] = 'AES';
+		wln_default_keyArray[0] = 2;
+		wln_security_modeArray[0] = 3;
+		wln_ieee8021xArray[0] = 0;
+
+		wln_auth_mode = '';
+		wln_auth_mode = wln_auth_mode + wln_auth_modeArray[0];
+		wln_auth_mode = wln_auth_mode + ';'
+		wln_auth_mode = wln_auth_mode + wln_auth_modeArray[1];
+		wln_auth_mode = wln_auth_mode + ';'
+		wln_auth_mode = wln_auth_mode + wln_auth_modeArray[2];
+		wln_auth_mode = wln_auth_mode + ';'
+		wln_auth_mode = wln_auth_mode + wln_auth_modeArray[3];
+
+		wln_encryp_type = '';
+		wln_encryp_type = wln_encryp_type + wln_encryp_typeArray[0];
+		wln_encryp_type = wln_encryp_type + ';'
+		wln_encryp_type = wln_encryp_type + wln_encryp_typeArray[1];
+		wln_encryp_type = wln_encryp_type + ';'
+		wln_encryp_type = wln_encryp_type + wln_encryp_typeArray[2];
+		wln_encryp_type = wln_encryp_type + ';'
+		wln_encryp_type = wln_encryp_type + wln_encryp_typeArray[3];
+
+		wln_default_key = '';
+		wln_default_key = wln_default_key + wln_default_keyArray[0];
+		wln_default_key = wln_default_key + ';'
+		wln_default_key = wln_default_key + wln_default_keyArray[1];
+		wln_default_key = wln_default_key + ';'
+		wln_default_key = wln_default_key + wln_default_keyArray[2];
+		wln_default_key = wln_default_key + ';'
+		wln_default_key = wln_default_key + wln_default_keyArray[3];
+
+		wln_security_mode = '';
+		wln_security_mode = wln_security_mode + wln_security_modeArray[0];
+		wln_security_mode = wln_security_mode + ';'
+		wln_security_mode = wln_security_mode + wln_security_modeArray[1];
+		wln_security_mode = wln_security_mode + ';'
+		wln_security_mode = wln_security_mode + wln_security_modeArray[2];
+		wln_security_mode = wln_security_mode + ';'
+		wln_security_mode = wln_security_mode + wln_security_modeArray[3];
+
+		wln_ieee8021x = '';
+		wln_ieee8021x = wln_ieee8021x + wln_ieee8021xArray[0];
+		wln_ieee8021x = wln_ieee8021x + ';'
+		wln_ieee8021x = wln_ieee8021x + wln_ieee8021xArray[1];
+		wln_ieee8021x = wln_ieee8021x + ';'
+		wln_ieee8021x = wln_ieee8021x + wln_ieee8021xArray[2];
+		wln_ieee8021x = wln_ieee8021x + ';'
+		wln_ieee8021x = wln_ieee8021x + wln_ieee8021xArray[3];
+		
+		document.wireless_simple_config_reset.WscConfigured2.value = 1;	 //AP is un-configured
+		document.wireless_simple_config_reset.WscSSID2.value = 'Ralink11nInitAP';
+		document.wireless_simple_config_reset.SSID2.value = 'Ralink11nInitAP';
+		document.wireless_simple_config_reset.WscAuthType2.value = 32; // from 2 to 32
+		document.wireless_simple_config_reset.AuthMode2.value = wln_auth_mode;
+		document.wireless_simple_config_reset.WscEncrypType2.value = 8; // from 4 to 8
+		document.wireless_simple_config_reset.EncrypType2.value = wln_encryp_type;
+		document.wireless_simple_config_reset.DefaultKeyID2.value = wln_default_key;
+		document.wireless_simple_config_reset.WscNewKey2.value = '12345678';	
+		document.wireless_simple_config_reset.WPAPSK2.value = '12345678';		
+		document.wireless_simple_config_reset.WscPinCode2.value = wsc_pin_code;
+		document.wireless_simple_config_reset.SecurityMode2.value = wln_security_mode;
+		document.wireless_simple_config_reset.IEEE8021X2.value = wln_ieee8021x;
+	}
+	else
+	{
+		wln_auth_mode = '';
+		wln_auth_mode = wln_auth_mode + wln_auth_modeArray[0];
+		wln_auth_mode = wln_auth_mode + ';'
+		wln_auth_mode = wln_auth_mode + wln_auth_modeArray[1];
+		wln_auth_mode = wln_auth_mode + ';'
+		wln_auth_mode = wln_auth_mode + wln_auth_modeArray[2];
+		wln_auth_mode = wln_auth_mode + ';'
+		wln_auth_mode = wln_auth_mode + wln_auth_modeArray[3];
+
+		wln_encryp_type = '';
+		wln_encryp_type = wln_encryp_type + wln_encryp_typeArray[0];
+		wln_encryp_type = wln_encryp_type + ';'
+		wln_encryp_type = wln_encryp_type + wln_encryp_typeArray[1];
+		wln_encryp_type = wln_encryp_type + ';'
+		wln_encryp_type = wln_encryp_type + wln_encryp_typeArray[2];
+		wln_encryp_type = wln_encryp_type + ';'
+		wln_encryp_type = wln_encryp_type + wln_encryp_typeArray[3];
+
+		wln_default_key = '';
+		wln_default_key = wln_default_key + wln_default_keyArray[0];
+		wln_default_key = wln_default_key + ';'
+		wln_default_key = wln_default_key + wln_default_keyArray[1];
+		wln_default_key = wln_default_key + ';'
+		wln_default_key = wln_default_key + wln_default_keyArray[2];
+		wln_default_key = wln_default_key + ';'
+		wln_default_key = wln_default_key + wln_default_keyArray[3];
+
+		wln_security_mode = '';
+		wln_security_mode = wln_security_mode + wln_security_modeArray[0];
+		wln_security_mode = wln_security_mode + ';'
+		wln_security_mode = wln_security_mode + wln_security_modeArray[1];
+		wln_security_mode = wln_security_mode + ';'
+		wln_security_mode = wln_security_mode + wln_security_modeArray[2];
+		wln_security_mode = wln_security_mode + ';'
+		wln_security_mode = wln_security_mode + wln_security_modeArray[3];
+
+		wln_ieee8021x = '';
+		wln_ieee8021x = wln_ieee8021x + wln_ieee8021xArray[0];
+		wln_ieee8021x = wln_ieee8021x + ';'
+		wln_ieee8021x = wln_ieee8021x + wln_ieee8021xArray[1];
+		wln_ieee8021x = wln_ieee8021x + ';'
+		wln_ieee8021x = wln_ieee8021x + wln_ieee8021xArray[2];
+		wln_ieee8021x = wln_ieee8021x + ';'
+		wln_ieee8021x = wln_ieee8021x + wln_ieee8021xArray[3];
+		
+		document.wireless_simple_config_reset.WscConfigured2.value = wsc_configured;
+		document.wireless_simple_config_reset.WscSSID2.value = wsc_ssid;
+		document.wireless_simple_config_reset.WscAuthType2.value = wsc_auth_type;
+		document.wireless_simple_config_reset.WscEncrypType2.value = wsc_encrp_type;
+		document.wireless_simple_config_reset.WscNewKey2.value = wsc_new_key;
+		document.wireless_simple_config_reset.WscPinCode2.value = wsc_pin_code2;
+		document.wireless_simple_config_reset.SSID2.value = wln_ssid;
+		document.wireless_simple_config_reset.AuthMode2.value = wln_auth_mode;
+		document.wireless_simple_config_reset.EncrypType2.value = wln_encryp_type;
+		document.wireless_simple_config_reset.DefaultKeyID2.value = wln_default_key;
+		document.wireless_simple_config_reset.WPAPSK2.value = wln_wpapsk;
+		document.wireless_simple_config_reset.SecurityMode2.value = wln_security_mode;
+		document.wireless_simple_config_reset.IEEE8021X2.value = wln_ieee8021x;
+	}
+
+	var f=document.wireless_simple_config_reset;
+	
+	form2Cfg(f);
+
+	subForm(f,'do_cmd.htm','WIRELESS_SIMPLE_CONFIG_RESET',cPage);
+   
+   	return true;	
+}
+
+</script>
+</head>
+
+<link rel=stylesheet type=text/css href=style.css>
+<BODY leftmargin=0 topmargin=0>
+
+<TABLE WIDTH=100%>
+  <script>pageHead();</script>
+
+<form method=get name=wireless_simple_config_reset action=wireless_simple_config_reset.html onSubmit="return Apply()">
+
+	<table width=100% cellspacing=2 cellpadding=0>
+		<tr> 
+			<td colspan=2><font face=Arial color=#8bacb1 size=2><b>WPS Reset Configuration</b></font></td>
+		</tr>
+	</table>
+	
+  <table width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+    <tr> 
+      <td bgcolor="#B7DCFB"colspan="2"><font color="#333333"><b>Reset to Out-Of-Box Configuration</b></font></td>
+    </tr>
+    <tr> 
+      <td bgcolor="#E8F8FF" nowrap>Reset</td>
+      <td bgcolor="#FFFFFF">
+        <input type=radio name=reset_simple_config value="1">Yes &nbsp;
+        <input type=radio name=reset_simple_config value="0" checked>No
+      </td>
+    </tr>
+  </table>
+  <input type="hidden" name="WscConfigured2">
+  <input type="hidden" name="WscSSID2">
+  <input type="hidden" name="WscAuthType2">
+  <input type="hidden" name="WscEncrypType2">
+  <input type="hidden" name="WscNewKey2">
+  <input type="hidden" name="WscPinCode2">
+  <input type="hidden" name="SSID2">
+  <input type="hidden" name="AuthMode2">
+  <input type="hidden" name="EncrypType2">
+  <input type="hidden" name="DefaultKeyID2">
+  <input type="hidden" name="WPAPSK2">
+  <input type="hidden" name="SecurityMode2">
+  <input type="hidden" name="IEEE8021X2">
+  <br>
+</form>
+
+<script>pageButton();</script>
+<script>pageTail();</script>
+
+</body>
+</html>

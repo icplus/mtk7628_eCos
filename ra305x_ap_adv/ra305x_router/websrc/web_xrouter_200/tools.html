@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/common2.css">
+
+<script language="javascript" src="js/spec.js"></script>
+<script language="javascript" src="js/utils.js"></script>
+<script language="javascript" src="js/utils_adv.js"></script>
+<script language="javascript" src="js/wireless.js"></script>
+<script language="javascript" type="text/javascript">
+/*DEMO*/
+addCfg("opmode",100,"3");
+FirwareVerion="V1.00(C)";
+FirwareDate=dateStrC(1103895780+28800);
+/*END_DEMO*/
+/*REAL
+    FirwareVerion="<%CGI_CUST_VER_STR();%>";
+    FirwareDate=dateStrC(<%CGI_FMW_BUILD_SEC();%>);
+	
+	<%CGI_MAP(opmode, CFG_SYS_OPMODE);%>
+REAL*/
+
+
+var __opmode = 1*getCfg("opmode");
+var authenticationMode = "<% CGI_CFG_GET(CFG_WLN_AuthMode); %>";
+var authenticationModeArray = authenticationMode.split(";");
+var securityMode = authenticationModeArray[0];//220V-7628KN只会有一个ssid,为简化代码，不做判断，直接使用0
+function upgrade_apply(fup)
+{
+	if(fup.files.value == ""){
+		alert("Please select the file!");
+		return;
+	}
+	alert(fup.files.value);
+	//if(confirm( 'Are you sure you want to upgrade?') ){
+	fup.submit();
+	//}
+}
+function restore_apply(f)
+{
+	if( !confirm('Restore To Factory Default Settings') )	
+		return;
+	f.CCMD.value = 1;	
+	f.submit();
+}
+</script>
+<title>WF8500</title>
+</head>
+<body>
+<div class="pageHead">
+	<div class="navbar">
+		<ul class="navbar_nav">
+			<li><a href="extender.html">Extender</a></li>
+			<li><a href="ap.html">AP</a></li>
+				<li><a href="wifisetting.html">Wifi Setting</a></li>
+			<li><a href="tools.html">Tools</a></li>
+		</ul>
+	</div>
+</div>
+<div class="pageMain">
+	<div class="pageContent1">
+		<div class="pageContent2"> 
+            <div class="status-title">Firmware</div>
+                <div class="status-items">
+                	<div class="items-left">Firmware Version</div>
+                    <div class="items-right"><script language="JavaScript">document.write(FirwareVerion);</script></div>
+                </div>
+                <div class="status-items">
+                	<div class="items-left">Firmware Date</div>
+                    <div class="items-right"><script language="JavaScript">document.write(FirwareDate);</script></div>
+                </div>
+                <div class="status-items">
+                	<div class="items-left">Driver Version</div>
+                    <div class="items-right"><% CGI_GET_WLN_DRIVER_VERSION();%></div>
+                </div>
+                <div class="status-items">
+                	<div class="items-left">RF IC Type</div>
+                    <div class="items-right"><% CGI_GET_WLN_RC_TYPE();%></div>
+                </div>
+                <div class="status-title">Wireless Configuration</div>
+                <div class="status-items">
+                	<div class="items-left">Network Name (SSID)</div>
+                    <div class="items-right"><% CGI_CFG_GET(CFG_WLN_SSID1); %></div>
+                </div>
+                <div class="status-items">
+                	<div class="items-left">Frequency (Channel)</div>
+                    <div class="items-right"><% CGI_GET_WLN_CURRENT_CHANNEL();%></div>
+                </div>
+                <div class="status-items">
+                	<div class="items-left">Wireless Mode</div>
+                    <div class="items-right"><%CGI_GET_WLN_CURRENT_WIRELESS_MODE();%></div>
+                </div>
+                <div class="status-items">
+                	<div class="items-left">Security Mode</div>
+                    <div class="items-right"><script language="JavaScript">document.write(securityMode);</script></div>
+                </div>
+                <div class="status-title">WAN Configuration</div>
+                <div class="status-items">
+                	<div class="items-left">IP Address</div>
+                    <div class="items-right"><% CGI_CFG_GET(CFG_LAN_IP); %></div>
+                </div>
+                <div class="status-items">
+                	<div class="items-left">Subnet Mask</div>
+                    <div class="items-right"><% CGI_CFG_GET(CFG_LAN_MSK); %></div>
+                </div>
+                <div class="status-items">
+                	<div class="items-left">MAC Address</div>
+                    <div class="items-right"><% CGI_GET_WLN_MAC_ADDRESS();%></div>
+                </div>
+                 <div class="status-title"> Upgrade system files</div>
+                <div class="file-box"> 
+          <form name="frmSetup" action="reboot.html" method="post" enctype="multipart/form-data"> 
+                    	<input type=hidden name=CMD value=SYS_UPG>
+						<input type=hidden name=GO value=reboot.html>
+                        
+                        <input type='text' name='textfield' id='textfield' class='file-txt' disabled="disabled"/> 
+                        <input type='button' class='file-btn' value='browse ...' onClick="fileField.click();" /> 
+                        <input type="file" name="files" class="file" id="fileField" size="28" onChange="document.getElementById('textfield').value=this.value"/> 
+                        <input type="button" name="apply" class="file-btn" value="uploading" onClick="upgrade_apply(document.frmSetup);"/> 
+                        
+                    </form> 
+                </div>      
+                
+                <div class="status-title"> Restore To Factory Default Settings</div>
+           
+                    <div class="div-btn-system">
+                    <form name="frmReset" action="reboot.html" method="post">
+                        <INPUT type=hidden name=CMD value=SYS_CONF>
+                        <INPUT type=hidden name=GO value=reboot.html>
+                        <INPUT type=hidden name=CCMD value="100">
+                        <input type="button" class="btn-sys" value="reset" onClick="restore_apply(document.frmReset);"/>
+                    </form>
+                </div> 
+            </div>     
+      </div>         
+ </div>      
+ </body>
+</html>           
+            
+            
+            
+            
+         

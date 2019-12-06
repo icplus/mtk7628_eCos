@@ -1,0 +1,4 @@
+
+
+cp  ./xxx_config  ra305x_ap_adv/ra305x_router/.config
+

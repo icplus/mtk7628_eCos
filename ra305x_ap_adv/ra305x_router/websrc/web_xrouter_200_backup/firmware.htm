@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<SCRIPT language="JavaScript" src="js/utils.js"></SCRIPT> 
+<SCRIPT language="JavaScript" src="js/utils_adv.js"></SCRIPT> 
+<SCRIPT language="JavaScript" src="js/spec.js"></SCRIPT>
+<script type="text/javascript" src="js/native/firmware.js"></script>
+<SCRIPT language=JavaScript>
+var __opmode = 1*getCfg("opmode");
+
+function Apply(){
+	f=document.frmSetup;
+	var filePath=f.files.value;
+	if(filePath=="")
+    {
+		alert("Please select the file!");
+		return ;
+	} 
+     if(!/\.(img|bin)$/i.test(filePath)){ 
+	  
+		alert("You did not select a frrmware, or you can upload the file type is wrong!");
+        return ;
+    }
+	if(confirm('Are you sure you want to upgrade?')){
+	f.submit();
+	}
+}
+function init()
+{
+	document.frmSetup.reset();
+}
+</SCRIPT>
+
+</HEAD>
+
+<body onLoad="init()">
+<script>pageHead();</script>
+
+<form  name=frmSetup method=POST action=do_cmd.htm enctype=multipart/form-data>
+<input type=hidden name=CMD value=SYS_UPG>
+<INPUT type=hidden name=GO value=firmware.htm>
+	<div class="title">
+		<label>Firmware Upgrade</label>
+	</div>
+	<div>
+		<a href="javascript:(void);" class="upload">
+			<input type="file" name="files" id="">
+		</a>
+	</div>
+	<script>pageButton();</script>
+</form>
+
+<script>pageTail();</script>
+</BODY>
+</HTML>

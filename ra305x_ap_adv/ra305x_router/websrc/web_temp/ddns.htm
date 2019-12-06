@@ -1,0 +1,338 @@
+<!--REAL
+<%
+	extern int oray_online_status(void);
+	extern int oray_passport_type(void);
+
+	int status = oray_online_status();
+	int type = oray_passport_type();
+	
+	CGI_GET_DDNS_ORAY_LIST("Oray_DDNS_LIST");
+	
+%>
+REAL-->
+
+<HTML>
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=utf8">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<SCRIPT language=JavaScript src=lang.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+/*DEMO*/
+addCfg("ddnsEnable",381,1);
+addCfg("ddns1",387,'1;oray;;user;pass;;;;3600');
+var oray_status = -1;
+var oray_type = 1;
+
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(ddnsEnable, CFG_DDNS_EN);
+CGI_MAP(ddns1, CFG_DDNS_SET+1);
+%>
+var oray_status = <% WEB_printf(req, "%d", status); %>;
+var oray_type = <% WEB_printf(req, "%d", type); %>;
+
+REAL*/
+
+var totalCountdownTime = 30;
+var lang="adv_ddns"
+
+function reFresh(TT)
+{
+	if(TT > 0)
+	{
+		//document.all.vCountdown.innerHTML=TT;
+		TT = TT - 1 ;
+		setTimeout("reFresh("+TT+");","1000");
+	}
+	else
+		ddns_refresh();
+}
+
+function tOrayInfo(f)
+{
+	var text = '';
+	
+	if (f.serverName.value=="oray")
+	{	
+		text += '<table>';
+		text += '<tr><td height=20 colspan=2 align=left><a href="http://www.oray.net/Passport/Passport_Register.asp">*花生殼動態名稱解析服務申請</a></td></tr>';
+		text += '<tr><td height=20 colspan=2 align=left><a href="http://www.oray.net/peanuthull/peanuthull_prouser.htm">*升級到花生殼動態網域名稱解析專業服務</a></td></tr>';
+		text += '<tr><td height=20 colspan=2 align=left><a href="http://www.oray.net/Help">*花生殼動態網域名稱解析服務幫助</a></td></tr>';	
+		text += '</table>';
+	}
+	else
+	{
+		text = '';
+	}
+	
+	setIdVal("tOrayInfo",text);
+}
+
+function SelectService(f)
+{
+	var text = '';
+	var text2 = '';
+	var i;
+	var ODL;
+	var dl = getCfg("ddns1");
+	
+	vHost(f);	
+	if ((f.serverName.value=="oray")&&(decomList(dl,9,1,";")=="oray"))
+	{			
+		if (getCfg("ddnsEnable")==1)
+		{
+			text += '<table cellpadding=0 width=100%>';
+			if (oray_status == 0)
+			{
+				if (f.ddnsEnable[0].checked)
+				{
+					text += '<tr><td width=27% height=20>Connection Status</td><td align=left>Connecting......<!--(Count down<span ID=vCountdown></span>seconds, pages will refresh automatically!)--></td></tr>';
+					reFresh(totalCountdownTime);
+				}			
+			}
+			else if (oray_status == -1)
+			{
+				if (f.ddnsEnable[0].checked)
+					text += '<tr><td width=27% height=20 valign=top>Connection Status</td><td align=left>Disconnect / Authentication Failed <br>Please check <font color=red>User Name </font> and<font color=red> Password</font>, and if the system <font color=red>can connect to Internet</font>.</td></tr>';
+			}
+			else if (oray_status == 1)
+			{
+				if (f.ddnsEnable[0].checked)
+				{
+					text += '<tr><td width=27% height=20>Connection Status</td><td align=left>Connect / Domain Name has been registered</td></tr>';
+					if (oray_type)
+						text += '<tr><td width=27% height=20>Service Type</td><td align=left>Professional Service</td></tr>';
+					else
+						text += '<tr><td width=27% height=20>Service Type</td><td align=left>Standard Service</td></tr>';
+				}
+			}
+		
+			if ((oray_status==1)&&(f.ddnsEnable[0].checked)){
+			text += '<tr><td valign=top>Domain:</td><td>';
+			for(i=0;i<20;i++){	         
+				ODL = eval("document.all.Oray_DDNS_LIST"+i);
+				if(ODL != undefined){
+					V1=(ODL.value.split(","))[0];
+					V2=(ODL.value.split(","))[1];
+					text += '<table width=100%>'
+					text += '<tr>';
+					text += '<td width=10%>';
+					text += '<font color='+(V1==25?'Green':'Red')+'>'+(V1==25?'ON':'OFF')+'</font>';
+					text += '</td>';
+					text += '<td width=90%>';				
+					text += ':'+V2;
+					text += '</td>';
+					text += '</tr>';
+					text += '</table>';
+				}
+			}		
+			}
+		
+			text += '</td></tr>';
+		
+			text += '<tr><td width=27% height=20></td><td align=left></td></tr>';
+			text += '</table>';
+		}
+	}
+
+	tOrayInfo(f);
+
+	setIdVal("tServiceInfo",text);
+	Panel(f);	
+	resetValue(f);
+}
+
+function init(){
+	var f=document.frmSetup;
+	var dl = getCfg("ddns1");
+			
+	cfg2Form(f);
+	f.serverName.value=decomList(dl,9,1,";");
+	SelectService(f);
+}
+
+
+function Cancel() {
+	init();
+}
+function Apply() {
+	var f=document.frmSetup;
+	//alert("ServerName="+f.serverName.value);
+	if (f.serverName.value!="oray")
+	{
+		if (isBlank(f.hostName.value)) { alert(Alerts[70]); return;}
+		//if (!chksc(f.hostName.value,"主機名稱")) return;
+	}
+	if (isBlank(f.userName.value)) { alert(Alerts[71]); return;}
+	//if (!chksc(f.userName.value,"使用者帳號")) return;
+	if (!chken(f.userName.value,Alerts[75])) return;
+	if (isBlank(f.passWord.value)) { alert(Alerts[72]); return;}
+	//if (!chksc(f.passWord.value,"使用者密碼")) return;
+	if (!chken(f.passWord.value,Alerts[73])) return;
+	
+	if(f.serverName.value =="oray")
+	{
+		setCfg("ddns1", "1;"+
+					f.serverName.value+";"+
+					f.hostName.value+";"+
+					f.userName.value+";"+
+					f.passWord.value+";"+
+					";"+";"+";60");
+	}
+	else
+	{
+		setCfg("ddns1", "1;"+
+					f.serverName.value+";"+
+					f.hostName.value+";"+
+					f.userName.value+";"+
+					f.passWord.value+";"+
+					";"+";"+";");
+    }                        
+	form2Cfg(f);
+	subForm(f,'do_cmd.htm','DDNS',cPage);
+}
+function Help(){
+	window.open("help_adv.htm#ddns","help");
+}
+function DDNSConfirm(f)
+{
+	if(f.ddnsEnable[1].checked) { alert(Alerts[74]); return; }
+	if(f.hostName.value=="") { alert(Alerts[70]); return;}
+	addFormElm('CCMD', 4);
+	addFormElm('PING', f.hostName.value);
+	subForm(f,'do_cmd.htm','SYS_CONF',cPage);
+}
+
+function Panel(f)
+{
+	var text="";
+	
+	text += "<table border=0 width=100%><tr>";
+	if (f.serverName.value!="oray")
+	{
+	text += "<td align=right  width=50%><input type=button  value="+adv_ddns[8]+" onclick=DDNSConfirm(document.frmSetup)></td>";
+	text += "<td align=left   width=50%><input type=button value="+adv_ddns[9]+" onclick=ddns_refresh();></td>";
+	}
+	else
+	{
+	text += "<td align=center width=100%><input type=button value=Refresh onclick=ddns_refresh();></td>";
+	}
+	text += "</tr></table>";
+	setIdVal("DPanel",text);
+}
+
+function ddns_refresh()
+{
+	self.location='ddns.htm';
+}
+
+function vHost(f)
+{
+	var str="";
+	if (f.serverName.value=="oray")
+	{
+		str += "<input name=hostName size=40 maxlength=60 type=hidden>";
+	}
+	else
+	{
+		str += "<table border=0 width=100% cellspacing=0 cellpadding=0>";
+		str += "<tr>";
+      		str += "<td height=20 align=left width=27%>"+adv_ddns[5]+"</td>";
+      		str += "<td><input name=hostName size=40 maxlength=60></td>";
+		str += "</tr>";
+		str += "</table>"
+	}
+	document.all.vHost.innerHTML=str;	
+}
+
+function resetValue(f)
+{
+	var dl = getCfg("ddns1");
+	if(dl.length > 0){
+		f.hostName.value=decomList(dl,9,2,";");
+		f.userName.value=decomList(dl,9,3,";");
+		f.passWord.value=decomList(dl,9,4,";");
+	}
+}
+</SCRIPT>
+
+<link rel=stylesheet type=text/css href=style.css>
+
+</HEAD>
+
+<BODY leftMargin=0 topMargin=0 onload="init();">
+<script>pageHead();</script>
+
+<form name=frmSetup>
+
+<table width=100% cellpadding=0>
+<tr> 
+      <td colspan=2 height=14><b><font color="#8bacb1" size=2><span id=_0>Dynamic DNS</span></font></b></td> 
+</tr>
+<tr valign="top">
+      <td colspan=2><div id=tOrayInfo style=position:relative;></div></td>
+</tr>
+<tr> 
+      <td width=27% height=20 align=left><span id=_1>DDNS</span></td>
+      <td height=20><input type=radio name="ddnsEnable" value=1><span id=_2>Enable</span><input type=radio name="ddnsEnable" value=0><span id=_3>Disable</span></td>
+</tr>
+<tr> 
+      <td height=20 align=left><span id=_4>Server Provider</span></td>
+      <td>
+      <select name="serverName" class=input1 tabindex=2 id="serverName" onChange="SelectService(document.forms[0]);">
+      <option value="dyndns">DynDns.org</option>
+      <!--<option value="noip">No-IP.com</option>-->     
+      </select>
+      </td>
+</tr>
+
+<tr>
+      	<td colspan=2>
+      	<Div ID="vHost">
+      		<table border=0 width=100% cellspacing=0 cellpadding=0>
+		<tr>
+      			<td height=20 align=left>Host Name</td>
+      			<td><input name=hostName size=40 maxlength=60></td>
+		</tr>		      	
+		</table>
+      	</Div>
+      	</td>
+</tr>
+
+<tr> 
+      <td height=20 align=left><span id=_6>User Name / E-Mail Address</span></td>
+      <td><input name="userName" size="40" maxlength="16"></td>
+</tr>
+<tr> 
+      <td height=20 align=left><span id=_7>Password</span></td>
+      <td><input type="password" name="passWord" size="40" maxlength="16"></td>
+</tr>
+</table>
+<div id=tServiceInfo style=position:relative;></div>
+</form>
+
+<form>
+<Div ID="DPanel" style=position:relative;></Div>
+<!--
+<td align=right width=50%><input type=button value=連線測試 onclick=DDNSConfirm(document.frmSetup)></td>
+<td align=left  width=50%><input type=button value=更新 onclick="self.location='ddns.htm'"></td>
+-->
+<table width=100%>
+<tr>
+<tr>
+<td></td>
+<td align=right>
+	<a href=javascript:Apply()><SCRIPT language=JavaScript>document.write("<img src=\"images/"+button[5]+".jpg\" border=0>")</SCRIPT></a>
+	<a href=javascript:Cancel()><SCRIPT language=JavaScript>document.write("<img src=\"images/"+button[4]+".jpg\" border=0>")</SCRIPT></a>
+	<a href=javascript:Help()><SCRIPT language=JavaScript>document.write("<img src=\"images/"+button[3]+".jpg\" border=0>")</SCRIPT></a>
+</td></tr></table></form>
+<script>pageTail();</script>
+<script>chglang();</script>
+</BODY>
+</HTML>

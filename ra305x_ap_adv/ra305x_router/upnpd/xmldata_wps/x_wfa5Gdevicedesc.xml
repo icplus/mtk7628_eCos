@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+  <specVersion>
+    <major>1</major>
+    <minor>0</minor>
+  </specVersion>
+  <device>
+    <deviceType>urn:schemas-wifialliance-org:device:WFA5GDevice:1</deviceType>
+    <friendlyName>RalinkAP5G</friendlyName>
+    <manufacturer>Ralink Technology, Corp.</manufacturer>
+    <manufacturerURL>http://www.ralinktech.com.tw</manufacturerURL>
+    <modelDescription>Ralink AP 5G WSC device</modelDescription>
+    <modelName>Ralink Wireless 5G Access Point</modelName>
+    <modelNumber>RalinkAP5G</modelNumber>
+    <modelURL>http://www.ralinktech.com.tw</modelURL>
+    <serialNumber>87654321</serialNumber>

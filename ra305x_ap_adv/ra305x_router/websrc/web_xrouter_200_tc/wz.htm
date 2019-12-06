@@ -1,0 +1,744 @@
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<link href="css.css" rel="stylesheet" type="text/css">
+<title>Ralink Wireless Access Point</title>
+<SCRIPT language=JavaScript src=wireless.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language="JavaScript" type="text/javascript">
+
+/*DEMO*/
+addCfg("SYSPS", 106, "******" );
+addCfg("host",0,"Ralink Wireless Access Point");
+addCfg("TZ",3,"45");
+addCfg("WANT",100,"2");
+addCfg("opmode",101,"1");
+/*END_DEMO*/
+/*REAL
+addCfg("SYSPS", <%CGI_CFG_ID(CFG_SYS_ADMPASS);%>,"******");
+<%
+CGI_MAP(host, CFG_SYS_NAME);
+CGI_MAP(TZ, CFG_SYS_TZONE);
+CGI_MAP(WANT, CFG_WAN_IP_MODE);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+
+//////////// DHCP ( cable )
+/*DEMO*/
+addCfg("WMAC",31,"00:11:22:33:44:55");
+addCfg("clnEn",32,"0");
+var cln_MAC = "00:12:34:56:78:90" ;
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(WMAC, CFG_WAN_DHCP_MAC);
+CGI_MAP(clnEn, CFG_WAN_DHCP_MAC_EN);
+%>
+var cln_MAC = <%CGI_GET_CLN_MAC();%> ;
+REAL*/
+
+var __opmode = 1*getCfg("opmode");
+function initDHC(){
+	var f=document.DHC;
+	cfg2Form(f);
+	if (f.clnEn.value=='1')	setCln(f,getCfg("WMAC")); else clrCln(f);
+}
+
+function chkDHC() {
+	var f=document.DHC;
+	if (!verifyMAC(f.WMAC,"MAC 位址",1)) return ;
+	form2Cfg(f);
+	switchPage('C2','D');
+}
+
+///////////// FIXED IP 
+/*DEMO*/
+addCfg("WANIP",31,"0.0.0.0");
+addCfg("WANMSK",32,"255.255.255.0");
+addCfg("WANGW",33,"0.0.0.0");
+addCfg("DSFIX",0x33,"1");
+addCfg("DS1",0x34,"");
+addCfg("DS2",0x35,'');
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(WANIP, CFG_WAN_IP);
+CGI_MAP(WANMSK, CFG_WAN_MSK);
+CGI_MAP(WANGW, CFG_WAN_GW);
+
+CGI_MAP(DSFIX, CFG_DNS_FIX);
+CGI_MAP(DS1, CFG_DNS_SVR+1);
+CGI_MAP(DS2, CFG_DNS_SVR+2);
+%>
+REAL*/
+
+function initSIP(){
+	cfg2Form(document.SIP);
+}
+
+function chkSIP() {
+	var f=document.SIP;
+	if (!verifyIP2(f.WANIP,"IP 位址")) return ;
+	if (!ipMskChk(f.WANMSK,"子網路遮罩")) return ;
+	if (!verifyIP2(f.WANGW,"通訊閘")) return ;
+
+	if (!verifyIP2(f.DS1,"主要的 DNS 位址")) return ;
+	if (!verifyIP0(f.DS2,"次要的 DNS 位址")) return ;
+
+	setCfg("DSFIX",1);
+
+	form2Cfg(f);
+	switchPage('C1','D');
+}
+
+//////////// PPPOE
+
+/*DEMO*/
+addCfg("PUN", 50, "");
+addCfg("PSN", 51, "");
+addCfg("PMTU", 52, "1400");
+addCfg("PIDL", 53, "60");
+addCfg("PPW", 54, "******" );
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(PUN, CFG_POE_USER);
+CGI_MAP(PSN, CFG_POE_SVC);
+CGI_MAP(PMTU, CFG_POE_MTU);
+CGI_MAP(PIDL, CFG_POE_IDLET );
+%>
+addCfg("PPW",<%CGI_CFG_ID(CFG_POE_PASS);%>,"******");
+REAL*/
+
+function initPOE() {
+	cfg2Form(document.POE);
+}
+
+function chkPOE() {
+	var f=document.POE;
+	if (!chkStrLen(f.PUN,0,255,"使用者帳號")) return ;
+	if (!chkStrLen(f.PPW,0,255,"使用者密碼")) return ;
+	if (!chkPwdUpdate(f.PPW,f._ps2,f._changed)) return ;
+	if (isBlank(f.PUN.value)) { alert("無效的使用者名稱"); return ;}
+	form2Cfg(f);
+	switchPage('C3','D');
+} 
+
+/*REAL<% #ifdef CONFIG_PPTP%>REAL*/
+////////// PPTP 
+/*DEMO*/
+addCfg("PTUN", 50, "");
+addCfg("PTMTU", 51, "1400");
+addCfg("PTIDL", 52, "60");
+addCfg("PTIP", 53, "0.0.0.0");
+addCfg("PTMSK", 54, "255.255.255.0");
+addCfg("PTSVR", 55, "0.0.0.0");
+addCfg("PTID", 56, "");
+addCfg("PTCM", 57, "1" );
+addCfg("PTPW", 58, "******");
+addCfg("PTWANIF", 59, 1);
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(PTUN, CFG_PTP_USER);
+CGI_MAP(PTMTU, CFG_PTP_MTU);
+CGI_MAP(PTIDL, CFG_PTP_IDLET );
+CGI_MAP(PTIP, CFG_PTP_IP );
+CGI_MAP(PTMSK, CFG_PTP_MSK );
+CGI_MAP(PTSVR, CFG_PTP_SVR );
+CGI_MAP(PTID, CFG_PTP_ID);
+CGI_MAP(PTCM, CFG_PTP_AUTO);
+CGI_MAP(PTWANIF, CFG_PTP_WANIF);
+%>
+addCfg("PTPW", <%CGI_CFG_ID(CFG_PTP_PASS);%> , "******" );
+REAL*/
+
+function initPTP(){
+	cfg2Form(document.PTP);
+}
+
+function chkPTP() {
+	var f=document.PTP;
+	if (!verifyIP2(f.PTSVR,"伺服器 IP 位址")) return ;
+	if (!verifyIP2(f.PTIP,"IP 位址")) return ;
+	if (!ipMskChk(f.PTMSK,"子網路遮罩")) return ; 
+	if (!chkStrLen(f.PTUN,0,255,"使用者帳號")) return ;
+	if (!chkStrLen(f.PTPW,0,255,"使用者密碼")) return ;
+	if (!chkPwdUpdate(f.PTPW,f._ps2,f._changed)) return;
+	setCfg("PTWANIF", 1);
+
+	form2Cfg(f);
+	switchPage('C4','D');
+}
+/*REAL<% #endif //CONFIG_PPTP%>REAL*/ 
+
+/*REAL<% #ifdef CONFIG_L2TP%>REAL*/
+////////// L2TP 
+/*DEMO*/
+addCfg("LTUN", 50, "");
+addCfg("LTMTU", 51, "1400");
+addCfg("LTIDL", 52, "60");
+addCfg("LTIP", 53, "0.0.0.0");
+addCfg("LTMSK", 54, "255.255.255.0");
+addCfg("LTSVR", 55, "0.0.0.0");
+addCfg("LTCM", 57, "1" );
+addCfg("LTPW", 58, "******");
+addCfg("LTWANIF", 59, 1);
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(LTUN, CFG_L2T_USER);
+CGI_MAP(LTMTU, CFG_L2T_MTU);
+CGI_MAP(LTIDL, CFG_L2T_IDLET );
+CGI_MAP(LTIP, CFG_L2T_IP );
+CGI_MAP(LTMSK, CFG_L2T_MSK );
+CGI_MAP(LTSVR, CFG_L2T_SVR );
+CGI_MAP(LTCM, CFG_L2T_AUTO);
+CGI_MAP(LTWANIF, CFG_L2T_WANIF);
+%>
+addCfg("LTPW", <%CGI_CFG_ID(CFG_L2T_PASS);%> , "******" );
+REAL*/
+
+function initL2T(){
+	cfg2Form(document.L2T);
+}
+
+function chkL2T() {
+	var f=document.L2T;
+	if (!verifyIP2(f.LTSVR,"伺服器 IP 位址")) return ;
+	if (!verifyIP2(f.LTIP,"IP 位址")) return ;
+	if (!ipMskChk(f.LTMSK,"子網路遮罩")) return ;
+	if (!chkStrLen(f.LTUN,0,255,"使用者帳號")) return ;
+	if (!chkStrLen(f.LTPW,0,255,"使用者密碼")) return ;
+	if (!chkPwdUpdate(f.LTPW,f._ps2,f._changed)) return;
+	setCfg("LTWANIF", 1);
+
+	form2Cfg(f);
+	switchPage('C5','D');
+} 
+/*REAL<% #endif //CONFIG_L2TP%>REAL*/
+
+function initTz() {
+	cfg2Form(document.TZN);
+}
+
+function chkTz() {
+	var f=document.TZN;
+	form2Cfg(f);
+	switchPage('T','B');
+}
+
+function initAdm() {
+	cfg2Form(document.ADM);
+}
+
+function chkAdm() {
+	var f=document.ADM;
+	if (!chkStrLen(f.SYSPS,0,12,"密碼")) return ;
+	if (!chkPwdUpdate(f.SYSPS,f.SYSPS2,f.SYSPSC)) return ;
+	form2Cfg(f);
+	switchPage('A','T');
+}
+
+function init() {
+	cfg2Form(document.Mode);
+	initAdm();
+	initTz();
+	initDHC();
+	initSIP();
+	initPOE();
+/*REAL<% #ifdef CONFIG_PPTP%>REAL*/
+	initPTP();
+/*REAL<% #endif //CONFIG_PPTP%>REAL*/
+/*REAL<% #ifdef CONFIG_L2TP%>REAL*/
+	initL2T();
+/*REAL<% #endif //CONFIG_L2TP%>REAL*/
+}
+
+function setWanMode() {
+	var f=document.Mode;
+	form2Cfg(f);
+	var m=getCfg("WANT");
+	switchPage('B',"C"+m);
+}
+
+function Exit()
+{
+	if (confirm("您確定要離開嗎?")) self.close(); 
+}
+
+function Apply()
+{
+	var f=document.frmDone;
+	subForm(f,'do_cmd.htm','LAN','info.htm');
+}
+
+</SCRIPT>
+</HEAD>
+
+<link rel=stylesheet type=text/css href=style.css />
+<BODY leftmargin=0 topmargin=0 onload=init()>
+
+<script>pageHead();</script>
+
+<div id="0" style="position:absolute; visibility:visible; width: 520px; height: 300px;">
+<form>
+  <table width=100%>
+    <!--
+	<tr> 
+		<td width=30% height=30></td>
+		<td>步驟 1. 設定您的新密碼</td>
+	</tr>
+	<tr> 
+		<td height=30></td>
+		<td>步驟 2. 選擇您的時區</td>
+	</tr>
+-->
+    <tr>
+      <td width="44%" height=255><img src="images/wireless_ralink.jpg" alt="" width="212" height="249"></td>
+      <td width="56%" height="255" valign="top"><p>&nbsp;</p>
+        <p>歡迎使用設定<strong>連線精靈</strong>。</p>
+        <p>連線精靈將引導設定四項快速步驟。請鍵入 下一步。</p>
+        <p>&nbsp;</p>
+        <p>步驟 1. 設定網際網路連線</p>
+        <p>步驟 2. 重新啟動</p>
+        <p>步驟 3. 韌體更新</p></td>
+    </tr>
+  </table>
+  <table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+	<!--<a href=javascript:switchPage('0','A');><img src="images/next.jpg" border=0></a>-->
+		<a href=javascript:switchPage('0','B');><img src="images/next.jpg" border=0></a>
+	</td>
+</tr>
+</table>
+
+  </form>
+</div>
+
+<!-- step A admin settings -->
+<div id="A" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<form name=ADM>
+<tr>
+	<td colspan=3 height=20 align=center><font size=3 color=#0000CC><b>設定密碼</b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=10%></td><td>你可以更改 <b>系統管理者</b>的密碼。鍵入 <b>下一步</b> 以便繼續。</td>
+	<td width=10%></td>
+</tr>
+</table>
+
+<form name=ADM>
+<table width=100%>
+
+<input type=hidden name=SYSPSC value=0>
+<tr>
+	<td height=40 align=right width=30%>新密碼</td>
+	<td><input type=password size=20 maxlength=12 name=SYSPS  value=****** onKeyPress=chkPwd1Chr(this,this.form.SYSPS2,this.form.SYSPSC);></td>
+</tr>
+<tr>
+	<td height=20 align=right>確認新密碼</td>
+	<td><input type=password size=20 maxlength=12 name=SYSPS2 value=****** onKeyPress=chkPwd1Chr(this.form.SYSPS,this,this.form.SYSPSC);></td>
+</tr>
+</table>
+
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+		<a href=javascript:switchPage('A','0');><img src="images/back_p.jpg" border=0></a>
+		<a href="javascript:chkAdm();"><img src="images/next.jpg" border=0></a>
+		<a href=javascript:switchPage('A','0');><img src="images/exit_p.jpg" width="51" height="29" border=0></a>	</td>
+</tr>
+</table>
+</form>
+</div>
+
+
+<div id="T" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 height=20 align=center><font size=3 color=#0000CC><b>選擇時區</b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=15%></td><td>請選一個適合您地區的時區，請按<b>下一步</b>繼續<br>&nbsp;</td>
+	<td width=15%></td>
+</tr>
+</table>
+
+<table width=100%>
+	<FORM name=TZN>
+	<tr>
+	<td><select name=TZ style="font-size:12"><script>genTimeOpt();</script>
+		</select>	</td>
+	</tr>
+</table>
+
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+		<a href=javascript:switchPage('T','A');><img src="images/back_p.jpg" border=0></a>
+		<a href="javascript:chkTz();"><img src="images/next.jpg" border=0></a>
+		<a href=javascript:switchPage('T','0');><img src="images/exit_p.jpg" width="51" height="29" border=0></a>	</td>
+</tr>
+</table>
+
+  </FORM>
+</div>
+
+<!-- step B connect type -->
+<div id="B" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 height=20 align=center><font size=3 color=#0000CC><b>選擇 WAN 型態</b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=8%></td><td>選擇連線的方式來連接您的 ISP 。 鍵入<b>下一步</b>以便繼續。<br>&nbsp;</td>
+	<td width=8%></td>
+</tr>
+</table>
+
+<table width=100%>
+<form name=Mode>
+	<tr>
+	  <td height=40 valign=top width=25%><input name=WANT type=radio value=2>動態 IP 位址</td>
+	  <td valign=top><b>從您的網際網路服務提供者得到一個 IP 位址。</b></td>
+	</tr>
+
+	<tr>
+	  <td height=40 valign=top><input name=WANT type=radio value=1>固定 IP 位址</td>
+	  <td valign=top><b>輸入您的網際網路服務提供者所提供之固定 IP 位址設定資訊。</b></td>
+	</tr>
+
+	<tr>
+	  <td height=40 valign=top><input name=WANT type=radio value=3>PPPoE</td>
+	  <td valign=top><b>提供給您的是 PPPoE 服務，請選擇此項目 。</b></td>
+	</tr>
+
+<!--REAL
+<% #ifdef CONFIG_PPTP%>
+REAL-->
+	<!--tr>
+	  <td ><input name=WANT type=radio value=4>PPTP</td>
+	  <td ><b>PPTP</b></td>
+	</tr-->
+<!--REAL
+<% #endif //CONFIG_PPTP%>
+REAL-->
+<!--REAL
+<% #ifdef CONFIG_L2TP%>
+REAL-->
+	<!--tr>
+	  <td ><input name=WANT type=radio value=5>L2TP</td>
+	  <td ><b>L2TP</b></td>
+	</tr-->
+<!--REAL
+<% #endif //CONFIG_L2TP%>
+REAL-->
+</table>
+
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+	<!--<a href=javascript:switchPage('B','T');><img src="images/back_p.jpg" border=0></a>-->
+		<a href=javascript:switchPage('B','0');><img src="images/back_p.jpg" border=0></a>
+		<a href="javascript:setWanMode();"><img src="images/next.jpg" border=0></a>
+		<a href=javascript:switchPage('B','0');><img src="images/exit_p.jpg" width="51" height="29" border=0></a>	</td>
+</tr>
+</table>
+
+  </FORM>
+</div>
+
+<!-- step C1 -->
+<div id="C1" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 height=20 align=center><font size=3 color=#0000CC><b>設定固定 IP 地址</b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=8%></td><td>請輸入 ISP 提供給您之固定 IP 資訊。 按<b>下一步</b>以便繼續。<br>&nbsp;</td>
+	<td width=8%></td>
+</tr>
+</table>
+
+<table width=100%>
+<FORM name=SIP>
+<tr>
+	<td width=50% align=right>WAN IP 位址</td> 
+	<td><input name=WANIP size=15 maxlength=15></td>
+</tr>
+<tr>
+	<td align=right>WAN 子網路遮罩</td>
+	<td><input name=WANMSK size=15 maxlength=15></td>
+</tr>
+<tr>
+	<td align=right>WAN 通訊閘</td>
+	<td><input name=WANGW size=15 maxlength=15></td>
+</tr>
+<tr>
+	<td align=right>主要的 DNS 位址</td>
+	<td><input name=DS1 size=15 maxlength=15></td>
+</tr>
+<tr>
+	<td align=right>次要的 DNS 位址</td>
+	<td ><input name=DS2 size=15 maxlength=15> (可不填)</td>
+</tr>
+</table>
+
+<table width=100%>
+<tr>
+	<td height=15 valign=middle align=right>
+		<a href=javascript:switchPage('C1','B');><img src="images/back_p.jpg" border=0></a>
+		<a href=javascript:chkSIP();><img src="images/next.jpg" border=0></a>
+		<a href=javascript:switchPage('C1','0');><img src="images/exit_p.jpg" width="51" height="29" border=0></a>	</td>
+</tr>
+</table>
+
+  </FORM>
+</div>
+
+<!--step C2 dhcp -->
+<div id="C2" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 align=center><font size=3 color=#0000CC><b>設定動態 IP 地址</b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=8%></td><td>請輸入一個特定的主機名稱或主機特定MAC位址。 <b>從用戶端複製 MAC 位址</b> 此按鍵複製網路卡上的 MAC 位址。按下<b>下一步</b>以便繼續。<br>&nbsp;</td> 
+	<td width=8%></td>
+</tr>
+</table>
+
+<table width=100%>
+	<FORM name=DHC>
+<tr>
+	<td align=right width=25%>主機名稱</td>
+	<td><input name=host size=40 maxlength=39> (可不填)</td>
+</tr>
+<tr>
+	<td align=right>MAC 位址</td>
+	<td> 
+	<input type=hidden name=clnEn>
+	<input name=WMAC size=1 maxlength=2> -
+	<input name=WMAC size=1 maxlength=2> -
+	<input name=WMAC size=1 maxlength=2> -
+	<input name=WMAC size=1 maxlength=2> - 
+	<input name=WMAC size=1 maxlength=2> -
+	<input name=WMAC size=1 maxlength=2> (可不填)<br>
+	<input type=button name=cln	onClick=clnMac(this.form)>	</td>
+</tr>
+</table>
+
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+		<a href=javascript:switchPage('C2','B');><img src="images/back_p.jpg" border=0></a>
+		<a href=javascript:chkDHC();><img src="images/next.jpg" border=0></a>
+		<a href=javascript:switchPage('C2','0');><img src="images/exit_p.jpg" width="51" height="29" border=0></a>	</td>
+</tr>
+</table>
+
+  </FORM>
+</div>
+
+<!-- step C3 pppoe -->
+<div id="C3" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 align=center><font size=3 color=#0000CC><b>設定 PPPoE </b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=8%></td><td>服務名稱可不填，但是若您的 ISP 需要此資訊，請輸入適當的值。鍵入 <b>下一步</b>以便繼續。<br>&nbsp;</td>
+	<td width=8%></td>
+</tr>
+</table>
+
+<table width=100%>
+<FORM name=POE>
+	<tr>
+		  <td width=40% align=right>使用者帳號</td>
+		  <td><input name=PUN size=25 value></td>
+	</tr>
+	<tr>
+		<td align=right>使用者密碼</td>
+		<td>
+			<input type=password name=PPW size=25 value=****** onKeyPress=chkPwd1Chr(PPW,_ps2,_changed);>
+			<input type=hidden name=_changed value=0>		</td>
+	</tr>
+	<tr>
+		<td align=right>確認密碼</td>
+		<td><input type=password name=_ps2 size=25 value=****** onKeyPress=chkPwd1Chr(PPW,this,_changed);></td>
+	</tr>
+	<tr>
+		<td align=right>服務名稱</td>
+		<td><input name=PSN size=25 maxlength=60> (可不填)</td>
+	</tr>
+</table>
+
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+		<a href=javascript:switchPage('C3','B');><img src="images/back_p.jpg" border=0></a>
+		<a href=javascript:chkPOE();><img src="images/next.jpg" border=0></a>
+		<a href=javascript:switchPage('C3','0');><img src="images/exit_p.jpg" width="51" height="29" border=0></a>	</td>
+</tr>
+</FORM>
+</table>
+</div>
+
+<!--REAL<% #ifdef CONFIG_PPTP%>REAL-->
+<!-- step C4 pptp -->
+<div id="C4" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 height=20 align=center><font size=3 color=#0000CC><b>PPTP</b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=8%></td><td>請輸入PPTP適當的設定值。鍵入 <b>下一步</b>以便繼續。<br>&nbsp;</td> 
+	<td width=8%></td>
+</tr>
+</table>
+
+<table width=100%>
+	<FORM name=PTP>
+		<tr>
+		  <td width=40% align=right>IP 位址</td>
+		  <td><input name=PTIP size=15 maxlength=15></td>
+		</tr>
+		<tr>
+		  <td align=right>子網路遮罩</td>
+		  <td><input name=PTMSK size=15 maxlength=15></td>
+		</tr>
+		<tr>
+		  <td align=right>伺服器 IP 位址</td>  
+		  <td><input name=PTSVR size=15 maxlength=15></td>
+		</tr>
+		<tr>
+		  <td align=right>使用者帳號</td>
+		  <td><input name=PTUN size=25 value></td>
+		</tr>
+		<tr>
+		  <td align=right>使用者密碼</td>  
+		  <td>
+			<input type=password name=PTPW size=25 value=****** onkeypress=chkPwd1Chr(this,_ps2,_changed)>
+			<input type=hidden name=_changed value=0>		  </td>
+		</tr>
+		<tr>
+		  <td align=right>確認密碼</td>  
+		  <td><input type=password name=_ps2 size=25 value=****** onkeypress=chkPwd1Chr(PTPW,this,_changed)></td>
+		</tr>
+</table>
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+		<a href=javascript:switchPage('C4','B');><img src="images/back_p.jpg" border=0></a>
+		<a href=javascript:chkPTP();><img src="images/next.jpg" border=0></a>
+		<a href=javascript:switchPage('C4','0');><img src="images/exit_p.jpg" width="51" height="29" border=0></a>	</td>
+</tr>
+</FORM>
+</table>
+</div>
+
+<!--REAL<% #endif //CONFIG_PPTP%>REAL-->
+  
+<!--REAL<% #ifdef CONFIG_L2TP%>REAL-->
+<!-- step C5 l2tp -->
+<div id="C5" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 height=20 align=center><font size=3 color=#0000CC><b>L2TP</b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=8%></td><td colspan=2>請輸入PPTP適當的設定值。鍵入 <b>下一步</b>以便繼續。<br>&nbsp;</td> 
+	<td width=8%></td>
+</tr>
+</table>
+
+<table width=100%>
+	<FORM name=L2T>
+	<tr>
+	  <td width=40% align=right>IP 位址</td>
+	  <td><input name=LTIP size=15 maxlength=15></td>
+	</tr>
+	<tr>
+	  <td align=right>子網路遮罩</td>
+	  <td><input name=LTMSK size=15 maxlength=15></td>
+	</tr>
+	<tr>
+	  <td align=right>伺服器 IP 位址</td>
+	  <td><input name=LTSVR size=15 maxlength=15></td>
+	</tr>
+	<tr>
+	  <td align=right>使用者帳號</td>
+	  <td><input name=LTUN size=25 value></td>
+	</tr>
+	<tr>
+	  <td align=right>使用者密碼</td>  
+	  <td><input type=password name=LTPW size=25 value=****** onkeypress=chkPwd1Chr(this,_ps2,_changed)>
+			<input type=hidden name=_changed value=0>	  </td>
+	</tr>
+	<tr>
+	  <td align=right>確認密碼</td>  
+	  <td><input type=password name=_ps2 size=25 value=****** onkeypress=chkPwd1Chr(LTPW,this,_changed)></td>
+	</tr>
+</table>
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+		<a href=javascript:switchPage('C5','B');><img src="images/back_p.jpg" border=0></a>
+		<a href=javascript:chkL2T();><img src="images/next.jpg" border=0></a>
+		<a href=javascript:switchPage('C5','0');><img src="images/exit_p.jpg" width="51" height="29" border=0></a>	</td>
+</tr>
+</FORM>
+</table>
+</div>
+
+<!--REAL<% #endif //CONFIG_L2TP%>REAL-->
+<div id="D" style="position:absolute; visibility:hidden; width: 450px; height: 300px;">
+
+<table width=100%>
+<tr>
+	<td colspan=3 height=20 align=center><font size=3 color=#0000CC><b>設定完成</b><br>&nbsp;</FONT></td>
+</tr>
+<tr>
+	<td width=8%></td><td colspan=2>設定連線精靈完成後 點選 <b>上一步</b> 便可回到前面的步驟去更改設定。 點選 <b>重新啟動</b> 則儲存現有設定，並重新啟動 
+Ralink Wireless Access Point。<br>&nbsp;</td>
+	<td width=8%></td>
+</tr>
+</table>
+
+<table width=100%>
+	<FORM name=frmDone>
+		<tr>
+		  <td height=40 colspan=2>&nbsp;</td>
+		</tr>
+</table>
+<table width=100%>
+<tr>
+	<td height=15 colspan=2 valign=middle align=right>
+		<a href=javascript:switchPage('D',lastPage);><img src="images/back_p.jpg" border=0></a>
+		<a href=javascript:Apply();><img src="images/srst.jpg" border=0></a>
+		<a href=javascript:switchPage('D','0');><img src="images/exit_p.jpg" width="51" height="29" border=0></a>	</td>
+</tr>
+</FORM>
+</table>
+</div>
+
+<script>pageTail();</script>
+</BODY>
+</HTML>

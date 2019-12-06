@@ -1,0 +1,487 @@
+<HTML>
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=big5">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+
+/*DEMO*/
+addCfg("TZ",3,"45");
+addCfg("DL",4,"0");
+addCfg("SM",5,"2");
+addCfg("SD",6,"1");
+addCfg("EM",7,"7");
+addCfg("ED",8,"8");
+addCfg("sync_with",10,"1");
+addCfg("ntp",11,"0.pool.ntp.org");
+addCfg("opmode",100,"3");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(TZ, CFG_SYS_TZONE);
+CGI_MAP(DL, CFG_SYS_DAYLITE);
+CGI_MAP(SM, CFG_SYS_DAYLITE_SM);
+CGI_MAP(SD, CFG_SYS_DAYLITE_SD);
+CGI_MAP(EM, CFG_SYS_DAYLITE_EM);
+CGI_MAP(ED, CFG_SYS_DAYLITE_ED);
+CGI_MAP(sync_with, CFG_SYS_NTPTYPE);
+CGI_MAP(ntp, CFG_SYS_NTPSRV);
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+
+var week=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+var month=["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
+var __opmode = 1*getCfg("opmode");
+/*DEMO*/
+sData=[
+		   "2",
+		   "5",
+		   "12/31/1999",
+		   "16:01:13",
+		   "",
+		   "0",
+		   "4-1-0-02:00",
+		   "10-5-0-02:00"
+		  ]
+/*END_DEMO*/
+/*REAL
+sData = new Array(
+<% CGI_GET_NTPIFO(); %>
+);
+REAL*/
+/*
+function show_month_option()
+{
+	var str=new String("");
+	var i;
+
+	for(i=1;i<=12;i++)
+	{
+		str="";
+		str+="<option value="+i+">"+month[i-1]+"</option>";
+		document.write(str);
+	}
+}
+function show_day_option()
+{
+	var str=new String("");
+	var i;
+
+	for(i=1;i<=31;i++)
+	{
+		str="";
+		str+="<option value="+i+">"+i+"</option>";
+		document.write(str);
+	}
+}
+*/
+function getTzoneIndex(tzone)
+{
+	for (i=0; i<timeTable.length; i++)
+	{
+		var t=timeTable[i];
+		if(t[0]==tzone)
+			return i;
+	}
+}
+
+function gurl(u) {location=u;}
+
+/*DEMO*/
+var tmp = new Date();
+var devdate = parseInt(tmp.getTime()/1000)-tmp.getTimezoneOffset()*60;
+/*END_DEMO*/
+/*REAL
+var devdate=<%WEB_printf(req, "%d", ntp_getlocaltime(0));%>;
+REAL*/
+
+function chk_time()
+{
+	var s = getCfg("sync_with");
+	if (s==1)
+	{
+		var curdate = new Date();
+		var computer = parseInt(curdate.getTime()/1000)-curdate.getTimezoneOffset()*60;
+	
+		if ((computer - devdate) > 3)
+		{
+/*DEMO*/
+			var go='time.htm';
+/*END_DEMO*/
+/*REAL
+			var go='do_cmd.htm?CMD=NTP&GO=time.htm&nowait=1&TIMES=' + computer;
+REAL*/
+			gurl(go);
+		}
+	}
+}
+
+function init(){
+	chk_time();
+
+	f=document.frmTime;
+	f.TZ.value=getCfg("TZ");
+	//NTP
+   //f.ntp.value=myTime.NTP;
+   myTime.NTP = f.ntp.value;
+	//show localTime
+   lt = document.getElementById("localTime");
+   var str=new String("<font color=green size=2><b>");
+   var tmp_date=myTime.sysDate.split("/");
+   if (tmp_date.length ==3)
+   {
+	  str+=month[(parseInt(eval(tmp_date[0]))-1)]+" "+tmp_date[1]+", "+tmp_date[2]+" ";
+   }
+   var tmp_time=myTime.sysTime.split(":");
+   if (tmp_time.length==3)
+   {
+	  str+=myTime.sysTime;
+   }
+   str+="</b></font>";
+   lt.innerHTML=str;
+   if(sData[0]== '0')
+		disRadio(2);
+   if(sData[0]=='1')
+		disRadio(1);
+   if(sData[0]=='2')
+		disRadio(0);
+   //DSEnb(f.TZ.value);			
+	cfg2Form(f);
+   DSEnb(getTzoneIndex(f.TZ.value));	
+}
+
+function Apply() {
+	f=document.frmTime;
+	var computer;
+
+	computer = 0;
+	if(f.sync_with[1].checked)
+	{
+		var curdate = new Date();
+		computer = parseInt(curdate.getTime()/1000)-curdate.getTimezoneOffset()*60;
+	}
+	if(f.sync_with[2].checked)
+	{
+		var curdate = new Date(Date.UTC(f.tYEAR.value, f.tMON.value-1 ,f.tDAY.value, f.tHOUR.value, f.tMIN.value,f.tSEC.value));
+		computer = parseInt(curdate.getTime()/1000) ;
+	}
+	f.SM.value = 16; //special case
+	addFormElm('TIMES', computer);
+	form2Cfg(f);
+	subForm(f,'do_cmd.htm','NTP',cPage);
+
+}
+function disRadio(c)
+{
+	var f=document.frmTime;
+
+	if (c==0 || c==1)
+	{
+	  f.ntp.disabled = true;
+	  //f.immediately.disabled = true;
+	}
+	else
+	{
+	  f.ntp.disabled = false;
+	  //f.immediately.disabled = false;
+	}
+	if (c==2 || c==1)
+	{
+	   f.tMON.disabled=true;
+	   f.tDAY.disabled=true;
+	   f.tYEAR.disabled=true;
+	   f.tHOUR.disabled=true;
+	   f.tMIN.disabled=true;
+	   f.tSEC.disabled=true;
+	}
+	else
+	{
+	   f.tMON.disabled=false;
+	   f.tDAY.disabled=false;
+	   f.tYEAR.disabled=false;
+	   f.tHOUR.disabled=false;
+	   f.tMIN.disabled=false;
+	   f.tSEC.disabled=false;
+	}
+}
+
+function createSelectTagChild(start,end,selected,special_case)
+{
+	var str=new String("");
+
+	for(var i=start; i <= end; i++)
+	{
+		switch (special_case)
+		{
+			case "week":
+				 if (i==selected)
+					str+="<option value="+i+" selected>"+week[i]+"</option>";
+				 else
+					str+="<option value="+i+">"+week[i]+"</option>";
+				 break;
+			case "month":
+				 if (i==selected)
+					str+="<option value="+i+" selected>"+month[i-1]+"</option>";
+				 else
+					str+="<option value="+i+">"+month[i-1]+"</option>";
+				 break;
+			default:
+				 if (i==selected)
+					str+="<option value="+i+" selected>"+i+"</option>";
+				 else
+					str+="<option value="+i+">"+i+"</option>";
+				 break;
+		}
+	}
+	document.writeln(str);
+}
+function savingTime(month,week,day,hour,minute)
+{
+	this.month=month;
+	this.week=week;
+	this.day=day;
+	this.hour=hour;
+	this.minute=minute;
+}
+function savingData(enable,sTime,eTime)
+{
+	this.enable=enable;
+	this.sTime=getSavingTime(sTime);
+	this.eTime=getSavingTime(eTime);
+}
+function deviceTime(sync,tzone,dsData,NTP,sysDate,sysTime)
+{
+   this.sync=sync;
+   this.tzone=tzone;
+   this.dsData=dsData;
+   this.NTP=NTP;
+   this.sysDate=sysDate;
+   this.sysTime=sysTime;
+}
+function getSavingTime(t)
+{
+	var tmp=t.split("-");
+	var month=1,week=1,day=0,hour=0,minute=0;
+
+	if (tmp.length==4)
+	{
+	   month=(isNaN(parseInt(tmp[0]))? 1: parseInt(tmp[0]));
+	   week=(isNaN(parseInt(tmp[1]))? 1: parseInt(tmp[1]));
+	   day=(isNaN(parseInt(tmp[2]))? 0: parseInt(tmp[2]));
+	   temp=tmp[3].split(":");
+	   if (temp.length==2)
+	   {
+		   hour=(isNaN(parseInt(temp[0]))? 0: parseInt(temp[0]));
+		   minute=(isNaN(parseInt(temp[1]))? 0: parseInt(temp[1]));
+	   }
+	}
+	var mySavingTime=new savingTime(month,week,day,hour,minute);
+	return mySavingTime;
+}
+
+function createSysTimeData()
+{
+	var createSavingData=new savingData(sData[5],sData[6],sData[7]);
+	var createDeviceTime=new deviceTime(sData[0],sData[1],createSavingData,sData[4],sData[2],sData[3]);
+	return createDeviceTime;
+}
+// Daylight Saving Enable
+function DSEnb(i)
+{
+	var DSTbl=[0,0,0,1,1,0,1,1,1,0,
+		   1,0,1,0,1,0,0,0,1,0,
+		   1,1,1,1,1,1,0,0,1,0,
+		   0,1,1,0,0,0,0,0,1,1,
+		   0,0];
+
+	var f=document.frmTime;
+
+	if (DSTbl[i]==0)
+	{
+		f.DL[1].checked=true;
+		f.DL[0].disabled=true;
+		f.DL[1].disabled=true;
+	}
+	else
+	{
+		f.DL[0].disabled=false;
+		f.DL[1].disabled=false;
+	}
+
+
+}
+// show correct Days
+function adjDate()
+{
+	var f=document.frmTime;
+
+	switch (eval(f.tMON.value))
+	{
+		case 1:
+		case 3:
+		case 5:
+		case 7:
+		case 8:
+		case 10:
+		case 12:
+		  for(i=f.tDAY.length+1;i<=31;i++)
+			 f.tDAY.options[i-1]=new Option(i,i);
+		  break;
+		case 4:
+		case 6:
+		case 9:
+		case 11:
+		  if (f.tDAY.length<=30)
+		  {
+			for(i=f.tDAY.length+1;i<=30;i++)
+			   f.tDAY.options[i-1]=new Option(i,i);
+		  }
+		  else
+		  {
+			for(i=f.tDAY.length;i>30;i--)
+			   f.tDAY.options[i-1]= null;
+		  }
+		  break;
+		case 2:
+		  var days = 28;
+		  if((f.tYEAR.value%4) == 0) days=29;
+	  for(i=f.tDAY.length;i>days;i--)
+			 f.tDAY.options[i-1]= null;
+		  break;
+		default:
+		  alert("some ERRORs in html!!");
+		  break;
+	}
+}
+function Cancel()
+{
+	init();
+	document.frmTime.reset();
+}
+function Help(){
+	window.open("help_tools.htm#sntp","help");
+}
+var d=new Date();
+var myTime=createSysTimeData();
+
+</SCRIPT>
+<link rel=stylesheet type=text/css href=style.css>
+</HEAD>
+
+<BODY leftMargin=0 topMargin=0 onload="init();">
+<script>pageHead();</script>
+
+<form name=frmTime>
+<INPUT type=hidden name=SM>
+<table width=100% border=0 cellpadding=0 cellspacing=2>
+<tr>
+	  <td colspan=2 height=20><font color=#8babc1 face=Arial size=2><b>時間設定</b></font></td>
+</tr>
+<tr>
+	  <td width=20% height=30>目前系統時間 : </td>
+	  <td width=80%><span id="localTime"></span></td>
+</tr>
+<TR>
+
+	  <TD height=20 colSpan=2>裝置對時:</TD>
+</TR>
+<TR>
+	 <TD width="20%" colspan=2><INPUT TYPE=radio name=sync_with value=0 onClick=disRadio(2)>啟動NTP</TD></TR>
+<TR>
+	 <TD width="20%" colspan=2><INPUT TYPE=radio name=sync_with value=1 onClick=disRadio(1)>您的電腦</TD>
+</TR>
+<TR>
+	 <TD width="20%" colspan=2><INPUT TYPE=radio name=sync_with value=2 onClick=disRadio(0)>手動設定裝置日期與時間</TD>
+</TR>
+<tr>
+	  <td colspan="2" height=25><br></td>
+</tr>
+<tr>
+	  <td width=20%>時區</td>
+	  <td>
+	  <select size=1 name="TZ" style="font-size:12" onChange=onChange=DSEnb(this.selectedIndex);>
+	<script>genTimeOpt();</script>
+	  </select>
+	  </td>
+</tr>
+<tr>
+	  <td width=20%>日光節約時間</td>
+	  <td><input type=radio name=DL value=1>啟動<input type=radio name=DL value=0 checked>關閉&nbsp;
+<!--
+			從
+			<select name=SM size=1>
+			<script>show_month_option();</script>
+			</select>
+
+			<select name=SD size=1>
+			<script>show_day_option();</script>
+			</select>
+			到
+			<select name=EM size="1">
+			<script>show_month_option();</script>
+			</select>
+
+			<select name=ED size="1">
+			<script>show_day_option();</script>
+			</select>
+-->
+		  </td>
+</tr>
+<tr>
+	  <td colspan="2" height=25><br></td>
+</tr>
+<tr>
+	  <td colspan="2">自動和 NTP 伺服器對時</td>
+</tr>
+<tr>
+	  <td width=20%>預設 NTP 伺服器</td>
+	  <td><input type=text name=ntp size=25 maxlength=30>(可不填)</td>
+</tr>
+<!--
+<tr>
+	  <td colspan="2" align=right><input type="button" value=立即對時 name=immediately onclick="doSubmit()"></td>
+</tr>
+-->
+<tr>
+	  <td colspan="2" height=25><br></td>
+</tr>
+<tr>
+	  <td width=20% height=26>時間</td>
+	  <td>
+	  年:<select name=tYEAR size=1 style="font-size:12" onChange=adjDate();>
+	  <script>createSelectTagChild(2006,2016,d.getFullYear(),"")</script>
+	  </select>
+	  月:<select name=tMON size=1 style="font-size:12" onChange=adjDate();>
+	  <script>createSelectTagChild(1,12,d.getMonth()+1,"month")</script>
+	  </select>
+	  日:<select size=1 name=tDAY style="font-size:12">
+	  <script>createSelectTagChild(1,31,d.getDate(),"")</script>
+	  </select>
+
+	  </td>
+</tr>
+<tr>
+	  <td width=20% height=26></td>
+	  <td>
+	  時:<select size=1 name=tHOUR style="font-size:12">
+	  <script>createSelectTagChild(0,23,d.getHours(),"")</script>
+	  </select>
+	  分:<select size=1 name=tMIN style="font-size:12">
+	  <script>createSelectTagChild(0,59,d.getMinutes(),"")</script>
+	  </select>
+	  秒:<select size=1 name=tSEC style="font-size:12">
+	  <script>createSelectTagChild(0,59,d.getSeconds(),"")</script>
+	  </select>
+
+	  </td>
+</tr>
+</table>
+</form>
+
+<script>pageButton();</script>
+<script>pageTail();</script>
+</BODY>
+</HTML>

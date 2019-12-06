@@ -1,0 +1,214 @@
+<!-- Copyright 2006, Ralink Technology Corporation All Rights Reserved. -->
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=utf8">
+<link href="css.css" rel="stylesheet" type="text/css">
+<title>Ralink Wireless Access Point</title>
+<SCRIPT language=JavaScript src=lang.js></SCRIPT>
+<SCRIPT language=JavaScript src=wireless.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils_adv.js></SCRIPT>
+<SCRIPT language="JavaScript" type="text/javascript"> 
+
+/*REAL
+<%
+CGI_MAP(WscModeOption2, CFG_WLN_WscConfMode);
+%>
+REAL*/
+
+var wsc_function_enable = "<% CGI_CFG_GET(CFG_WLN_WscConfMode); %>";
+var wsc_configured = "<% CGI_CFG_GET(CFG_WLN_WscConfStatus); %>";
+var wsc_config_state = "<% CGI_GET_WLN_WSC_CONFIG_STATE();%>";
+var wsc_use_proxy = "<% CGI_WLN_WSC_USE_PROXY();%>";
+var wsc_use_internal_reg = "<% CGI_WLN_WSC_USE_INTERNAL_REG();%>";
+
+var wsc_enable;
+var wsc_proxy;
+var wsc_reg;
+
+function initValue()
+{
+	document.getElementById("div_wsc_configure").style.visibility = "hidden";
+	document.getElementById("div_wsc_configure").style.display = "none";
+	document.wireless_simple_config_setup.wsc_proxy.disabled = true;
+	document.wireless_simple_config_setup.wsc_reg.disabled = true;
+
+	if (1*wsc_use_proxy == 0)
+		document.wireless_simple_config_setup.wsc_proxy[0].checked = true;
+	else
+		document.wireless_simple_config_setup.wsc_proxy[1].checked = true;
+
+	if (1*wsc_use_internal_reg == 0)
+		document.wireless_simple_config_setup.wsc_reg[0].checked = true;
+	else
+		document.wireless_simple_config_setup.wsc_reg[1].checked = true;
+
+	if (1*wsc_function_enable != 0)
+	{
+		document.getElementById("div_wsc_configure").style.visibility = "visible";
+		document.getElementById("div_wsc_configure").style.display = "";
+		document.wireless_simple_config_setup.wsc_function_enable.options.selectedIndex = 0;
+	}
+	else
+	{
+		document.wireless_simple_config_setup.wsc_function_enable.options.selectedIndex = 1;
+		document.wireless_simple_config_setup.wsc_proxy[1].checked = true;
+		document.wireless_simple_config_setup.wsc_reg[1].checked = true;
+}
+}
+
+function WscFunctionEnable()
+{
+	document.getElementById("div_wsc_configure").style.visibility = "hidden";
+	document.getElementById("div_wsc_configure").style.display = "none";
+	document.wireless_simple_config_setup.wsc_proxy.disabled = true;
+	document.wireless_simple_config_setup.wsc_reg.disabled = true;
+
+	if (document.wireless_simple_config_setup.wsc_function_enable.options.selectedIndex == 0)
+	{
+		document.getElementById("div_wsc_configure").style.visibility = "visible";
+		document.getElementById("div_wsc_configure").style.display = "";
+	}
+}
+
+function check_configured()
+{
+	if (wsc_configured == 1)
+	{
+		if (1*wsc_config_state == 1)
+			document.write("Unconfigure");
+		else if (1*wsc_config_state == 2)
+			document.write("Configured");
+		else
+			document.write("Unconfigure");
+	}
+	else
+	{
+		if (1*wsc_config_state == 1)
+			document.write("Unconfigure");
+		else if (1*wsc_config_state == 2)
+			document.write("Configured");
+		else
+			document.write("Configured");
+	}
+}
+
+function init()
+{
+	var f=document.LAN;
+	cfg2Form(f);
+}
+
+function Cancel() 
+{
+	init();
+}
+
+function Help()
+{
+	window.open("help_home.htm#lan","help");
+}
+
+function Apply()
+{
+	if (document.wireless_simple_config_setup.wsc_function_enable.options.selectedIndex == 1)
+		document.wireless_simple_config_setup.WscModeOption2.value = 0;
+	else
+	{
+		if (document.wireless_simple_config_setup.wsc_proxy[0].checked == true)
+		{
+			if (document.wireless_simple_config_setup.wsc_reg[0].checked == true)
+				document.wireless_simple_config_setup.WscModeOption2.value = 1;
+			else
+				document.wireless_simple_config_setup.WscModeOption2.value = 5;
+		}
+		else
+		{
+			if (document.wireless_simple_config_setup.wsc_reg[0].checked == true)
+				document.wireless_simple_config_setup.WscModeOption2.value = 3;
+			else
+				document.wireless_simple_config_setup.WscModeOption2.value = 7;
+		}
+	}
+	
+	var f=document.wireless_simple_config_setup;
+	
+	form2Cfg(f);
+
+	subForm(f,'do_cmd.htm','WIRELESS_SIMPLE_CONFIG_SETUP',cPage);
+
+	return;
+}
+
+</script>
+</head>
+
+<link rel=stylesheet type=text/css href=style.css>
+<BODY leftmargin=0 topmargin=0 onload=initValue()>
+
+<TABLE WIDTH=100%>
+  <script>pageHead();</script>
+
+<form method=get name=wireless_simple_config_setup action=wireless_simple_config_setup.html onSubmit="return Apply()">
+	
+	<table width=100% cellspacing=2 cellpadding=0>
+		<tr> 
+			<td colspan=2><font face=Arial color=#8bacb1 size=2><b>Wi-Fi Protected Setup</b></font></td>
+		</tr>
+	</table>
+	
+	<table width = "540" border = "0" cellpadding = "2" cellspacing = "1">
+		<tr align="center">
+			<td><b>Wi-Fi Protected Setup</b></td>
+			<td>
+				<select name="wsc_function_enable" size="1" style="{font-family:arial; width:160px; color:#003366; font-weight: bold; font-size: 9pt;}" onChange="WscFunctionEnable()">
+					<option value=1 selected>Enable</option>
+					<option value=0>Disable</option>
+				</select>
+			</td>
+		</tr>
+	</table>
+	<input type="hidden" name="WscModeOption2">
+	<br>
+	<hr width="540" align="left">
+	<br>
+	<table id="div_wsc_configure" name="div_wsc_configure" width="540" border="1" cellspacing="1" cellpadding="3" vspace="2" hspace="2" bordercolor="#9BABBD">
+	<br>
+		<tr> 
+			<td bgcolor="#B7DCFB" colspan="3"><font color="#333333"><b>WPS Current Status : &nbsp;&nbsp;<script>check_configured();</script>
+																	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+																	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+																	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+																	PinCode : <% CGI_WLN_WSC_PIN_CODE();%></b></font></td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>UUID</td>
+			<td bgcolor="#FFFFFF"><% CGI_WLN_WSC_UUID();%></td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Enable Proxy</td>
+			<td bgcolor="#FFFFFF" colspan="2"><font color="#003366" face=arial><b>
+				<input type=radio name=wsc_proxy value="0">Disabled &nbsp;
+				<input type=radio name=wsc_proxy value="1" checked>Enabled
+			</b></font></td>
+		</tr>
+		<tr> 
+			<td width="45%" bgcolor="#E8F8FF" nowrap>Use Internal Registrar</td>
+			<td bgcolor="#FFFFFF" colspan="2"><font color="#003366" face=arial><b>
+				<input type=radio name=wsc_reg value="0">Disabled &nbsp;
+				<input type=radio name=wsc_reg value="1" checked>Enabled
+			</b></font></td>
+		</tr>
+	</table>
+	<br>
+
+</form>
+
+<script>pageButton();</script>
+<script>pageTail();</script> 
+
+</body>
+</html>

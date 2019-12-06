@@ -1,0 +1,115 @@
+<HTML>
+<HEAD>
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Content-Type" content="text/html; charset=utf8">
+<TITLE>Ralink Wireless Access Point</TITLE>
+<SCRIPT language=JavaScript src=lang.js></SCRIPT>
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT language=JavaScript>
+var lang="config"
+function init(f)
+{
+}
+function configSave(f){
+	
+   f.CCMD.value = 2;	
+   f.action="profile.bin"
+   f.submit() ;
+}
+function loadConfirm(f){
+	//if( !confirm('Load Settings From File ?') )
+	if( !confirm(Alerts[78]) )
+		return;
+	if (f.files.value=="")
+	{
+		alert(Alerts[79]);
+		return ;
+	}	
+	f.CCMD.value = 3;	
+	f.action="do_cmd.htm";	
+	f.encoding="multipart/form-data" ;
+    f.submit()
+}
+function restoreConfirm(f){
+	//if( !confirm('Restore To Factory Default Settings ?') )
+	if( !confirm(Alerts[80]) )	
+		return;
+    f.action="do_cmd.htm";
+   	//f.encoding="multipart/form-data" ;
+   	f.CCMD.value = 1;		
+    f.submit()
+}
+</SCRIPT>
+<link rel=stylesheet type=text/css href=style.css>
+</HEAD>
+
+<BODY leftMargin=0 topMargin=0>
+<script>pageHead();</script>
+<!--
+	<form name=frmSetup method=POST action=do_cmd.htm>
+
+		<INPUT type=hidden name=CMD value=SYS_CONF>
+        <INPUT type=hidden name=GO value=sys_config.htm>
+
+	  <table cellspacing="1" cellpadding="5" width=84% class=text1>
+		<tr>
+		  <td width=4%><input name="CCMD" type="radio" value=0 checked></td>
+		  <td width=56%> Restart System</td>
+		</tr>
+        <tr>
+		  <td><input name="CCMD" type="radio" value=1></td>
+		  <td>Restore Factory Default</td>
+        </tr>
+		<tr>
+		  <td><input name="CCMD" type="radio" value=2></td>
+		  <td> Backup Settings</td>
+		</tr>
+		<tr>
+		  <td><input name="CCMD" type="radio" value=3></td>
+		  <td> Restore Settings</td>
+		</tr>
+		<tr>
+		  <td></td>
+		  <td><input type="file" name="files"></td>
+		</tr>
+	</table>
+-->
+<table width=100% border=0 cellpadding=0 height=383>
+
+<form name=frmSetup method=POST enctype=multipart/form-data>
+<INPUT type=hidden name=CMD value=SYS_CONF>
+<INPUT type=hidden name=GO value=config.htm>
+<INPUT type=hidden name=CCMD value="100">
+<tr>
+      <td height=14 colspan=2><font face=Arial size=2 color=#8bacb1><b><span id=_0>System Settings</span></b></font></td>
+      <!--<td height=30 width=57%><font face=Arial size=2 color=#8bacb1><b>系統設定</b></font></td>-->
+</tr>
+<tr>
+      <td height=20 width=57%><input id=_1 type=button value="Save Settings To Local Hard Drive" name=Save onClick="configSave(document.frmSetup);"></td>
+</tr>
+
+<tr>
+      <td id=_2 height=10>Load Settings From Local Hard Drive</td>
+</tr>
+<tr>
+      <td height=20 width=57%><input type=file name=files></td>
+</tr>
+<tr>
+      <td height=20 width=57%><input id=_3 type="button" value="Load" name=load onclick="loadConfirm(document.frmSetup)"><br><br><br><br></td>
+</tr>
+<tr>
+      <td id=_4 height=20 width=57%>Restore To Factory Default Settings</td>
+</tr>
+<tr>
+      <td  height=20 width=57%><input id=_5 type="button" value="Restore" name=restore onclick="restoreConfirm(document.frmSetup)"></td>
+</tr>
+<tr>
+      <td height=20 colspan=2 align=right><a href=help_tools.htm#system target=help><SCRIPT language=JavaScript>document.write("<img src=\""+langdir[_LM_]+"help_p.jpg\" border=0>")</SCRIPT></a></td>
+</tr>
+</form>
+</table>	
+<script>pageTail();</script>
+<script>chglang();</script>
+</BODY>
+</HTML>

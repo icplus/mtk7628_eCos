@@ -1,0 +1,17 @@
+.btn_n
+{
+	color:#FFFFFF;
+	font-weight: bold;
+	font-size:12px;
+}
+
+.btn_d 
+{
+	color:#000000;
+	font-weight: bold;
+	font-size:12px;
+}
+
+body,pre,p,td,th,ol,ul,li{font-family:Helvetica,Arial,Sans Serif; font-size:9pt;}
+input,select,option{font-family:Helvetica,Arial,Sans Serif; font-size:8pt;}
+A{text-decoration:none;}

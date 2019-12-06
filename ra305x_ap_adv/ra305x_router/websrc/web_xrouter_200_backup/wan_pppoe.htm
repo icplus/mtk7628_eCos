@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ralink Wireless Access Point</title>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<SCRIPT language="JavaScript" src="js/utils.js"></SCRIPT>
+<SCRIPT language="JavaScript" src="js/utils_adv.js"></SCRIPT>
+<SCRIPT language="JavaScript" src="js/spec.js"></SCRIPT>
+<script type="text/javascript" src="js/native/wan_pppoe.js"></script>
+<script type="text/javascript" src="js/native/wan.js"></script>
+<script>
+addCfg("mode",0,"3");
+setCfg("PIDL",getCfg("PIDL")/60);
+
+var __opmode = 1*getCfg("opmode");
+
+function Apply() {
+	var f=document.POE;
+	if (!rangeCheck(f.PMTU,1000,1492,"MTU")) return ;
+	if (!rangeCheck(f.PIDL,0,60,"idle time")) return ;
+	if (isBlank(f.PUN.value)) { alert("Invalid user name"); return ;}
+	if (!strCheck(f.PUN,"user name")) return;
+	if (!strCheck(f.PPW,"user password")) return;
+	if (!chkPwdUpdate(f.PPW,f._ps2,f._changed)) return ;
+
+	if (f.PIPEN[1].checked)
+	{
+		if (!verifyIP2(f.PIP,"IP address")) return ;
+		if (!verifyIP0(f.DS1,"primary DNS address")) return ;
+		if (!verifyIP0(f.DS2,"secondary DNS address")) return ;
+	}
+	if (!verifyMAC(f.WMAC,"MAC address",1)) return ;
+
+	setCfg("DSFIX",evalDnsFix(f.DS1.value,f.DS2.value));
+	if (f.PIPEN[0].checked) setCfg("DSFIX",0); // if dynamic, don't use fix dns
+
+	setCfg("WANT",3);
+	form2Cfg(f);
+	setCfg("PIDL",getCfg("PIDL")*60);
+	subForm(f,'do_cmd.htm','LAN+WAN',cPage);
+} 
+
+function init(){
+	var f=document.POE;
+	var j=document.LAN;
+	cfg2Form(f);
+	cfg2Form(j);
+	if (f.clnEn.value=='1') setCln(f,getCfg("WMAC")); else clrCln(f);
+	clickPOE();
+	
+}
+function clickPOE()
+{
+    var f = document.POE; 
+    var b = ((f.PIPEN[0].checked)? true : false);
+    f.PIP.disabled = f.DS1.disabled = f.DS2.disabled = b; 
+}
+</script>
+
+</head>
+
+<body Onload="init()">
+<script>pageHead();</script>
+
+<FORM name="POE">
+<script>pageWanSel(Number(getCfg("opmode")));</script>
+	<div class="input-group">
+		<input type="text" name="PUN">
+		<label for="">PPPoE User Name</label>
+	</div>
+	<div class="input-group">
+		<input type="password" name="PPW"  value="******" onKeyPress="chkPwd1Chr(PPW,_ps2,_changed);">
+		<label for="">PPPoE User Password</label>
+		<input type="hidden" name="_changed" value="0">
+	</div>
+	<div class="input-group">
+		<input type="password" name="_ps2" value="******" onKeyPress="chkPwd1Chr(PPW,this,_changed);">
+        <label for="">Confirm Password</label>
+	</div>
+<table width="100%" style="display:none;">
+<tr>
+	<td width=34%>&nbsp;</td>
+	<td width=66%>
+	<input type=radio value=0 name=PIPEN onClick=clickPOE()>Dynamic PPPoE 
+	<input type=radio value=1 name=PIPEN onClick=clickPOE()>Static PPPoE
+	</td>
+</tr>
+<tr>
+	<td>IP Address</td>
+	<td><input type=text name=PIP size=16 maxlength=15></td>
+</tr>
+<tr> 
+	<td>MAC Address</td>
+	<td> 
+	<input type=hidden name=clnEn>
+	<input name=WMAC size=2 maxlength=2> -
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2> - 
+	<input name=WMAC size=2 maxlength=2>(Optional) 
+	<input type=button name=cln onClick=clnMac(this.form)>
+	</td>
+</tr>
+<tr>
+	<td>Primary DNS Address</td>
+	<td><input type=text name=DS1 size=16 maxlength=15></td>
+</tr>
+<tr>
+	<td>Secondary DNS Address</td>
+	<td><input type=text name=DS2 size=16 maxlength=15>(Optional)</td>
+</tr>
+<tr>
+	<td>Maximum Idle Time</td>
+	<td><input type=text name=PIDL maxlength=4 size=4>Min</td>
+</tr>
+<tr>
+	<td>MTU</td>
+	<td><input type=text name=PMTU maxlength=4 size=5></td>
+</tr>
+<tr>
+	<td>Connection mode</td>
+	<td>
+	<input type=radio name=PCM value=0>Auto connection
+	<input type=radio name=PCM value=2>Manual connection
+	<input type=radio name=PCM value=1>Connection in use
+	</td>
+</tr>
+</table>
+	<script>pageButton();</script>
+</form>
+<div class="hr"></div>
+<FORM name="LAN">
+	<div class="title">
+		<label>LAN Settings</label>
+	</div>
+	<div class="input-group">
+		<input type="text" name="LANIP" />
+		<label for="">IP Address</label>
+	</div>
+	<div class="input-group">
+		<input type="text" name="LANMSK" />
+		<label for="">Subnet Mask</label>
+	</div>
+	<input type="button" onClick="setLan()" value="Apply" class="btn" name="lanAddress"/>
+</form>
+<script>pageTail();</script>
+</BODY>
+</HTML>

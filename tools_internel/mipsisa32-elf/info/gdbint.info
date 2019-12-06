@@ -1,0 +1,90 @@
+This is gdbint.info, produced by makeinfo version 4.8 from
+../.././gdb/doc/gdbint.texinfo.
+
+INFO-DIR-SECTION Software development
+START-INFO-DIR-ENTRY
+* Gdb-Internals: (gdbint).	The GNU debugger's internals.
+END-INFO-DIR-ENTRY
+
+   This file documents the internals of the GNU debugger GDB.
+Copyright (C) 1990, 1991, 1992, 1993, 1994, 1996, 1998, 1999, 2000,
+2001,    2002, 2003, 2004, 2005, 2006, 2008    Free Software
+Foundation, Inc.  Contributed by Cygnus Solutions.  Written by John
+Gilmore.  Second Edition by Stan Shebs.
+
+   Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts.  A copy of the license is included in the section entitled "GNU
+Free Documentation License".
+
+
+Indirect:
+gdbint.info-1: 911
+gdbint.info-2: 293094
+
+Tag Table:
+(Indirect)
+Node: Top911
+Node: Requirements1791
+Node: Overall Structure3279
+Node: Algorithms8215
+Node: User Interface40081
+Ref: User Interface-Footnote-163873
+Ref: User Interface-Footnote-263922
+Node: libgdb64157
+Node: Stack Frames68114
+Node: Symbol Handling72657
+Node: Language Support88212
+Node: Host Definition93613
+Node: Target Architecture Definition100696
+Node: OS ABI Variant Handling101515
+Node: Initialize New Architecture106359
+Node: Registers and Memory107930
+Node: Pointers and Addresses108722
+Ref: Pointers and Addresses-Footnote-1114749
+Node: Address Classes114992
+Node: Raw and Virtual Registers118258
+Node: Register and Memory Data123144
+Node: Frame Interpretation126574
+Node: Inferior Call Setup126775
+Node: Compiler Characteristics126974
+Node: Target Conditionals127184
+Ref: gdbarch_breakpoint_from_pc131911
+Ref: frame_align138480
+Ref: DEPRECATED_FRAME_SAVED_PC140846
+Ref: gdbarch_unwind_pc141029
+Ref: gdbarch_unwind_sp141599
+Ref: gdbarch_stabs_argument_has_addr151628
+Ref: gdbarch_push_dummy_call152133
+Ref: gdbarch_push_dummy_code152749
+Ref: gdbarch_return_value153945
+Ref: gdbarch_write_pc158867
+Ref: TARGET_READ_SP158901
+Ref: gdbarch_dummy_id160638
+Node: Adding a New Target162068
+Node: Target Descriptions164325
+Node: Target Descriptions Implementation165264
+Node: Adding Target Described Register Support166638
+Node: Target Vector Definition169584
+Node: Managing Execution State170116
+Node: Existing Targets171929
+Node: Native Debugging174250
+Node: Support Libraries182875
+Node: Coding194389
+Node: Porting GDB219365
+Node: Versions and Branches221274
+Ref: Tags227234
+Ref: experimental branch tags227565
+Node: Start of New Year Procedure228297
+Node: Releasing GDB229646
+Node: Testsuite247986
+Node: Hints255265
+Node: Getting Started255587
+Node: Debugging GDB259730
+Node: GDB Observers265657
+Node: GNU Free Documentation License270650
+Node: Index293094
+
+End Tag Table

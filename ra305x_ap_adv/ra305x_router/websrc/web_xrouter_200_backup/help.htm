@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+<TITLE>Ralink Wireless Access Point</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=big5">
+<SCRIPT language=JavaScript src=utils.js></SCRIPT>
+<SCRIPT language=JavaScript src=spec.js></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">
+
+/*DEMO*/
+addCfg("opmode",100,"3");
+/*END_DEMO*/
+/*REAL
+<%
+CGI_MAP(opmode, CFG_SYS_OPMODE);
+%>
+REAL*/
+var __opmode = 1*getCfg("opmode");
+
+function init(t)
+{
+}
+
+</SCRIPT>
+<link rel=stylesheet type=text/css href=style.css>
+</HEAD>
+
+<BODY leftMargin=0 topMargin=0 MARGINHEIGHT=0 MARGINWIDTH=0 onload="init(document.frmSetup);">
+<script>pageHead();</script>
+
+
+  
+<TABLE WIDTH=75% BORDER=0 CELLSPACING=0 CELLPADDING=0>
+<TR><TD><FONT SIZE=4><B>Home</B></FONT></TD></TR>
+<TR><TD>
+<UL>
+<LI><A TARGET=help HREF=help_home.htm#wiz>Wizard</A></LI>
+<LI><A TARGET=help HREF=help_home.htm#wan>WAN</A></LI>
+<LI><A TARGET=help HREF=help_home.htm#lan>LAN</A></LI>
+<LI><A TARGET=help HREF=help_home.htm#dhcp>DHCP</A></LI>
+<LI><A TARGET=help HREF=help_home.htm#wlan>Wireless</A></LI>
+</UL>
+</TD></TR>
+<TR><TD><FONT SIZE=4><B>Advanced</B></FONT></TD></TR>
+<TR><TD>
+<UL>
+<LI><A TARGET=help HREF=help_adv.htm#smap>Virtual Server</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#spap>Applications</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#pf>Filters</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#frwl>Firewall</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#ddns>DDNS</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#dmzh>DMZ</A></LI>
+
+<LI><A TARGET=help HREF=help_adv.htm#wifibs>Wi-Fi Basic Setup</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#wifias>Wi-Fi Advanced Setup</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#wifibas>Wi-Fi Block Ack Setup</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#wifiss>Wi-Fi Security Setup</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#wpscs>WPS Configuration Setup</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#wpsdc>WPS Device Configure</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#wpsrc>WPS Reset Configuration</A></LI>
+<LI><A TARGET=help HREF=help_adv.htm#apc>AP-Client Configuration Setup</A></LI>
+</UL>
+</TD></TR>
+<TR><TD><FONT SIZE=4><B>Tools</B></FONT></TD></TR>
+<TR><TD>
+<UL>
+<LI><A TARGET=help HREF=help_tools.htm#adm>Admin</A></LI>
+<LI><A TARGET=help HREF=help_tools.htm#sntp>Time</A></LI>
+<LI><A TARGET=help HREF=help_tools.htm#system>System</A></LI>
+<LI><A TARGET=help HREF=help_tools.htm#fwug>Firmware</A></LI>
+<LI><A TARGET=help HREF=help_tools.htm#misc>Misc.</A></LI>
+</UL>
+</TD></TR>
+<TR><TD><FONT SIZE=4><B>Status</B></FONT></TD></TR>
+<TR><TD>
+<UL>
+<LI><A TARGET=help HREF=help_status.htm#status>Device info</A></LI>
+<LI><A TARGET=help HREF=help_status.htm#syslog>Log</A></LI>
+<LI><A TARGET=help HREF=help_status.htm#stats>Stats</A></LI>
+</UL>
+</TD></TR>
+<TR><TD><B><A TARGET=help HREF=help_faq.htm><FONT COLOR=#0 SIZE=4>FAQs</A></B></TD></TR>
+</TABLE>
+
+<script>pageTail();</script>
+</BODY>
+</HTML>
